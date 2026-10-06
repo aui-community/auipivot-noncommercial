@@ -1,0 +1,208 @@
+@charset "UTF-8";
+
+/* 정식 데모의 기본 스타일입니다. data-demo-layout="custom"인 개발 페이지는
+   원래의 개별 배치를 유지하고 아래 코드/저작권 공통 스타일만 사용합니다. */
+body:where(:not([data-demo-layout="custom"])),
+:where(body:not([data-demo-layout="custom"])) p,
+:where(body:not([data-demo-layout="custom"])) h1,
+:where(body:not([data-demo-layout="custom"])) h2,
+:where(body:not([data-demo-layout="custom"])) h3,
+:where(body:not([data-demo-layout="custom"])) h4,
+:where(body:not([data-demo-layout="custom"])) h5,
+:where(body:not([data-demo-layout="custom"])) h6,
+:where(body:not([data-demo-layout="custom"])) ul,
+:where(body:not([data-demo-layout="custom"])) ol,
+:where(body:not([data-demo-layout="custom"])) li,
+:where(body:not([data-demo-layout="custom"])) dl,
+:where(body:not([data-demo-layout="custom"])) dt,
+:where(body:not([data-demo-layout="custom"])) dd,
+:where(body:not([data-demo-layout="custom"])) form,
+:where(body:not([data-demo-layout="custom"])) fieldset,
+:where(body:not([data-demo-layout="custom"])) legend,
+:where(body:not([data-demo-layout="custom"])) input,
+:where(body:not([data-demo-layout="custom"])) textarea,
+:where(body:not([data-demo-layout="custom"])) button,
+:where(body:not([data-demo-layout="custom"])) select {
+	margin: 0;
+	padding: 0;
+}
+body:where(:not([data-demo-layout="custom"])) {
+	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
+	font-size: 14px;
+	line-height: 1.25em;
+	vertical-align: middle;
+}
+body:where(:not([data-demo-layout="custom"])) {
+	position: relative;
+	color: #000;
+	-webkit-text-size-adjust: none;
+}
+:where(body:not([data-demo-layout="custom"])) img,
+:where(body:not([data-demo-layout="custom"])) fieldset {
+	border: 0;
+}
+:where(body:not([data-demo-layout="custom"])) ul,
+:where(body:not([data-demo-layout="custom"])) ol {
+	list-style: none;
+}
+:where(body:not([data-demo-layout="custom"])) em,
+:where(body:not([data-demo-layout="custom"])) address {
+	font-style: normal;
+}
+:where(body:not([data-demo-layout="custom"])) pre,
+:where(body:not([data-demo-layout="custom"])) xmp {
+	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
+	font-size: 12px;
+	line-height: 1.2em;
+}
+
+:where(body:not([data-demo-layout="custom"])) .btn {
+	color: #fff;
+	background-color: #2a2d33;
+	border: 1px solid #2a2d33;
+	background-clip: padding-box;
+	display: inline-block;
+	padding: 0.65em 1.5em;
+	line-height: 0.933em;
+	transition-property: background-color, color;
+	transition-duration: 0.2s;
+	transition-timing-function: ease;
+	border-radius: 0px;
+	appearance: none;
+	-webkit-appearance: none;
+	font-size: 1em;
+	font-weight: bold;
+	text-align: center;
+	margin: 0.5em 0.5em;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+:where(body:not([data-demo-layout="custom"])) .btn:hover {
+	background-color: #505156;
+}
+
+:where(body:not([data-demo-layout="custom"])) .tabe_item {
+	width: 200px;
+	cursor: pointer;
+	display: inline-block;
+	margin-bottom: 0px;
+	padding: 0.75em 2em;
+	line-height: 1.2;
+	color: #000;
+	appearance: none;
+	-webkit-appearance: none;
+	font-weight: bold;
+	text-align: center;
+}
+:where(body:not([data-demo-layout="custom"])) .tabe_item_selected {
+	z-index: 2;
+	border: 1px solid #565e60;
+	border-bottom: none;
+	color: #565e60;
+	cursor: default;
+}
+
+:where(body:not([data-demo-layout="custom"])) .wrap {
+	max-width: 1420px;
+	margin: 0 auto;
+}
+
+:where(body:not([data-demo-layout="custom"])) .desc {
+	padding: 10px 0 10px 0;
+	font-size: 1em;
+}
+
+:where(body:not([data-demo-layout="custom"])) .desc p {
+	margin: 0.5em 0;
+}
+
+:where(body:not([data-demo-layout="custom"])) #footer {
+	margin-top: 40px;
+	background-color: #2a2d33;
+	text-align: right;
+	height: 30px;
+	color: #ffffff;
+}
+:where(body:not([data-demo-layout="custom"])) .copyright {
+	font-size: 0.8em;
+	margin-right: 20px;
+	padding-top: 5px;
+}
+
+/* 공통 안내는 첫 줄에 배치하고, 출력 설명은 별도 상자 없이 기존 안내 문단에 이어 표시합니다. */
+:where(body:not([data-demo-layout="custom"])) .demo-navigation {
+	padding: 12px 10px;
+	border-bottom: 1px solid #e1e6ec;
+	font-size: 13px;
+	line-height: 1.7;
+}
+:where(body:not([data-demo-layout="custom"])) .demo-navigation a {
+	color: #246caa;
+	text-decoration: underline;
+}
+:where(body:not([data-demo-layout="custom"])) .demo-load-error,
+:where(body:not([data-demo-layout="custom"])) .demo-data-exception {
+	padding: 10px;
+	background: #fafafa;
+	color: #704300;
+}
+
+
+/* demo-code 클래스가 있는 설정 예제에만 적용하며 긴 코드만 스크롤합니다. */
+.desc pre.demo-code {
+	box-sizing: border-box;
+	max-width: 100%;
+	max-height: 300px;
+	margin: 8px 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	overflow: auto;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	tab-size: 4;
+}
+
+/* 키보드로 긴 예제를 스크롤할 때 현재 초점이 보이도록 합니다. */
+.desc pre.demo-code:focus-visible {
+	outline: 2px solid #2776ad;
+	outline-offset: 2px;
+}
+
+
+/* 공식 데모의 하단 규격을 공유합니다. 페이지별 글꼴, 문단 스타일이 저작권 영역에 섞이지 않게 합니다. */
+#footer.demo-footer {
+	box-sizing: border-box;
+	display: block;
+	clear: both;
+	width: 100%;
+	height: 30px;
+	margin: 40px 0 0;
+	padding: 0;
+	border: 0;
+	background-color: #2a2d33;
+	color: #ffffff;
+	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
+	font-size: 14px;
+	line-height: 17.5px;
+	text-align: right;
+}
+
+#footer.demo-footer .copyright {
+	margin: 0 20px 0 0;
+	padding: 5px 0 0;
+	font-size: 11.2px;
+	line-height: 17.5px;
+}
+
+#footer.demo-footer p {
+	margin: 0;
+	padding: 0;
+}
+
+#footer.demo-footer a {
+	color: #b2ccff;
+	text-decoration: underline;
+}

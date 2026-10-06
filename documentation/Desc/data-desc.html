@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta content="text/javascript" http-equiv="Content-Script-Type">
+    <meta content="text/css" http-equiv="Content-Style-Type">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta content="AUIPivot API Documentation" name="apple-mobile-web-app-title">
+    <meta content="AUIPivot API Documentation" property="og:title">
+    <meta content="https://www.auisoft.net/documentation/auipivot" property="og:url">
+    <meta content="AUIPivot API Documentation" property="og:description">
+    <meta content="AUIPivot API Documentation" name="keywords">
+    <title> AUIPivot Documentation</title>
+
+    <!-- This project uses Prism.js (https://prismjs.com/)  Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+
+<link rel="stylesheet" href="../static/prism.css">
+<link rel="stylesheet" href="../static/style.css">
+<link rel="stylesheet" href="../static/typography.css">
+<link rel="stylesheet" href="../static/code-examples.css">
+<script src="../static/prism.js" data-manual></script>
+<script src="../static/code-examples.js"></script>
+
+<link rel="icon" href="../static/favicon.ico" sizes="any">
+<link rel="icon" href="../static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../static/apple-touch-icon.png">
+<meta name="theme-color" content="#222729">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../static/docs-brand.css">
+</head>
+
+<body class="demo-typography docs-site">
+    <header class="docs-header"><div class="docs-header-inner">
+    <a id="logo-bar" class="docs-brand" href="https://www.auisoft.net/" aria-label="AUISoft 홈페이지">
+      <img src="../static/favicon.svg" width="40" height="40" alt="">
+      <span>AUISoft<small>에이유아이소프트</small></span>
+    </a>
+    <span id="title" class="docs-context">AUIPivot 2.7 Documentation</span>
+    <nav class="docs-navigation" aria-label="주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav>
+    <details class="docs-mobile-navigation"><summary>메뉴</summary><nav aria-label="모바일 주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav></details>
+  </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">2. AUIPivot 데이터 바인딩 및 피벗 그리드의 이해에 대하여</span></nav>
+
+    <div class="MainContent">
+
+        <h1>2. AUIPivot 데이터 바인딩 및 피벗 그리드의 이해에 대하여</h1>
+
+        <h2>2.1 AUIPivot과 OLAP 개념</h2>
+        <p> AUIPivot 그리드는 사용자 관점에서 데이터를 다차원적으로 분석할 수 있게 하는 <strong>OLAP (On-Line Analytical Processing)</strong> 도구입니다.</p>
+        <p>사용자는 원시 데이터(source data)를 통해 다양한 차원(dimension)에서 데이터를 분석하며, 복잡한 집계 정보를 직관적으로 얻을 수 있습니다. </p>
+
+        <h2>2.2 차원의 개념: Rows, Columns, Values, Filters</h2>
+        <p>AUIPivot은 다음의 4가지 차원을 기반으로 피벗 큐브(pivot cube)를 구성합니다.</p>
+        <ul>
+            <li><strong>행 (Rows)</strong>: 데이터를 수직 방향으로 그룹핑하는 기준</li>
+            <li><strong>열 (Columns)</strong>: 데이터를 수평 방향으로 그룹핑하는 기준</li>
+            <li><strong>값 (Values)</strong>: 집계 대상이 되는 수치형 데이터 필드</li>
+            <li><strong>필터 (Filters)</strong>: 조건에 따라 포함/제외할 데이터 기준 필드</li>
+        </ul>
+        <p><em>피벗 큐브 = 원시 데이터 + 차원 정보 (행, 열, 값, 필터)</em></p>
+
+        <h2>2.3 피벗 필드 정의 예시</h2>
+        <pre><code class="language-javascript">// 행 필드
+AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+// 열 필드
+AUIPivot.setColumnFields(myPivotID, ["DATE_HALF", "DATE_QTR", "DATE_MONTH"]);
+// 값 필드
+AUIPivot.setValueFields(myPivotID, [{ "dataField": "TOTAL", "operation": "SUM" }]);
+// 필터 필드
+AUIPivot.setFilterFields(myPivotID, ["COLOR"]);
+</code></pre>
+
+        <h2>2.4 원시 데이터 구조 (Raw Data)</h2>
+        <p>AUIPivot은 <strong>Flat JSON Array</strong> 구조의 데이터를 입력값으로 받습니다.</p>
+        <pre><code class="language-javascript">[
+  { "category": "전자", "region": "서울", "month": "2024-01", "sales": 120000 },
+  { "category": "전자", "region": "부산", "month": "2024-01", "sales": 80000 },
+  { "category": "가전", "region": "서울", "month": "2024-01", "sales": 65000 }
+]</code></pre>
+
+        <h2>2.5 피벗 원시 데이터 삽입 예시</h2>
+        <pre><code class="language-javascript">// 원시 데이터 요청
+fetch("./data/sales_data.json")
+  .then(res => res.json())
+  .then(data => {
+    // 피봇 그리드에  원시 데이터 삽입
+	AUIPivot.setGridData(myPivotID, data);
+});</code></pre>
+
+        <h2>2.6 요약</h2>
+        <table class="browser_table">
+            <thead>
+                <tr>
+                    <th>개념</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>원시 데이터</td>
+                    <td>분석 대상이 되는 JSON 배열 형태 데이터</td>
+                </tr>
+                <tr>
+                    <td>행</td>
+                    <td>수직 그룹핑 기준</td>
+                </tr>
+                <tr>
+                    <td>열</td>
+                    <td>수평 분할 기준</td>
+                </tr>
+                <tr>
+                    <td>값</td>
+                    <td>합계/평균/개수 등을 수행할 대상 필드</td>
+                </tr>
+                <tr>
+                    <td>필터</td>
+                    <td>조건 필터링용 기준 필드</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>AUIPivot은 원시 데이터와 피벗 정의만으로 분석 UI를 제공합니다.</p>
+
+    </div>
+<footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body>
+
+</html>

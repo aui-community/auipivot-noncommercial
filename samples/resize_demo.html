@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css" />
+        <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
+        <script>
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 시작점: 창이 표시된 크기로 피벗을 만든 뒤 자료를 요청합니다.
+            function init() {
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 정적 JSON을 읽은 뒤 이 데모의 필드 설정과 데이터를 적용합니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        initPivotData(data);
+                    })
+                    .catch(function (error) {
+                        alert(error.message);
+                    });
+            }
+
+            // 리사이즈할 때 예약 번호를 다시 저장하므로 기존 let 선언을 유지합니다.
+            let timerId = null;
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid() {
+                // 이동과 크기 조절을 보여 주는 창을 먼저 표시합니다.
+                $("#dialog").dialog({
+                    autoOpen: true,
+                    width: 830,
+                    height: 480,
+                    minWidth: 300,
+                    minHeight: 300,
+
+                    show: {
+                        effect: "blind",
+                        duration: 700
+                    },
+
+                    hide: {
+                        effect: "explode",
+                        duration: 700
+                    },
+
+                    // 리사이징 시 똑같이 그리드도 리사이징 하기
+                    resize: function (event, ui) {
+                        if (AUIPivot.isCreated(myPivotID)) {
+                            // 32ms 보다 빠르게 리사이징 된다면..
+                            if (timerId !== null) {
+                                clearTimeout(timerId);
+                                timerId = null;
+                            }
+
+                            timerId = setTimeout(function () {
+                                // 그리드 리사이징
+                                if (myPivotID) {
+                                    AUIPivot.resize(myPivotID, ui.size.width - 30, ui.size.height - 68);
+                                }
+                            }, 32); // 현재 32ms 민감도. 환경에 맞게 조절하세요.
+                        }
+                    }
+                });
+
+                // 피봇 그리드 속성 설정
+                const pivotProps = {
+                    layoutType: "table",
+                    // 기본 포맷 스트링
+                    defaultFormatString: "#,##0",
+                    // 너비
+                    width: 800,
+                    // 높이
+                    height: 412
+                };
+
+                // 실제로 #pivot_wrap 에 그리드 생성
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+            }
+
+            //피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+            function initPivotData(data) {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["COLOR"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(myPivotID, [
+                    {
+                        "dataField": "TOTAL",
+                        "operation": "SUM"
+                    },
+                    {
+                        "dataField": "COUNT",
+                        "operation": "SUM"
+                    }
+                ]);
+
+                // 피봇그리드에 데이터 삽입
+                AUIPivot.setGridData(myPivotID, data);
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>피벗 위치와 크기 조절</h1>
+                    <code class="demo-api-label">resize</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <!--  jQuery UI Dialog 정의 -->
+            <div id="dialog" title="Movable & Resizable AUIPivot with jQuery UI" style="display: none">
+                <!--  여기에 그리드가 생성됩니다. -->
+                <div id="pivot_wrap"></div>
+            </div>
+        </div>
+    </body>
+</html>

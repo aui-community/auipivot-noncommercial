@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AUIPivot 비상업용 CDN 시작 예제</title>
+  <!-- AUIPivot 스타일 -->
+  <link href="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot_style.css" rel="stylesheet" crossorigin="anonymous" />
+  <!-- AUIPivot 라이선스 -->
+  <script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivotLicense.js"></script>
+  <!-- AUIPivot 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot.js"></script>
+  <!-- AUIPivot 한국어 메시지 -->
+  <script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/messages/AUIPivot.messages.kr.js"></script>
+  <style>
+    body { margin: 24px auto; padding: 0 16px; max-width: 1200px; color: #222729; font: 14px/1.5 Pretendard, "Segoe UI", Arial, sans-serif; }
+    h1 { font-size: 28px; }
+    a { color: #337ab7; }
+    .report { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; }
+    #pivot, #pivot_panel { height: 460px; min-width: 0; }
+    #panel_host { min-width: 0; position: relative; }
+    #status { min-height: 21px; }
+    @media (max-width: 800px) { .report { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+  <h1>비상업용 CDN으로 피벗 만들기</h1>
+  <p>판매 지점과 차종별 매출액을 색상별로 집계합니다. 오른쪽 필드 패널에서 필드를 끌어 분석 기준을 바꾸어 보세요.</p>
+  <p>비상업용 목적의 localhost 또는 127.0.0.1 웹 서버에서 실행합니다. CDN 파일을 불러올 때 인터넷 연결이 필요합니다.</p>
+  <p>localhost, 127.0.0.1 외의 접속 도메인이나 IP에서는 <a href="https://www.auisoft.net/dcenter.html">30일 평가판</a>을 제공합니다.
+    정품과 동일한 기능으로 사전 평가, 적합성 검토(PoC), 테스트에 사용할 수 있습니다. 외부 서버에서 평가할 때는 CDN 경로를 내려받은 평가판 파일 경로로 바꾸세요.</p>
+  <p><a href="https://www.auisoft.net/documentation/auipivot/Desc/noncommercial.html">CDN 연결과 사용 조건</a></p>
+  <p id="status" role="status">피벗을 준비하고 있습니다.</p>
+  <div class="report">
+    <div id="pivot" aria-label="자동차 판매 보고서"></div>
+    <div id="panel_host"><div id="pivot_panel" aria-label="피벗 필드 패널"></div></div>
+  </div>
+  <script>
+  let pivotId;
+  // 공식 자동차 판매 JSON의 첫 8건입니다. HTML 하나로 실행하도록 실제 데이터를 포함했습니다.
+  const rows = [
+    {"REGION": "춘천 지점", "NAME": "산타페", "MODEL": "e-VGT R2.2", "COLOR": "Yellow", "PRICE": 3058000, "COUNT": 3, "TOTAL": 9174000, "DATE": "2024/01/01"},
+    {"REGION": "포항 지점", "NAME": "아반테", "MODEL": "1.6 GDi", "COLOR": "Gray", "PRICE": 1384000, "COUNT": 1, "TOTAL": 1384000, "DATE": "2024/01/01"},
+    {"REGION": "인천 지점", "NAME": "소나타", "MODEL": "1.6 Turbo GDi", "COLOR": "Yellow", "PRICE": 2376000, "COUNT": 2, "TOTAL": 4752000, "DATE": "2024/01/01"},
+    {"REGION": "부산 지점", "NAME": "산타페", "MODEL": "e-VGT R2.2", "COLOR": "Gray", "PRICE": 3058000, "COUNT": 1, "TOTAL": 3058000, "DATE": "2024/01/01"},
+    {"REGION": "광주 지점", "NAME": "그랜저", "MODEL": "더 타임리스", "COLOR": "Yellow", "PRICE": 3680000, "COUNT": 3, "TOTAL": 11040000, "DATE": "2024/01/01"},
+    {"REGION": "인천 지점", "NAME": "소나타", "MODEL": "1.6 Turbo GDi", "COLOR": "Black", "PRICE": 2376000, "COUNT": 1, "TOTAL": 2376000, "DATE": "2024/01/01"},
+    {"REGION": "광주 지점", "NAME": "산타페", "MODEL": "e-VGT R2.2", "COLOR": "Blue", "PRICE": 3058000, "COUNT": 2, "TOTAL": 6116000, "DATE": "2024/01/01"},
+    {"REGION": "대전 지점", "NAME": "산타페", "MODEL": "e-VGT R2.2", "COLOR": "Gray", "PRICE": 3058000, "COUNT": 3, "TOTAL": 9174000, "DATE": "2024/01/01"}
+  ];
+
+  // 로컬 웹 서버에서 페이지를 열면 피벗을 생성하고 집계할 데이터를 넣습니다.
+  function init() {
+    const status = document.getElementById("status");
+    if (location.protocol === "file:") {
+      status.textContent = "로컬 웹 서버로 실행하고 http://localhost:포트/ 또는 http://127.0.0.1:포트/로 접속하세요.";
+      return;
+    }
+    if (!window.AUIPivot) {
+      status.textContent = "CDN 파일을 불러오지 못했습니다. 인터넷 연결과 CDN 주소를 확인하세요.";
+      return;
+    }
+    createPivotGrid();
+    AUIPivot.setGridData(pivotId, rows);
+  }
+
+  // 피벗과 필드 패널을 만들고 행, 열, 값의 초기 분석 기준을 지정합니다.
+  function createPivotGrid() {
+    const pivotProps = {
+      layoutType: "tree", height: 460, pivotPanelId: "#pivot_panel",
+      // 좁은 화면에서는 패널이 보고서 아래로 배치되도록 페이지 레이아웃 안에 고정합니다.
+      movableFieldPanel: false, resizableFieldPanel: false
+    };
+    pivotId = AUIPivot.create("#pivot", pivotProps);
+    AUIPivot.setFieldAlias(pivotId, {
+      REGION: "판매 지점", NAME: "차종", MODEL: "모델", COLOR: "색상",
+      PRICE: "가격", COUNT: "판매 대수", TOTAL: "매출액", DATE: "판매일"
+    });
+    AUIPivot.setRowFields(pivotId, ["REGION", "NAME"]);
+    AUIPivot.setColumnFields(pivotId, ["COLOR"]);
+    AUIPivot.setValueFields(pivotId, [{ dataField: "TOTAL", operation: "SUM", formatString: "#,##0" }]);
+    // 필드를 이동하거나 필터를 바꾼 뒤에도 집계 완료를 안내합니다.
+    AUIPivot.bind(pivotId, "pivotComplete", function () {
+      document.getElementById("status").textContent = "자동차 판매 " + rows.length + "건을 집계했습니다.";
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+  // 화면 너비에 맞춰 피벗의 표시 영역을 다시 계산합니다.
+  window.addEventListener("resize", function () {
+    if (!pivotId) return;
+    AUIPivot.resize(pivotId);
+    AUIPivot.resizePivotPanel(pivotId, document.getElementById("panel_host").clientWidth, 460);
+  });
+  </script>
+</body>
+</html>

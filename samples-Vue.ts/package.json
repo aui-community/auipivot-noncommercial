@@ -1,0 +1,27 @@
+{
+  "name": "auipivot-vue-ts-samples",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "type-check": "vue-tsc --noEmit",
+    "build": "npm run type-check && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "aui-pivot": "1.0.0",
+    "file-saver": "^2.0.5",
+    "prismjs": "^1.30.0",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/prismjs": "^1.26.6",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.0.4",
+    "vue-tsc": "~3.1.0"
+  },
+  "type": "module"
+}

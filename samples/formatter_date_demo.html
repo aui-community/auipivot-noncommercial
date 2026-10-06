@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <script>
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 시작점
+            function init() {
+                // AUIPivot 을 생성합니다.
+                createPivotGrid();
+
+                // 피벗에 적용할 정적 자동차 판매 자료를 요청합니다.
+                requestData("./data/car_sales.json");
+            }
+
+            // 정적 JSON을 읽은 뒤 이 데모의 필드 설정과 데이터를 적용합니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        initPivotData(data);
+                    })
+                    .catch(function (error) {
+                        alert(error.message);
+                    });
+            }
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid() {
+                // 피봇 그리드 속성 설정
+                const pivotProps = {
+                    layoutType: "table",
+                    // 피벗 패널 사용을 위해 피벗 패널이 생성될 DIV 의 아이디를 지정함.
+                    pivotPanelId: "#pivot_panel",
+                    // 피벗 보고서의 숫자의 기본 포맷 스트링 설정
+                    defaultFormatString: "#,##0"
+                };
+
+                // 실제로 #pivot_wrap 에 그리드 생성
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+            }
+
+            //피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+            function initPivotData(data) {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["DATE_HALF", "DATE"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["REGION", "NAME"]);
+
+                // 값 필드
+                // 개별적인 값 필드의 숫자 포맷 지정하기
+                // 만약 지정하지 않으면 defaultFormatString 이 사용됨
+                AUIPivot.setValueFields(myPivotID, [
+                    {
+                        "dataField": "TOTAL",
+                        "operation": "AVG"
+                    }
+                ]);
+
+                // 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+
+                // 데이터 중 날짜 필드 포맷팅 지정하기
+                AUIPivot.setDateFormatString(myPivotID, {
+                    "DATE": "yyyy년 mm월 dd일" // DATE 필드는 2019년 01월 01일 형식으로 포맷팅함.
+                });
+
+                // 필드 별칭(alias) 설정
+                AUIPivot.setFieldAlias(myPivotID, {
+                    "REGION": "판매 지점",
+                    "NAME": "차종",
+                    "MODEL": "모델",
+                    "COLOR": "색상",
+                    "PRICE": "가격",
+                    "COUNT": "판매 대수",
+                    "TOTAL": "매출액",
+                    "DATE": "일",
+                    "DATE_YEAR": "년",
+                    "DATE_HALF": "반기",
+                    "DATE_QTR": "분기",
+                    "DATE_MONTH": "월"
+                });
+
+                // 피봇그리드에 데이터 삽입
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 사용자가 피벗 패널을 닫은 경우 다시 열도록 함.
+            function showPivoPanel() {
+                if (AUIPivot.getPivotPanelState(myPivotID) === "shown") {
+                    AUIPivot.hidePivotPanel(myPivotID);
+                    return;
+                }
+                AUIPivot.showPivotPanel(myPivotID);
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>날짜 표시 형식</h1>
+                    <code class="demo-api-label">setDateTypeField</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>
+                        행 차원 또는 열 차원에 날짜 필드를 설정한 경우 날짜 필드를 어떻게 포맷팅하는지 보여주는
+                        데모입니다.
+                    </p>
+                    <pre>
+	// 데이터 중 날짜 필드 포맷팅 지정하기
+	AUIPivot.setDateFormatString(myPivotID, {
+		"DATE" : "yyyy년 mm월 dd일" // DATE 필드는 2019년 01월 01일 형식으로 포맷팅함.
+	});
+</pre>
+                </div>
+                <div style="position: relative">
+                    <!-- AUIPivot 그리드가 이곳에 생성됩니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 500px"></div>
+                    <!-- AUIPivot 피벗 필드 패널이 이곳에 생성됩니다. -->
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 500px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+                <div id="desc">
+                    <p>날짜(Date) 포맷 스트링은 다음과 같습니다.</p>
+                    <ul style="list-style: square; list-style-position: inside">
+                        <li>yy : 연(Year) 2자리로 표현(예:15)</li>
+                        <li>yyyy : 연(Year) 4자리로 표현(예:2015)</li>
+                        <li>m : 월(Month) 1자리로 표현</li>
+                        <li>mm : 월(Month) 2자리로 표현</li>
+                        <li>mmm : 월(Month) 영문 이름 3자리로 표현(예:Jan)</li>
+                        <li>mmmm : 월(Month) 영문 전체 이름으로 표현(예:January)</li>
+                        <li>d : 날짜(Day) 1자리수로 표현(예:1)</li>
+                        <li>dd : 날짜(Day) 2자리수로 표현(예:01)</li>
+                        <li>ddd : 한글 요일로 표현(예:월, 화, 수)</li>
+                        <li>dddd : 영문 요일 3자리 이름으로 표현(예:Mon, Tue)</li>
+                        <li>h : 시(Hours) 12시간제 1자리로 표현</li>
+                        <li>hh : 시(Hours) 12시간제 2자리로 표현</li>
+                        <li>H : 시(Hours) 24시간제 1자리로 표현</li>
+                        <li>HH : 시(Hours) 24시간제 2자리로 표현</li>
+                        <li>M : 분(Minutes) 1자리로 표현</li>
+                        <li>MM : 분(Minutes) 2자리로 표현</li>
+                        <li>s : 초(Seconds) 1자리로 표현</li>
+                        <li>ss : 초(Seconds) 2자리로 표현</li>
+                        <li>t : 오전, 오후를 한글로 표현(예: 오전, 오후)</li>
+                        <li>tt : 오전, 오후를 am 또는 pm으로 표현</li>
+                        <li>T : 오전, 오후를 A 또는 P로 표현</li>
+                        <li>TT : 오전, 오후를 AM 또는 PM으로 표현</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="footer">
+                <div class="copyright">
+                    <p>
+                        Copyright © AUISoft Co., Ltd.
+                        <a href="https://www.auisoft.net" target="_blank" class="link" style="color: #b2ccff"
+                            >https://www.auisoft.net</a
+                        >
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

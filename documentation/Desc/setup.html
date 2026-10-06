@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<meta content="text/javascript" http-equiv="Content-Script-Type">
+	<meta content="text/css" http-equiv="Content-Style-Type">
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<meta content="AUIPivot API Documentation" name="apple-mobile-web-app-title">
+	<meta content="AUIPivot API Documentation" property="og:title">
+	<meta content="https://www.auisoft.net/documentation/auipivot" property="og:url">
+	<meta content="AUIPivot API Documentation" property="og:description">
+	<meta content="AUIPivot API Documentation" name="keywords">
+	<title> AUIPivot Documentation</title>
+
+	<!-- This project uses Prism.js (https://prismjs.com/)  Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+
+<link rel="stylesheet" href="../static/prism.css">
+<link rel="stylesheet" href="../static/style.css">
+<link rel="stylesheet" href="../static/typography.css">
+<link rel="stylesheet" href="../static/code-examples.css">
+<script src="../static/prism.js" data-manual></script>
+<script src="../static/code-examples.js"></script>
+
+<link rel="icon" href="../static/favicon.ico" sizes="any">
+<link rel="icon" href="../static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../static/apple-touch-icon.png">
+<meta name="theme-color" content="#222729">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../static/docs-brand.css">
+</head>
+
+<body class="demo-typography docs-site">
+	<header class="docs-header"><div class="docs-header-inner">
+    <a id="logo-bar" class="docs-brand" href="https://www.auisoft.net/" aria-label="AUISoft 홈페이지">
+      <img src="../static/favicon.svg" width="40" height="40" alt="">
+      <span>AUISoft<small>에이유아이소프트</small></span>
+    </a>
+    <span id="title" class="docs-context">AUIPivot 2.7 Documentation</span>
+    <nav class="docs-navigation" aria-label="주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav>
+    <details class="docs-mobile-navigation"><summary>메뉴</summary><nav aria-label="모바일 주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav></details>
+  </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">1. AUIPivot 소개 및 사용 방법</span></nav>
+	<div class="MainContent">
+
+		<h1>1. AUIPivot 소개 및 사용 방법</h1>
+
+		<h2>1.1 AUIPivot 란?</h2>
+		<p>
+			AUIPivot은 다차원 집계, 그룹화, 교차 분석을 웹에서 제공하는 JavaScript 피벗 컴포넌트입니다. 원본 데이터를 행, 열, 값, 필터로 구성하여 대화형 보고서를 만듭니다.
+		</p>
+		<ul>
+			<li>복잡한 보고서나 통계 데이터를 실시간으로 집계/분석</li>
+			<li>Excel 피벗 테이블 유사 인터페이스</li>
+			<li>사용자가 직접 드래그로 필드를 구성해 다차원 분석 지원</li>
+		</ul>
+
+		<h2>1.2 지원 브라우저</h2>
+		<table class="browser_table">
+			<caption></caption>
+			<thead>
+				<tr>
+					<th scope="col" class="support_cr">Chrome</th>
+					<th scope="col" class="support_ie">Edge</th>
+					<th scope="col" class="support_ff">Firefox</th>
+					<th scope="col" class="support_sf">Safari</th>
+					<th scope="col" class="support_op">Opera</th>
+					<th scope="col" class="support_ad">Android</th>
+					<th scope="col" class="support_ios">iOS</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Yes</td>
+					<td>Yes<span class="ie_none">(IE 모드 지원 안함)</span></td>
+					<td>Yes</td>
+					<td>Yes</td>
+					<td>Yes</td>
+					<td>Yes</td>
+					<td>Yes</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2>1.3 지원 개발 환경</h2>
+		<p>AUIPivot은 순수 JavaScript 컴포넌트로 다양한 프레임워크에서 쉽게 사용할 수 있습니다.</p>
+		<ul>
+			<li>순수 JS(Vanilla JS)</li>
+			<li>jQuery</li>
+			<li>Vue</li>
+			<li>React</li>
+		</ul>
+
+		<h2>1.4 AUIPivot 사용 방법</h2>
+		<p>AUIPivot은 독립적으로 실행되는 JavaScript 피벗 컴포넌트입니다. 제공받은 <code>AUIPivotLicense.js</code>, <code>AUIPivot.js</code>, 언어 파일과 CSS를 배치합니다.</p>
+		<p>아래 예제는 한국어 화면입니다. 언어 파일은 엔진보다 먼저 로드하며, 상대 경로는 실제 설치 위치에 맞춥니다.</p>
+		<pre><code class="language-html">
+&lt;!-- 피벗의 화면 스타일과 이미지 폴더를 함께 배치합니다. --&gt;
+&lt;link rel="stylesheet" href="./AUIPivot/AUIPivot_style.css" /&gt;
+&lt;!-- 사용 권한과 화면 언어를 먼저 설정합니다. --&gt;
+&lt;script src="./AUIPivot/AUIPivotLicense.js"&gt;&lt;/script&gt;
+&lt;script src="./AUIPivot/messages/AUIPivot.messages.kr.js"&gt;&lt;/script&gt;
+&lt;!-- 피벗 엔진은 한 번만 로드합니다. --&gt;
+&lt;script src="./AUIPivot/AUIPivot.js"&gt;&lt;/script&gt;</code></pre>
+		<p>CSS가 참조하는 <code>images</code> 폴더를 함께 배치하세요. 생성은 <code>AUIPivot.create()</code>, 원본 입력은 <code>AUIPivot.setGridData()</code>를 사용합니다. 실제 동작은 <a href="quick-start.html">Quick Start</a>에서 확인할 수 있습니다.</p>
+
+		<h3>비상업용 버전의 CDN으로 시작하기</h3>
+		<p>로컬 환경에서 무료로 시작하려면 <a href="noncommercial.html">비상업용 CDN 안내</a>를 참고하세요. 데이터를 포함한 HTML 예제 하나로 피벗 보고서를 실행할 수 있습니다.
+		라이브러리와 프레임워크 샘플은 <a href="https://github.com/aui-community/auipivot-noncommercial">비상업용 GitHub 저장소</a>에서도 내려받을 수 있습니다.</p>
+		<p><code>localhost</code>, <code>127.0.0.1</code> 외의 접속 도메인이나 IP에서는 <a href="https://www.auisoft.net/dcenter.html">30일 평가판</a>을 제공합니다.
+		정품과 동일한 기능으로 사전 평가, 적합성 검토(PoC), 테스트에 사용할 수 있습니다. <a href="noncommercial.html#trial">평가판 사용 안내</a>를 확인하세요.</p>
+
+		<h2>1.5 폴더 구조</h2>
+		<p>제품 패키지를 압축을 해제하면 다음 디렉토리가 보입니다.</p>
+		<ul>
+			<li><strong>AUIPivot</strong>: AUIPivot 라이브러리와 스타일(css)</li>
+			<li><strong>AUIPivot-React</strong>: React.js용 서브 컴포넌트</li>
+			<li><strong>AUIPivot-Vue</strong>: Vue.js용 서브 컴포넌트</li>
+			<li><strong>documentation</strong>: 공식 문서 (index.html 포함)</li>
+			<li><strong>export_server_samples</strong>: 서버 내보내기 샘플(PHP, JSP, ASP)</li>
+			<li><strong>pdfkit</strong>: PDF 출력용 라이브러리</li>
+			<li><strong>samples</strong>: JavaScript 샘플</li>
+			<li><strong>samples-React.js</strong>: React 샘플</li>
+			<li><strong>samples-Vue.js</strong>: Vue 샘플</li>
+		</ul>
+
+		<h2>1.6 일반 JS 샘플 실행 방법</h2>
+		<ol>
+			<li>제품 패키지를 압축 해제한 후 라이선스가 허용하는 웹 서버에 배치합니다. 비상업용 버전은 localhost 또는 127.0.0.1에서 실행합니다.</li>
+			<li><code class="language-html">/samples</code> 또는 <code class="language-html">/documentation</code> 폴더의 <code class="language-html">index.html</code>을 브라우저로 실행합니다.</li>
+			<li>AUIPivot 샘플 기능을 바로 확인하고 테스트할 수 있습니다.</li>
+		</ol>
+
+		<h2>1.7 Vue, React 샘플 실행 방법</h2>
+		<table class="browser_table">
+			<thead>
+				<tr>
+					<th>폴더명</th>
+					<th>프레임워크</th>
+					<th>빌드 도구</th>
+					<th>실행 명령어</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>samples-React.js</td>
+					<td>React (JSX 기반)</td>
+					<td>Vite</td>
+					<td><code>npm install && npm run dev</code></td>
+				</tr>
+				<tr>
+					<td>samples-Vue.js</td>
+					<td>Vue 3 (JS 기반)</td>
+					<td>Vite</td>
+					<td><code>npm install && npm run dev</code></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p><strong>공통 실행 흐름:</strong></p>
+		<pre><code class="language-html">
+cd [샘플폴더]
+npm install
+npm run dev
+</code></pre>
+
+	</div>
+<footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body>
+
+</html>

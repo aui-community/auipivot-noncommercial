@@ -1,0 +1,42 @@
+/* AUIGrid Pivot과 동일한 AUIPivot 데모 공통 글꼴입니다.
+   본문과 조작 UI에만 적용하며 Grid/Pivot의 셀, 필드 패널과 팝업은 제품 CSS를 유지합니다. */
+:root {
+    --demo-font: "Segoe UI", sans-serif;
+    --demo-code-font: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+}
+:is(body.standalone-demo, body.pivot-home, body.demo-typography) {
+    font-family:var(--demo-font); font-size:14px; line-height:1.5; letter-spacing:normal;
+}
+/* 제목은 브라우저 기본값이나 화면 폭에 따라 크기가 달라지지 않도록 명시합니다. */
+:is(.standalone-demo, .pivot-home, .demo-typography) :is(h1, h2, h3, h4, h5, h6):not(:where([class^="aui-"], [class^="aui-"] *)) {
+    font-family:var(--demo-font); font-weight:700; line-height:1.6; letter-spacing:normal; margin:16px 0 8px;
+}
+:is(.standalone-demo, .pivot-home, .demo-typography) h1 { font-size:28px; }
+:is(.standalone-demo, .pivot-home, .demo-typography) h2 { font-size:21px; }
+:is(.standalone-demo, .pivot-home, .demo-typography) h3 { font-size:18px; }
+:is(.standalone-demo, .pivot-home, .demo-typography) :is(h4, h5, h6) { font-size:14px; }
+:is(.standalone-demo, .pivot-home, .demo-typography) p:not(:where([class^="aui-"], [class^="aui-"] *)) {
+    font-family:var(--demo-font); font-size:14px; line-height:1.5; margin:10px 0 4px;
+}
+:is(.standalone-demo, .pivot-home, .demo-typography) :is(button, input, select, textarea):not(:where([class^="aui-"], [class^="aui-"] *)) {
+    font-family:var(--demo-font); font-size:14px; line-height:1.5; letter-spacing:normal;
+}
+:is(.standalone-demo, .pivot-home, .demo-typography) li:not(:where([class^="aui-"], [class^="aui-"] *)) { font-size:14px; line-height:2; }
+:is(.standalone-demo, .pivot-home, .demo-typography) :is(th, td):not(:where([class^="aui-"], [class^="aui-"] *)) { font-size:14px; line-height:24px; }
+/* 긴 예제는 글자를 줄이거나 강제로 줄바꿈하지 않고 코드 영역에서 스크롤합니다. */
+:is(.standalone-demo, .pivot-home, .demo-typography) :is(pre, code, xmp):not(:where([class^="aui-"], [class^="aui-"] *)) {
+    font-family:var(--demo-code-font); font-size:14px; line-height:1.5; letter-spacing:normal;
+}
+.demo-typography pre { white-space:pre; overflow:auto; max-width:100%; }
+.demo-typography :is(pre, code) { font-weight:400; }
+/* 테마 선택기가 삽입한 인라인 글꼴만 외곽 UI 기준으로 맞춥니다. */
+:is(.standalone-demo, .demo-typography) #demo-theme-toolbar,
+:is(.standalone-demo, .demo-typography) #demo-theme-toolbar :is(select, input, button),
+:is(.standalone-demo, .demo-typography) #demo-nova-controls {
+    font-family:var(--demo-font) !important; font-size:14px !important; line-height:1.5 !important; letter-spacing:normal;
+}
+
+/* 기존 개발 페이지가 불러오는 푸터의 별도 글꼴도 데모 기준에 맞춥니다. */
+.demo-typography #footer.demo-footer { font-family:var(--demo-font); }
+/* 제품 CSS의 설명용 pre 규칙보다 데모 코드의 글꼴을 우선합니다. */
+.standalone-demo .desc pre, .standalone-demo .desc xmp { font-family:var(--demo-code-font); font-size:14px; line-height:1.5; }

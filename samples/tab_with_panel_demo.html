@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css" />
+        <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
+        <style>
+            .my-pivot-style {
+                position: absolute;
+                right: 400px;
+            }
+        </style>
+
+        <script>
+            // 시작점
+            function init() {
+                // 숨긴 탭은 크기를 알 수 없으므로 탭이 표시될 때 createPivotGrid로 생성합니다.
+                const tabs = $("#tabs").tabs({
+                    active: 0,
+                    width: 800,
+
+                    // jqueryUI Tabs create 이벤트가 모든 탭에 대하여 발생되는게 아님;;;
+                    // 즉 탭 3개를 만들었을 때 탭 3개 만들어질 때마다 이벤트가 발생되는게 아니고 active 되는 탭에만 발생됨
+                    // 이러한 이유로 activate 이벤트에서 그리드가 생성되지 않았다면 생성시키는 코드 추가함
+                    create: function (event, ui) {
+                        this.style.display = "block";
+                        const tabId = ui.panel.prop("id");
+                        switch (tabId) {
+                            case "tabs-1":
+                                // 생성 후 피벗 데이터 토대로 초기화
+                                createPivotGrid("#myPivot1", "tree");
+                                requestData("./data/car_sales.json", "#myPivot1");
+                                break;
+                            case "tabs-2":
+                                createPivotGrid("#myPivot2", "table");
+                                requestData("./data/car_sales.json", "#myPivot2");
+                                break;
+                            case "tabs-3":
+                                createPivotGrid("#myPivot3", "tableCellMerge");
+                                requestData("./data/car_sales.json", "#myPivot3");
+                                break;
+                        }
+                    },
+                    // 탭 전환이 발생할 때 이전 탭을 조사하여 피벗패널 감추기 함.
+                    beforeActivate: function (event, ui) {
+                        const tabId = ui.oldPanel.prop("id");
+                        switch (tabId) {
+                            case "tabs-1":
+                                AUIPivot.resize("#myPivot1");
+                                AUIPivot.hidePivotPanel("#myPivot1");
+                                break;
+                            case "tabs-2":
+                                AUIPivot.resize("#myPivot2");
+                                AUIPivot.hidePivotPanel("#myPivot2");
+                                break;
+                            case "tabs-3":
+                                AUIPivot.resize("#myPivot3");
+                                AUIPivot.hidePivotPanel("#myPivot3");
+                                break;
+                        }
+                    },
+                    activate: function (event, ui) {
+                        const tabId = ui.newPanel.prop("id");
+                        let isCreated;
+                        switch (tabId) {
+                            case "tabs-1":
+                                // 생성되었는지 확인하여 생성된 경우는 resizing 만 다시 하기
+                                isCreated = AUIPivot.isCreated("#myPivot1");
+                                if (isCreated) {
+                                    AUIPivot.resize("#myPivot1");
+                                    showPivotPanel(1);
+                                } else {
+                                    createPivotGrid("#myPivot1", "tree");
+                                    requestData("./data/car_sales.json", "#myPivot1");
+                                }
+                                break;
+                            case "tabs-2":
+                                isCreated = AUIPivot.isCreated("#myPivot2");
+                                if (isCreated) {
+                                    AUIPivot.resize("#myPivot2");
+                                    showPivotPanel(2);
+                                } else {
+                                    createPivotGrid("#myPivot2", "table");
+                                    requestData("./data/car_sales.json", "#myPivot2");
+                                }
+                                break;
+                            case "tabs-3":
+                                isCreated = AUIPivot.isCreated("#myPivot3");
+                                if (isCreated) {
+                                    AUIPivot.resize("#myPivot3");
+                                    showPivotPanel(3);
+                                } else {
+                                    createPivotGrid("#myPivot3", "tableCellMerge");
+                                    requestData("./data/car_sales.json", "#myPivot3");
+                                }
+                                break;
+                        }
+                    }
+                });
+
+                // 탭 드래깅으로 자리 옮기기
+                tabs.find(".ui-tabs-nav").sortable({
+                    axis: "x",
+                    stop: function () {
+                        tabs.tabs("refresh");
+                    }
+                });
+            }
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid(pid, type) {
+                // 피봇 그리드 속성 설정
+                const pivotProps = {
+                    // 피벗 패널 생성 할 곳
+                    pivotPanelId: pid + "_panel",
+                    // 피벗 패널 크기
+                    panelHeight: 600,
+                    panelWidth: 400
+                };
+
+                // 피벗 출력 방식
+                pivotProps.layoutType = type;
+
+                AUIPivot.create(pid, pivotProps);
+            }
+
+            //피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+            function initPivotData(pid, data) {
+                // 행필드
+                AUIPivot.setRowFields(pid, ["REGION", "NAME", "MODEL"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(pid, ["DATE_QTR", "DATE_MONTH"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(pid, [
+                    { "dataField": "TOTAL", "operation": "SUM" },
+                    { "dataField": "COUNT", "operation": "SUM" }
+                ]);
+
+                // 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
+                AUIPivot.setDateTypeField(pid, "DATE");
+
+                // 주어진 JSON 데이터의 필드명을 구분하기 쉽게 alias 를 지정합니다.
+                // 만약 완전히 다른 데이터로 다시 설정된다면 alias 들도 다시 설정하십시오.
+                // [{"REGION":"서울 지점","NAME":"아반테","MODEL":"1.6 GDi","COLOR":"Blue","PRICE":1384000,"COUNT":1,"DATE":"2015/01/01","TOTAL":1384000},{
+                AUIPivot.setFieldAlias(pid, {
+                    "REGION": "판매 지점",
+                    "NAME": "차종",
+                    "MODEL": "모델",
+                    "COLOR": "색상",
+                    "PRICE": "가격",
+                    "COUNT": "판매 대수",
+                    "TOTAL": "매출액",
+                    "DATE": "일",
+                    "DATE_YEAR": "년",
+                    "DATE_HALF": "반기",
+                    "DATE_QTR": "분기",
+                    "DATE_MONTH": "월"
+                });
+
+                // 피봇그리드에 데이터 삽입
+                AUIPivot.setGridData(pid, data);
+            }
+
+            //데이터 요청
+            function requestData(url, pid) {
+                // 세 탭의 피벗을 구분하기 위해 해당 탭의 ID도 함께 받습니다.
+                AUIPivot.showAjaxLoader(pid);
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        initPivotData(pid, data);
+                    })
+                    .catch(function (error) {
+                        alert(error.message);
+                    })
+                    .finally(function () {
+                        // 요청 실패 시에도 이 탭의 로딩 표시를 닫습니다.
+                        AUIPivot.removeAjaxLoader(pid);
+                    });
+            }
+
+            // 사용자가 피벗 패널을 닫은 경우 다시 열도록 함.
+            function showPivotPanel(idx) {
+                const pid = "#myPivot" + idx;
+                // 만들어지지 않았다면 생성함.
+                if (!AUIPivot.isCreatedPivotPanel(pid)) {
+                    // 실제 피벗 필드 패널 생성
+                    AUIPivot.createPivotPanel(pid);
+                    return;
+                }
+
+                if (AUIPivot.getPivotPanelState(pid) === "shown") {
+                    AUIPivot.hidePivotPanel(pid);
+                    return;
+                }
+                AUIPivot.showPivotPanel(pid);
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>탭에 여러 피벗 배치</h1>
+                    <code class="demo-api-label">create</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>탭(tab) 환경에서 AUIPivot 을 다수 구성한 화면입니다.</p>
+                    <p>탭 위젯은 jQuery UI 위젯의 Tab 을 사용하여 구성한 화면입니다.</p>
+                </div>
+                <!--  jQuery UI Tabs 정의 -->
+                <div id="tabs" style="display: none">
+                    <ul>
+                        <li><a href="#tabs-1">트리형</a></li>
+                        <li><a href="#tabs-2">테이블형</a></li>
+                        <li><a href="#tabs-3">테이블 셀 병합형</a></li>
+                    </ul>
+                    <div id="tabs-1">
+                        <div>
+                            <button class="btn" onclick="showPivotPanel(1)">피벗 패널 열기/닫기</button>
+                        </div>
+                        <div id="myPivot1_panel" class="my-pivot-style"></div>
+                        <div id="myPivot1" style="height: 580px"></div>
+                    </div>
+
+                    <div id="tabs-2">
+                        <button class="btn" onclick="showPivotPanel(2)">피벗 패널 열기/닫기</button>
+                        <div id="myPivot2_panel" class="my-pivot-style"></div>
+                        <div id="myPivot2" style="height: 580px"></div>
+                    </div>
+
+                    <div id="tabs-3">
+                        <button class="btn" onclick="showPivotPanel(3)">피벗 패널 열기/닫기</button>
+                        <div id="myPivot3_panel" class="my-pivot-style"></div>
+                        <div id="myPivot3" style="height: 580px"></div>
+                    </div>
+                </div>
+                <div id="desc"></div>
+            </div>
+            <div id="footer">
+                <div class="copyright">
+                    <p>
+                        Copyright © AUISoft Co., Ltd.
+                        <a href="https://www.auisoft.net" target="_blank" class="link" style="color: #b2ccff"
+                            >https://www.auisoft.net</a
+                        >
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

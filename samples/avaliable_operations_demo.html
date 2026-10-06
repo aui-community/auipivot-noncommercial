@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 기존 정식 데모의 글꼴, 본문, 코드와 하단 여백을 사용합니다. -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+        <script>
+            // 피벗 ID와 같은 자동차 원본으로 연산자를 비교하기 위한 자료입니다.
+            let myPivotID;
+            let sourceData;
+
+            // 각 연산자의 대상 필드와 표시 형식을 직접 지정합니다.
+            // value 안의 객체가 setValueFields에 전달되는 실제 설정입니다.
+            const operationExamples = {
+                SUM: {
+                    description: "매출액을 모두 더합니다.",
+                    value: {
+                        dataField: "TOTAL",
+                        operation: "SUM",
+                        customLabelText: "매출액 합계",
+                        formatString: "#,##0"
+                    }
+                },
+                COUNT: {
+                    description:
+                        "판매 대수 값이 있는 기록을 셉니다. 판매 대수를 더하는 SUM과 다릅니다. 이 자료는 모든 기록에 판매 대수가 있으므로 기록 수와 같습니다.",
+                    value: {
+                        dataField: "COUNT",
+                        operation: "COUNT",
+                        customLabelText: "판매 기록 수",
+                        formatString: "#,##0"
+                    }
+                },
+                DISTINCT_COUNT: {
+                    description:
+                        "차종 이름이 여러 기록에 나와도 한 번만 셉니다. 총 합계도 전체 자료에서 차종을 다시 세므로 지점별 개수를 더한 값과 다를 수 있습니다.",
+                    value: {
+                        dataField: "NAME",
+                        operation: "DISTINCT_COUNT",
+                        customLabelText: "판매된 차종 수",
+                        formatString: "#,##0"
+                    }
+                },
+                AVG: {
+                    description:
+                        "가격 합계를 가격이 있는 기록 수로 나눕니다. 판매 대수가 많은 기록에 더 큰 비중을 주지는 않습니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "AVG",
+                        customLabelText: "평균 가격",
+                        formatString: "#,##0.00"
+                    }
+                },
+                MIN: {
+                    description: "가격 중 가장 작은 값을 표시합니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "MIN",
+                        customLabelText: "최저 가격",
+                        formatString: "#,##0"
+                    }
+                },
+                MAX: {
+                    description: "가격 중 가장 큰 값을 표시합니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "MAX",
+                        customLabelText: "최고 가격",
+                        formatString: "#,##0"
+                    }
+                },
+                MEDIAN: {
+                    description:
+                        "가격을 크기순으로 놓았을 때 가운데 값을 표시합니다. 개수가 짝수이면 가운데 두 값의 평균입니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "MEDIAN",
+                        customLabelText: "가격 중앙값",
+                        formatString: "#,##0.00"
+                    }
+                },
+                RATIO: {
+                    description:
+                        "각 지점의 분기 매출을 같은 분기 전체 지점의 매출로 나눕니다. 같은 분기에서 어느 지점의 비중이 큰지 볼 수 있습니다.",
+                    value: {
+                        dataField: "TOTAL",
+                        operation: "RATIO",
+                        customLabelText: "분기 내 매출 비중",
+                        formatString: "0.00%"
+                    }
+                },
+                ROW_RATIO: {
+                    description:
+                        "각 지점의 분기 매출을 그 지점의 전체 분기 매출로 나눕니다. 한 지점에서 어느 분기의 비중이 큰지 볼 수 있습니다.",
+                    value: {
+                        dataField: "TOTAL",
+                        operation: "ROW_RATIO",
+                        customLabelText: "지점 내 분기 매출 비중",
+                        formatString: "0.00%"
+                    }
+                },
+                GRAND_TOTAL_RATIO: {
+                    description: "각 셀의 매출을 필터를 통과한 전체 자료의 매출로 나눕니다.",
+                    value: {
+                        dataField: "TOTAL",
+                        operation: "GRAND_TOTAL_RATIO",
+                        customLabelText: "전체 매출 비중",
+                        formatString: "0.00%"
+                    }
+                },
+                GRAND_TOTAL_COUNT_RATIO: {
+                    description:
+                        "각 셀에서 판매 대수 값이 있는 기록 수를 전체 유효 기록 수로 나눕니다. 판매 대수 합계의 비율이 아닙니다.",
+                    value: {
+                        dataField: "COUNT",
+                        operation: "GRAND_TOTAL_COUNT_RATIO",
+                        customLabelText: "전체 기록 비중",
+                        formatString: "0.00%"
+                    }
+                },
+                RATIO_OF_SUMS: {
+                    description:
+                        "매출액 합계를 판매 대수 합계로 나눕니다. numeratorField에 분자, denominatorField에 분모로 사용할 필드를 지정합니다.",
+                    value: {
+                        dataField: "TOTAL",
+                        operation: "RATIO_OF_SUMS",
+                        customLabelText: "대당 매출",
+                        formatString: "#,##0.00",
+                        // 매출 합계가 분자, 판매 대수 합계가 분모입니다.
+                        numeratorField: "TOTAL",
+                        denominatorField: "COUNT"
+                    }
+                },
+                VARIANCE: {
+                    description:
+                        "가격이 평균에서 얼마나 떨어져 있는지 제곱하여 더한 뒤 기록 수로 나눕니다. 값이 클수록 가격 차이가 큽니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "VARIANCE",
+                        customLabelText: "가격 모집단 분산",
+                        formatString: "#,##0.00"
+                    }
+                },
+                STD_DEVIATION: {
+                    description: "모집단 분산의 제곱근입니다. 가격과 같은 원 단위로 퍼짐을 비교할 수 있습니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "STD_DEVIATION",
+                        customLabelText: "가격 모집단 표준편차",
+                        formatString: "#,##0.00"
+                    }
+                },
+                SAMPLE_VARIANCE: {
+                    description:
+                        "판매 기록을 전체의 일부인 표본으로 볼 때 사용합니다. 평균과의 차이를 제곱한 합을 기록 수에서 1을 뺀 값으로 나눕니다. 기록이 2개 미만이면 빈 값입니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "SAMPLE_VARIANCE",
+                        customLabelText: "가격 표본 분산",
+                        formatString: "#,##0.00"
+                    }
+                },
+                SAMPLE_STD_DEVIATION: {
+                    description: "표본 분산의 제곱근입니다. 기록이 2개 미만이면 빈 값입니다.",
+                    value: {
+                        dataField: "PRICE",
+                        operation: "SAMPLE_STD_DEVIATION",
+                        customLabelText: "가격 표본 표준편차",
+                        formatString: "#,##0.00"
+                    }
+                },
+                MULTIPLY: {
+                    description:
+                        "각 기록의 판매 대수 값을 서로 곱합니다. 실제 판매 대수 합계와는 다릅니다. 곱이 지나치게 커지지 않도록 첫 판매일의 16개 기록만 사용합니다.",
+                    value: {
+                        dataField: "COUNT",
+                        operation: "MULTIPLY",
+                        customLabelText: "판매 대수 값의 곱",
+                        formatString: "#,##0"
+                    }
+                }
+            };
+
+            // 시작점: 피벗을 생성한 뒤 정적 자동차 판매 JSON을 요청합니다.
+            function init() {
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 피벗 속성 설정: 필드 패널과 숫자 표시 형식을 지정합니다.
+            function createPivotGrid() {
+                const pivotProps = {
+                    pivotPanelId: "#pivot_panel",
+                    autoGridHeight: false,
+                    defaultFormatString: "#,##0"
+                };
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+            }
+
+            // 원본 자료를 한 번 읽고 연산자를 바꿀 때 같은 자료를 사용합니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        sourceData = data;
+                        initPivotData();
+                        document.getElementById("operation").disabled = false;
+                    })
+                    .catch(function (error) {
+                        document.getElementById("load_message").textContent = error.message;
+                    });
+            }
+
+            // 지점을 행, 분기를 열에 놓아 합계와 비율의 기준을 비교합니다.
+            function initPivotData() {
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+                AUIPivot.setRowFields(myPivotID, ["REGION"]);
+                AUIPivot.setColumnFields(myPivotID, ["DATE_QTR"]);
+                AUIPivot.setFieldAlias(myPivotID, {
+                    REGION: "판매 지점",
+                    NAME: "차종",
+                    MODEL: "모델",
+                    COLOR: "색상",
+                    PRICE: "가격",
+                    COUNT: "판매 대수",
+                    TOTAL: "매출액",
+                    DATE: "판매일",
+                    DATE_YEAR: "연도",
+                    DATE_HALF: "반기",
+                    DATE_QTR: "분기",
+                    DATE_MONTH: "월"
+                });
+                changeOperation();
+            }
+
+            // 선택한 연산자의 실제 설정을 코드 예제와 피벗에 함께 적용합니다.
+            function changeOperation() {
+                if (!sourceData) return;
+                const operation = document.getElementById("operation").value;
+                const example = operationExamples[operation];
+                document.getElementById("operation_description").textContent = example.description;
+                document.getElementById("operation_code").textContent =
+                    "// " +
+                    example.value.customLabelText +
+                    " 계산하기\n" +
+                    "AUIPivot.setValueFields(myPivotID, " +
+                    JSON.stringify([example.value], null, 4) +
+                    ");";
+
+                // 곱셈만 첫 판매일로 제한하여 무한대 대신 확인 가능한 결과를 보여 줍니다.
+                const data =
+                    operation === "MULTIPLY"
+                        ? sourceData.filter(function (row) {
+                              return row.DATE === sourceData[0].DATE;
+                          })
+                        : sourceData;
+                AUIPivot.setValueFields(myPivotID, [Object.assign({}, example.value)]);
+                AUIPivot.setGridData(myPivotID, data);
+                document.getElementById("load_message").textContent =
+                    operation === "MULTIPLY"
+                        ? "대상 자료: " + sourceData[0].DATE + ", " + data.length.toLocaleString() + "개 판매 기록"
+                        : "대상 자료: 전체 " + data.length.toLocaleString() + "개 판매 기록";
+
+                // 설명 길이가 바뀌어도 이동 가능한 패널의 위쪽을 피벗과 맞춥니다.
+                alignDemoPivotPanel(myPivotID);
+            }
+
+            // 필드 패널을 숨기거나 다시 표시합니다.
+            function togglePivotPanel() {
+                if (AUIPivot.getPivotPanelState(myPivotID) === "shown") {
+                    AUIPivot.hidePivotPanel(myPivotID);
+                } else {
+                    AUIPivot.showPivotPanel(myPivotID);
+                    alignDemoPivotPanel(myPivotID);
+                }
+            }
+        </script>
+    </head>
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>지원하는 집계 연산 살펴보기</h1>
+                    <code class="demo-api-label">operation</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>
+                        지원하는 내장 집계 연산자 17개를 자동차 판매 자료로 살펴봅니다. 연산자를 선택하면 설명, 설정
+                        코드와 결과가 바뀝니다.
+                    </p>
+                    <p>
+                        setValueFields 메소드의 dataField에 계산할 필드, operation에 연산자를 지정하십시오. 행은 판매
+                        지점, 열은 분기입니다.
+                    </p>
+                    <label for="operation">집계 연산자</label>
+                    <select id="operation" onchange="changeOperation()" disabled>
+                        <optgroup label="합계와 개수">
+                            <option value="SUM">SUM - 합계</option>
+                            <option value="COUNT">COUNT - 개수</option>
+                            <option value="DISTINCT_COUNT">DISTINCT_COUNT - 중복 없는 개수</option>
+                        </optgroup>
+                        <optgroup label="가격의 대표값">
+                            <option value="AVG">AVG - 평균</option>
+                            <option value="MIN">MIN - 최소값</option>
+                            <option value="MAX">MAX - 최대값</option>
+                            <option value="MEDIAN">MEDIAN - 중앙값</option>
+                        </optgroup>
+                        <optgroup label="비율">
+                            <option value="RATIO">RATIO - 같은 열의 합계 비율</option>
+                            <option value="ROW_RATIO">ROW_RATIO - 같은 행의 합계 비율</option>
+                            <option value="GRAND_TOTAL_RATIO">GRAND_TOTAL_RATIO - 전체 합계 비율</option>
+                            <option value="GRAND_TOTAL_COUNT_RATIO">GRAND_TOTAL_COUNT_RATIO - 전체 개수 비율</option>
+                            <option value="RATIO_OF_SUMS">RATIO_OF_SUMS - 두 합계의 비율</option>
+                        </optgroup>
+                        <optgroup label="가격의 퍼짐">
+                            <option value="VARIANCE">VARIANCE - 모집단 분산</option>
+                            <option value="STD_DEVIATION">STD_DEVIATION - 모집단 표준편차</option>
+                            <option value="SAMPLE_VARIANCE">SAMPLE_VARIANCE - 표본 분산</option>
+                            <option value="SAMPLE_STD_DEVIATION">SAMPLE_STD_DEVIATION - 표본 표준편차</option>
+                        </optgroup>
+                        <optgroup label="곱">
+                            <option value="MULTIPLY">MULTIPLY - 곱</option>
+                        </optgroup>
+                    </select>
+                    <button class="btn" onclick="togglePivotPanel()">피벗 패널 닫기/보이기</button>
+                    <p id="operation_description"></p>
+                    <pre
+                        id="operation_code"
+                        class="demo-code"
+                        tabindex="0"
+                        aria-label="선택한 연산자의 JavaScript 설정 예제"
+                    ></pre>
+                    <p id="load_message" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
+                </div>
+                <!-- 피벗과 필드 패널의 상단을 같은 위치에 배치합니다. -->
+                <div style="position: relative">
+                    <div id="pivot_wrap" style="width: 1000px; height: 560px"></div>
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 560px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

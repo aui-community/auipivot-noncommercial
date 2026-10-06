@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 기존 데모와 같은 스타일, AUIPivot 제품 파일을 사용합니다. -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <style>
+            /* 현재 선택한 출력 방식만 구분하며 다른 데모의 버튼에는 적용하지 않습니다. */
+            #layout_controls .btn[aria-pressed="true"] {
+                background-color: #337ab7;
+                border-color: #337ab7;
+            }
+            #layout_controls:disabled .btn {
+                opacity: 0.5;
+                cursor: default;
+            }
+        </style>
+
+        <script>
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 시작점: 피벗을 생성한 뒤 정적 자동차 판매 자료를 요청합니다.
+            function init() {
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 처음에는 트리 방식으로 출력하고 오른쪽에 필드 패널을 연결합니다.
+            function createPivotGrid() {
+                // 피벗 그리드 속성 설정
+                const pivotProps = {
+                    pivotPanelId: "#pivot_panel",
+                    layoutType: "tree",
+                    defaultFormatString: "#,##0",
+                    displayTreeOpen: true
+                };
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+
+                // 최초 보고서가 완성되면 출력 방식 버튼을 사용할 수 있습니다.
+                AUIPivot.bind(myPivotID, "pivotComplete", function () {
+                    document.getElementById("layout_controls").disabled = false;
+                    showCurrentLayout();
+                });
+            }
+
+            // 자동차 원본을 한 번 불러옵니다. 출력 방식을 바꿀 때는 다시 요청하지 않습니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok)
+                            throw new Error("자동차 판매 자료를 불러오지 못했습니다. 페이지를 새로고침해 주세요.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        initPivotData(data);
+                    })
+                    .catch(function (error) {
+                        document.getElementById("layout_status").textContent = error.message;
+                    });
+            }
+
+            // 지점, 차종, 모델을 행에 놓아 세 출력 방식의 차이를 쉽게 비교합니다.
+            function initPivotData(data) {
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+                AUIPivot.setColumnFields(myPivotID, ["DATE_QTR"]);
+                AUIPivot.setValueFields(myPivotID, [
+                    { dataField: "TOTAL", operation: "SUM" },
+                    { dataField: "COUNT", operation: "SUM" }
+                ]);
+                AUIPivot.setFilterFields(myPivotID, ["COLOR"]);
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+                AUIPivot.setFieldAlias(myPivotID, {
+                    REGION: "판매 지점",
+                    NAME: "차종",
+                    MODEL: "모델",
+                    COLOR: "색상",
+                    PRICE: "가격",
+                    COUNT: "판매 대수",
+                    TOTAL: "매출액",
+                    DATE: "일",
+                    DATE_YEAR: "년",
+                    DATE_HALF: "반기",
+                    DATE_QTR: "분기",
+                    DATE_MONTH: "월"
+                });
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 속성을 바꾼 뒤 현재 데이터와 피벗 설정에 새 출력 방식을 반영합니다.
+            function changeLayout(layoutType) {
+                AUIPivot.setProp(myPivotID, "layoutType", layoutType);
+                AUIPivot.refresh(myPivotID);
+                showCurrentLayout();
+            }
+
+            // 현재 방식은 안내 문구와 버튼의 선택 상태로 표시합니다.
+            function showCurrentLayout() {
+                const layoutType = AUIPivot.getProp(myPivotID, "layoutType");
+                const names = { tree: "트리", table: "테이블", tableCellMerge: "셀병합" };
+                document.getElementById("layout_status").textContent =
+                    "현재 출력 방식: " + names[layoutType] + " (" + layoutType + ")";
+                document.querySelectorAll("#layout_controls button").forEach(function (button) {
+                    button.setAttribute("aria-pressed", String(button.dataset.layout === layoutType));
+                });
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#pivot-general-guides">데모 목록</a> <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>트리, 테이블, 셀병합 전환</h1>
+                    <code class="demo-api-label">setProp / refresh</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>
+                        버튼을 눌러 이미 출력된 보고서를 트리, 테이블, 셀병합 방식으로 바꿉니다. 데이터와 행, 열, 값,
+                        필터 설정은 유지됩니다.
+                    </p>
+                    <p>
+                        트리는 행 항목을 들여쓰기로 보여 줍니다. 테이블은 각 행 필드를 별도 열로 보여 주고, 셀병합은
+                        같은 항목이 이어지는 셀을 합칩니다.
+                    </p>
+                    <p>setProp()으로 layoutType을 바꾼 뒤 refresh()를 호출하면 현재 피벗에 반영됩니다.</p>
+                    <pre class="demo-code" tabindex="0" aria-label="출력 방식 전환 예제">
+// "tree": 트리, "table": 테이블, "tableCellMerge": 셀병합
+AUIPivot.setProp(myPivotID, "layoutType", "table");
+
+// 현재 데이터와 피벗 설정을 유지하면서 바뀐 출력 방식을 반영합니다.
+AUIPivot.refresh(myPivotID);
+</pre>
+                    <!-- 데이터가 준비되기 전에는 빈 피벗의 출력 방식을 바꾸지 않습니다. -->
+                    <fieldset id="layout_controls" disabled aria-label="피벗 출력 방식">
+                        <button
+                            type="button"
+                            class="btn"
+                            data-layout="tree"
+                            aria-pressed="true"
+                            onclick="changeLayout('tree')"
+                        >
+                            트리
+                        </button>
+                        <button
+                            type="button"
+                            class="btn"
+                            data-layout="table"
+                            aria-pressed="false"
+                            onclick="changeLayout('table')"
+                        >
+                            테이블
+                        </button>
+                        <button
+                            type="button"
+                            class="btn"
+                            data-layout="tableCellMerge"
+                            aria-pressed="false"
+                            onclick="changeLayout('tableCellMerge')"
+                        >
+                            셀병합
+                        </button>
+                    </fieldset>
+                    <p id="layout_status" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
+                </div>
+                <div style="position: relative; min-height: 600px">
+                    <!-- 피벗과 필드 패널의 상단을 같은 위치에 맞춥니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 600px"></div>
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 600px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

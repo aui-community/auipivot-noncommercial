@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 기존 정식 데모의 본문, 코드, 하단 여백을 사용합니다. -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <script>
+            let myPivotID;
+            // 다른 데모가 저장한 설정과 섞이지 않도록 이 데모 전용 이름을 사용합니다.
+            const reportStorageKey = "auipivot-demo-report-definition";
+
+            // 자동차 원본을 준비한 뒤, 저장한 보고서가 있으면 페이지를 열 때 자동으로 복구합니다.
+            function init() {
+                // AUIPivot을 만든 뒤 정적 자동차 판매 자료를 요청합니다.
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 정적 JSON을 읽은 뒤 이 데모의 필드 설정과 데이터를 적용합니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        initPivotData(data);
+                        restoreReport();
+                        document.getElementById("report_controls").disabled = false;
+                    })
+                    .catch(function (error) {
+                        alert(error.message);
+                    });
+            }
+
+            // 필드 패널에서 행, 열, 값도 직접 바꿀 수 있도록 연결합니다.
+            function createPivotGrid() {
+                const pivotProps = {
+                    pivotPanelId: "#pivot_panel",
+                    layoutType: "tree",
+                    defaultFormatString: "#,##0",
+                    displayTreeOpen: true
+                };
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+                // 복구한 행 배치가 선택 상자에도 표시되도록 계산 완료 때 동기화합니다.
+                AUIPivot.bind(myPivotID, "pivotComplete", function () {
+                    document.getElementById("report_layout").value = AUIPivot.getProp(myPivotID, "layoutType");
+                });
+            }
+
+            // 지점과 차종을 행에, 분기를 열에 놓고 매출액과 판매 대수를 합산합니다.
+            function initPivotData(data) {
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);
+                AUIPivot.setColumnFields(myPivotID, ["DATE_QTR"]);
+                AUIPivot.setValueFields(myPivotID, [
+                    { dataField: "TOTAL", operation: "SUM" },
+                    { dataField: "COUNT", operation: "SUM" }
+                ]);
+                AUIPivot.setFilterFields(myPivotID, ["REGION"]);
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+                AUIPivot.setFieldAlias(myPivotID, {
+                    REGION: "판매 지점",
+                    NAME: "차종",
+                    MODEL: "모델",
+                    COLOR: "색상",
+                    PRICE: "가격",
+                    COUNT: "판매 대수",
+                    TOTAL: "매출액",
+                    DATE: "일",
+                    DATE_YEAR: "년",
+                    DATE_HALF: "반기",
+                    DATE_QTR: "분기",
+                    DATE_MONTH: "월"
+                });
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 원본 데이터 대신 현재 보고서 설정 한 개를 JSON 문자열로 저장합니다.
+            function saveReport() {
+                try {
+                    const report = AUIPivot.getReportDefinition(myPivotID);
+                    localStorage.setItem(reportStorageKey, JSON.stringify(report));
+                    document.getElementById("remove_report").disabled = false;
+                    showReportMessage("현재 보고서를 저장했습니다. 새로고침하거나 다시 방문하면 자동으로 복구됩니다.");
+                    // 실제 저장에 성공한 뒤에만 다음 방문 시 복구된다는 안내창을 띄웁니다.
+                    alert(
+                        "현재 보고서가 저장되었습니다.\nF5로 새로고침하거나 이 페이지에 다시 들어오면 저장한 보고서가 자동으로 복구됩니다."
+                    );
+                } catch (error) {
+                    showReportMessage(
+                        "보고서를 저장하지 못했습니다. 브라우저 저장소의 사용 권한과 여유 공간을 확인하십시오."
+                    );
+                }
+            }
+
+            // 페이지 시작 시 한 번 실행합니다. 저장한 설정을 이미 준비한 자동차 데이터에 적용합니다.
+            function restoreReport() {
+                try {
+                    const savedJSON = localStorage.getItem(reportStorageKey);
+                    // 손상된 저장값도 사용자가 지울 수 있도록 삭제 버튼은 값의 존재 여부로 활성화합니다.
+                    document.getElementById("remove_report").disabled = savedJSON === null;
+                    if (savedJSON === null) {
+                        showReportMessage("행 배치나 필터를 바꾼 뒤 보고서를 저장해 보십시오.");
+                        return;
+                    }
+                    AUIPivot.setReportDefinition(myPivotID, JSON.parse(savedJSON));
+                    showReportMessage("저장한 보고서를 자동으로 복구했습니다.");
+                } catch (error) {
+                    // 저장소를 읽지 못하거나 JSON이 손상되어도 먼저 만든 기본 보고서는 사용할 수 있습니다.
+                    showReportMessage("저장한 보고서를 불러오지 못해 기본 보고서를 표시합니다: " + error.message);
+                }
+            }
+
+            // 저장한 정보만 지우며 현재 화면의 보고서와 다른 데모의 저장값은 유지합니다.
+            function removeSavedReport() {
+                try {
+                    localStorage.removeItem(reportStorageKey);
+                    document.getElementById("remove_report").disabled = true;
+                    showReportMessage(
+                        "보고서 저장 정보를 지웠습니다. 새로고침하거나 다시 방문하면 기본 보고서가 표시됩니다."
+                    );
+                    alert("보고서 저장 정보를 지웠습니다. 새로고침하거나 다시 방문하면 기본 보고서가 표시됩니다.");
+                } catch (error) {
+                    showReportMessage("저장한 정보를 지우지 못했습니다. 브라우저 저장소 사용 설정을 확인하십시오.");
+                }
+            }
+
+            // 저장 전후 차이를 쉽게 비교하도록 행 배치와 지점 필터를 바꾸는 조작을 제공합니다.
+            function changeReportLayout(layout) {
+                AUIPivot.setProp(myPivotID, "layoutType", layout);
+                AUIPivot.refresh(myPivotID);
+            }
+            function showSeoulOnly() {
+                AUIPivot.setFilterCache(myPivotID, { REGION: ["서울 지점"] });
+            }
+
+            // 상태 안내는 피벗 위의 한 영역에 표시합니다.
+            function showReportMessage(message) {
+                document.getElementById("report_status").textContent = message;
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 테마 선택은 기존 데모와 같은 탐색 줄에 표시합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>보고서 저장과 자동 복원</h1>
+                    <code class="demo-api-label">getReportDefinition / setReportDefinition</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>
+                        행, 열, 값, 필터 선택과 행 배치를 저장하여 새로고침하거나 다시 방문할 때 자동으로 복구하는
+                        데모입니다.
+                    </p>
+                    <p>
+                        getReportDefinition()은 현재 보고서 설정을 객체로 반환합니다. JSON 문자열로 바꾸어 브라우저
+                        저장소나 서버에 보관할 수 있습니다.
+                    </p>
+                    <p>
+                        setReportDefinition()은 저장한 설정으로 현재 보고서를 복구하고 다시 계산합니다. 원본 데이터는
+                        저장 대상이 아니므로 복구할 피벗에 별도로 준비해야 합니다.
+                    </p>
+                    <pre class="demo-code" tabindex="0" aria-label="보고서 저장과 복구 예제">
+// 보고서 저장 버튼을 누르면 현재 설정을 JSON 문자열로 보관합니다.
+const report = AUIPivot.getReportDefinition(myPivotID);
+localStorage.setItem("auipivot-demo-report-definition", JSON.stringify(report));
+alert("보고서를 저장했습니다. 새로고침하거나 다시 방문하면 자동으로 복구됩니다.");
+
+// 페이지를 열 때 원본 데이터를 준비한 뒤 아래 코드를 실행합니다.
+const savedJSON = localStorage.getItem("auipivot-demo-report-definition");
+if (savedJSON !== null) {
+    // 저장한 배치와 필터 등을 적용하고 현재 데이터로 다시 계산합니다.
+    AUIPivot.setReportDefinition(myPivotID, JSON.parse(savedJSON));
+}
+</pre>
+                    <p>
+                        행 배치나 필터를 바꾸고 보고서 저장을 누른 뒤 F5로 새로고침해 보십시오. 오른쪽 필드 패널에서
+                        바꾼 배치도 함께 복구됩니다.
+                    </p>
+                    <p>
+                        이 데모는 localStorage에 보고서 한 개를 저장합니다. 보고서 저장 정보를 지우면 다음 방문부터 기본
+                        보고서가 표시됩니다.
+                    </p>
+                    <!-- 자료 준비 전에는 빈 보고서가 저장되지 않도록 조작을 잠시 막습니다. -->
+                    <fieldset
+                        id="report_controls"
+                        disabled
+                        aria-label="보고서 저장과 복구"
+                        style="border: 0; padding: 0; margin: 0"
+                    >
+                        <!-- 첫 줄에서 보고서를 바꾸고 다음 줄에서 저장하거나 저장 정보를 지웁니다. -->
+                        <div>
+                            <label for="report_layout">행 배치:</label>
+                            <select id="report_layout" onchange="changeReportLayout(this.value)">
+                                <option value="tree">tree</option>
+                                <option value="table">table</option>
+                                <option value="tableCellMerge">tableCellMerge</option>
+                            </select>
+                            <button type="button" class="btn" onclick="showSeoulOnly()">서울 지점만 보기</button>
+                            <button type="button" class="btn" onclick="AUIPivot.clearFilterAll(myPivotID)">
+                                필터 전체 해제
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" class="btn" onclick="saveReport()">보고서 저장</button>
+                            <button type="button" id="remove_report" class="btn" disabled onclick="removeSavedReport()">
+                                보고서 저장 정보 지우기
+                            </button>
+                        </div>
+                    </fieldset>
+                    <p id="report_status" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
+                    <p>관련 데모: <a href="./save_state.html">행, 열, 값, 필터를 각각 저장하기</a></p>
+                </div>
+                <div style="position: relative; min-height: 600px">
+                    <!-- 피벗과 필드 패널의 상단을 같은 위치에 맞춥니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 600px"></div>
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 600px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

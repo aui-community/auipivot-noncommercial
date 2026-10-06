@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>가상 필드와 그룹화 | AUIPivot</title>
+<style>
+/* 긴 연산 목록과 예제도 기존 문서 색상 안에서 읽을 수 있게 배치합니다. */
+.feature-guide { max-width: 1080px; line-height: 1.75; }
+.feature-guide nav { margin: 20px 0; }
+.feature-guide section { margin: 40px 0; scroll-margin-top: 16px; }
+.feature-guide table { border-collapse: collapse; width: 100%; }
+.feature-guide th, .feature-guide td { border: 1px solid #ddd; padding: 9px; text-align: left; }
+.feature-guide th { background: #f1f4f7; }
+.feature-guide pre { overflow-x: auto; }
+</style>
+<link rel="stylesheet" href="../static/prism.css">
+<link rel="stylesheet" href="../static/style.css">
+<link rel="stylesheet" href="../static/typography.css">
+<link rel="stylesheet" href="../static/code-examples.css">
+<script src="../static/prism.js" data-manual></script>
+<script src="../static/code-examples.js"></script>
+
+<link rel="icon" href="../static/favicon.ico" sizes="any">
+<link rel="icon" href="../static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../static/apple-touch-icon.png">
+<meta name="theme-color" content="#222729">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../static/docs-brand.css">
+</head><body class="demo-typography docs-site"><header class="docs-header"><div class="docs-header-inner">
+    <a id="logo-bar" class="docs-brand" href="https://www.auisoft.net/" aria-label="AUISoft 홈페이지">
+      <img src="../static/favicon.svg" width="40" height="40" alt="">
+      <span>AUISoft<small>에이유아이소프트</small></span>
+    </a>
+    <span id="title" class="docs-context">AUIPivot 2.7 Documentation</span>
+    <nav class="docs-navigation" aria-label="주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav>
+    <details class="docs-mobile-navigation"><summary>메뉴</summary><nav aria-label="모바일 주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav></details>
+  </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">5. 가상 필드와 그룹화</span></nav>
+<main class="MainContent feature-guide"><nav aria-label="개발 가이드"><a href="../index.html">개발 문서 목차</a>, <a href="aggregation.html">집계 연산</a>, <a href="fields-and-grouping.html">가상 필드와 그룹화</a>, <a href="visual-analytics.html">시각 분석</a></nav>
+<h1>5. 가상 필드와 그룹화</h1>
+<p>집계는 여러 원본을 하나의 숫자로 줄이는 계산입니다. 파생 필드는 각 원본 행에 사용할 값을 먼저 계산하고, 그룹화는 같은 차원 키를 묶는 작업입니다. 파생 필드로 판매금액을 만든 뒤 SUM으로 합산할 수 있습니다.</p>
+<section id="dimensions"><h2>5.1 물리 필드로 그룹화</h2>
+<p>REGION, NAME, MODEL을 Rows에 놓으면 지점 아래 차종, 모델 계층이 생깁니다. Columns는 같은 방식으로 교차축을 구성합니다. 필드 순서와 해당 필드의 값 순서는 별개입니다.</p>
+<pre><code class="language-javascript">// 지점, 차종별로 묶고 색상별 판매를 교차 비교합니다.
+AUIPivot.setRowFields(pid, ["REGION", "NAME"]);
+AUIPivot.setColumnFields(pid, ["COLOR"]);
+AUIPivot.setValueFields(pid, [{dataField: "TOTAL", operation: "SUM"}]);</code></pre>
+<p><a href="https://www.auisoft.net/demo/auipivot/pivot_panel_demo.html">피벗 필드 패널 데모</a></p>
+</section>
+<section id="date"><h2>5.2 날짜 가상 필드</h2>
+<p><a href="../Pivot/Methods.html#setDateTypeField">setDateTypeField</a>에 DATE를 지정하면 DATE_YEAR, DATE_HALF, DATE_QTR, DATE_MONTH를 사용할 수 있습니다. 일(day)까지 표현된 날짜 자료를 사용하고 표시 라벨과 실제 날짜 차원 키를 구분합니다.</p>
+<pre><code class="language-javascript">// 날짜 기준을 지정한 뒤 연도와 월을 열 차원으로 사용합니다.
+AUIPivot.setDateTypeField(pid, "DATE");
+AUIPivot.setColumnFields(pid, ["DATE_YEAR", "DATE_MONTH"]);</code></pre>
+<p>기본 정렬은 시간 순서입니다. 날짜의 표시 형식만 바꾸는 formatter와 날짜 단위로 묶는 이 설정은 서로 다릅니다. <a href="https://www.auisoft.net/demo/auipivot/date_virtual_fields_demo.html">자동차 판매 데모</a></p>
+</section>
+<section id="derived"><h2>5.3 일반 파생 필드와 의존성</h2>
+<p><a href="../Pivot/Methods.html#setDerivedFields">setDerivedFields</a>는 JSON 선언으로 add/subtract/multiply/divide 사칙연산을 등록합니다. operands는 정확히 두 개의 필드명 또는 유한 숫자 상수입니다. 다른 파생 필드를 참조할 수 있고 선언 순서는 관계없지만 순환 참조는 오류입니다.</p>
+<pre id="derived-example"><code class="language-javascript">// 자동차 원본에 없는 할인 가정은 원본 변경 대신 선언으로 계산합니다.
+AUIPivot.setDerivedFields(pid, [
+  {dataField: "GROSS", labelText: "계산 판매금액",
+   expression: {operator: "multiply", operands: ["PRICE", "COUNT"]}},
+  {dataField: "DISCOUNT", labelText: "가정 할인액",
+   expression: {operator: "multiply", operands: ["GROSS", 0.05]}},
+  {dataField: "NET", labelText: "할인 후 금액",
+   expression: {operator: "subtract", operands: ["GROSS", "DISCOUNT"]}}
+]);
+AUIPivot.setValueFields(pid, [{dataField: "NET", operation: "SUM"}]);</code></pre>
+<p>0.05는 설명을 위한 할인 가정이며 실제 할인 실적이 아닙니다. 원가 COST가 있는 자료라면 PROFIT = TOTAL − COST를 같은 방식으로 정의할 수 있습니다.</p>
+<ul><li>원본 객체에 새 속성을 삽입하지 않습니다. 내부 행 뷰에서 필요한 파생값을 처음 읽을 때 계산, 캐시하고 재계산 때 새로 구성합니다.</li><li>Rows, Columns, Values, Filters에서 등록한 dataField를 사용합니다. SUM/AVG/MEDIAN/분산 등은 같은 필드 값으로 집계됩니다.</li><li>유한 숫자와 비어 있지 않은 숫자 문자열만 계산합니다. null, 공백, boolean, Date, 객체, 비유한 수는 invalid이며 계산 invalid, 0 나누기, overflow는 null입니다. 기존 SUM의 변환 규칙과는 다릅니다.</li><li>물리/날짜 필드 이름 충돌, 중복, 예약 이름, 없는 참조, 순환 의존성은 오류입니다. eval, 문자열 수식, callback은 지원하지 않습니다.</li><li>getSourceData/getCellDetailList는 원본 행을 반환하며 파생 속성을 추가한 객체를 반환하지 않습니다. 정의를 삭제하면 다음 재계산에서 관련 축, 값, 필터가 정리됩니다. 남은 파생 의존성도 함께 갱신하세요.</li></ul>
+<p><a href="https://www.auisoft.net/demo/auipivot/calculated_field_demo.html">자동차 판매 데모</a>, <a href="https://www.auisoft.net/demo/auipivot/executive_price_dispersion_demo.html">할인, 판매비 보고서</a></p>
+</section>
+<section id="ranges"><h2>5.4 숫자 구간과 경계</h2>
+<p>PRICE를 가격대로 묶어 비교합니다. 아래 단위와 경계는 예제용이며 실제 사업의 가격 기준으로 바꾸세요.</p>
+<pre id="range-example"><code class="language-javascript">// 가격은 [min, max)로 분류하며 필터, 업무 순서에는 labelText 대신 id를 사용합니다.
+AUIPivot.setDerivedFields(pid, [{
+  dataField: "PRICE_BAND", labelText: "차량 가격대", sourceField: "PRICE",
+  ranges: [
+    {id: "low", min: 0, max: 2000000, labelText: "200만원 미만"},
+    {id: "mid", min: 2000000, max: 3000000, labelText: "200~300만원"},
+    {id: "high", min: 3000000, max: null, labelText: "300만원 이상"}
+  ],
+  fallback: {id: "other", labelText: "기타"}
+}]);
+AUIPivot.setRowFields(pid, ["PRICE_BAND"]);
+AUIPivot.setColumnFields(pid, ["REGION"]);
+AUIPivot.setFilterFields(pid, ["PRICE_BAND"]);
+AUIPivot.setValueFields(pid, [{dataField: "TOTAL", operation: "SUM"}]);
+// 원본 입력 뒤 특정 가격대를 선택할 때 사용합니다.
+// AUIPivot.setFilterCache(pid, {PRICE_BAND: ["mid"]});</code></pre>
+<table><tr><th>경계</th><th>결과</th></tr><tr><td>1,999,999</td><td>low</td></tr><tr><td>2,000,000</td><td>mid</td></tr><tr><td>3,000,000</td><td>high</td></tr><tr><td>음수, invalid</td><td>other (fallback)</td></tr></table>
+<p>하한은 포함하고 상한은 제외하는 [min,max)입니다. null/생략 경계는 열린 끝입니다. 겹치는 구간은 오류, gap은 허용하며 fallback이 없으면 null입니다. 숫자 판정은 일반 파생 계산과 같으므로 빈 문자열, null이 자동으로 0 구간에 들어가지 않습니다.</p>
+<p>id는 중복 없는 식별자이며 같은 labelText라도 서로 다른 그룹입니다. 기본 정렬은 구간 정의 순서입니다. 단순 문자열 표시순에 의존하지 않습니다. 실제 필터 선택과 JSON에는 id를 저장합니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/numeric_range_grouping_demo.html">자동차 판매 데모</a></p>
+</section>
+<section id="order"><h2>5.5 업무 기준 순서와 결과 정렬</h2>
+<pre><code class="language-javascript">// 명시한 가격대가 먼저 나오고 나머지는 기존 상대 순서를 유지합니다.
+AUIPivot.setCustomValueOrders(pid, [
+  {dataField: "PRICE_BAND", values: ["high", "mid", "low"]}
+]);
+AUIPivot.updatePivot(pid);</code></pre>
+<p>우선순위는 Custom Value Order, 유효 Display Order Rule, Range 정의 순서, 기본 차원 순서입니다. 미지정 값은 뒤에 오며 기존 상대 순서를 보존합니다. 중복은 오류이고 []로 설정하면 해제됩니다. Rows, Columns의 각 부모와 필터 후보에 적용합니다.</p>
+<p>업무 순서는 실제 raw key 또는 Range id로 지정합니다. 문자열, 유한 숫자, boolean, null을 지원하고 Date/undefined/객체는 지원하지 않습니다. 기존 그룹이 합치는 타입은 새 순서 기능이 분리하지 않습니다. 날짜 synthetic의 업무 순서에는 실제 키(월 예: _$M_01)를 사용합니다.</p>
+<p>setDisplayOrderRules는 displayAutoAscending=false에서 source의 정렬 키를 지정합니다. setSorting은 완성된 결과 행 정렬이므로 적용 후 그 순서가 우선합니다. 집계 숫자와 원본 집합은 바뀌지 않습니다.</p>
+<p><a href="../Pivot/Methods.html#setCustomValueOrders">setCustomValueOrders</a>, <a href="../Pivot/Methods.html#setDisplayOrderRules">setDisplayOrderRules</a>, <a href="../Pivot/Methods.html#setSorting">setSorting</a>, <a href="https://www.auisoft.net/demo/auipivot/dimension_order_demo.html">자동차 판매 데모</a></p>
+</section>
+<section id="lifecycle"><h2>5.6 필터, 패널, 저장과 복원</h2>
+<p>setDerivedFields는 전체 정의를 교체합니다. 계산, Range를 함께 쓰려면 한 배열에 모두 넣으세요. source/정의/필터 변경 후 재계산에서 파생 캐시를 새로 만듭니다. getDerivedFields는 깊은 사본이며 JSON으로 저장할 수 있습니다.</p>
+<p>개별 API를 사용할 때는 파생 정의, 업무 순서, 날짜, 행, 열, 값, 필터, source, 필터 선택 순서를 사용합니다. <a href="../Pivot/Methods.html#getReportDefinition">getReportDefinition</a> / <a href="../Pivot/Methods.html#setReportDefinition">setReportDefinition</a>을 사용하면 정의, 순서, 필터가 V3 보고서에 저장되고 의존 순서와 원자적 검증을 처리합니다. 원본 자료와 callback은 보고서에 포함되지 않습니다.</p>
+<p>패널에서 API로 등록한 필드를 이동, 제거, 재추가할 수 있습니다. 전용 계산식/구간 편집기는 제공하지 않습니다. 별칭 setFieldAlias가 labelText보다 우선합니다. <a href="https://www.auisoft.net/demo/auipivot/derived_fields_demo.html">파생, 구간 통합 예제</a></p>
+</section>
+<section id="report"><h2>5.7 보고서 설정 저장과 복원</h2>
+<p><a href="../Pivot/Methods.html#getReportDefinition">getReportDefinition</a>은 현재 설정의 독립 사본을 반환합니다. 사본을 수정해도 화면은 바뀌지 않으며 <a href="../Pivot/Methods.html#setReportDefinition">setReportDefinition</a>으로 적용합니다.</p>
+<table><thead><tr><th>항목</th><th>저장 내용</th></tr></thead><tbody>
+<tr><td>rows, columns, values, filters</td><td>행, 열, 값, 필터 배치</td></tr>
+<tr><td>filterSelections</td><td>선택한 필터값. 슬라이서 선택도 같은 항목에 저장합니다.</td></tr>
+<tr><td>derivedFields, customValueOrders</td><td>파생 필드, 숫자 구간 정의와 항목 순서</td></tr>
+<tr><td>options 등 보고서 옵션</td><td>날짜, 정렬, 레이아웃, 서식과 별칭 등의 설정</td></tr>
+</tbody></table>
+<p>원본 데이터, 함수, 셀 선택, 스크롤과 시각화 설정은 포함하지 않습니다. 사용자 집계는 ID, 버전, 옵션을 저장하므로 복원 대상에도 같은 계산 정의를 먼저 등록합니다. 시각화는 <a href="visual-analytics.html#save">별도로 저장</a>합니다.</p>
+<p>다른 피벗에 복원할 때는 보고서에서 사용하는 필드가 있는 데이터를 준비합니다. 설정을 먼저 복원한 뒤 setGridData로 원본을 넣거나, 원본이 있는 피벗에 설정을 복원할 수 있습니다. 설정 전체를 교체하며 잘못된 버전, 필드, 연산 등의 검증에 실패하면 기존 설정을 유지합니다.</p>
+</section>
+<nav aria-label="개발 가이드"><a href="../index.html">개발 문서 목차</a>, <a href="aggregation.html">집계 연산</a>, <a href="fields-and-grouping.html">가상 필드와 그룹화</a>, <a href="visual-analytics.html">시각 분석</a></nav>
+</main><footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body></html>

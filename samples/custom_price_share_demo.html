@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 기존 정식 데모의 본문과 코드, 하단 여백을 사용합니다. -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <script>
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 시작점: 피벗을 만든 뒤 기존 자동차 판매 JSON을 요청합니다.
+            function init() {
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 피벗과 필드 패널을 만들고 사용자 집계를 이 피벗에 한 번 등록합니다.
+            function createPivotGrid() {
+                const pivotProps = {
+                    pivotPanelId: "#pivot_panel",
+                    defaultFormatString: "#,##0",
+                    autoGridHeight: false
+                };
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+                registerPriceShare();
+            }
+
+            // 정적 원본을 그대로 사용합니다. 추가 필드나 임의의 판매기록을 만들지 않습니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        initPivotData(data);
+                        document.getElementById("min_price").disabled = false;
+                        // 안내문을 한 줄로 유지하여 로딩 후에도 표와 필드 패널의 위치를 맞춥니다.
+                        document.getElementById("load_message").textContent =
+                            "자동차 판매기록 " + data.length.toLocaleString() + "건을 사용합니다.";
+                    })
+                    .catch(function (error) {
+                        document.getElementById("load_message").textContent = error.message;
+                    });
+            }
+
+            // 조건을 만족하는 대수와 전체 대수를 함께 모으는 계산 방법입니다.
+            function registerPriceShare() {
+                AUIPivot.registerCustomAggregator(myPivotID, {
+                    id: "PRICE_THRESHOLD_SHARE",
+                    version: 1,
+                    labelText: "기준 가격 이상 판매 비중",
+                    // 기준 가격을 따로 지정하지 않으면 300만 원을 사용합니다.
+                    defaultOptions: { minPrice: 3000000 },
+                    validateOptions: function (options, context) {
+                        // 판매 대수 외에 같은 기록의 가격도 계산에 필요합니다.
+                        context.requireField("PRICE");
+                        return Number.isFinite(options.minPrice) && options.minPrice >= 0;
+                    },
+                    create: function () {
+                        // 각 지점과 분기마다 전체 대수, 조건에 맞는 대수를 따로 모읍니다.
+                        return { allUnits: 0, matchedUnits: 0 };
+                    },
+                    accumulate: function (state, value, context) {
+                        // value는 COUNT 필드의 판매 대수입니다. 기록 한 건이 3대이면 3을 더합니다.
+                        if (!Number.isFinite(value) || value <= 0) return;
+                        state.allUnits += value;
+
+                        // 가격을 확인할 수 있고 기준 이상인 경우에만 조건에 맞는 대수에 더합니다.
+                        const price = context.getValue("PRICE");
+                        if (Number.isFinite(price) && price >= context.options.minPrice) {
+                            state.matchedUnits += value;
+                        }
+                    },
+                    merge: function (target, source) {
+                        // 소계와 총계에서는 비율을 평균내지 않고 두 판매 대수 합계를 합칩니다.
+                        target.allUnits += source.allUnits;
+                        target.matchedUnits += source.matchedUnits;
+                    },
+                    finalize: function (state) {
+                        // 조건에 맞는 대수를 전체 대수로 나눕니다. 판매 대수가 없으면 빈칸입니다.
+                        return state.allUnits === 0 ? null : state.matchedUnits / state.allUnits;
+                    }
+                });
+            }
+
+            // 판매 지점을 행에, 분기를 열에 놓습니다. 차종과 색상은 필터에서 고릅니다.
+            function initPivotData(data) {
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+                AUIPivot.setRowFields(myPivotID, ["REGION"]);
+                AUIPivot.setColumnFields(myPivotID, ["DATE_QTR"]);
+                AUIPivot.setFilterFields(myPivotID, ["NAME", "COLOR"]);
+                AUIPivot.setFieldAlias(myPivotID, {
+                    REGION: "판매 지점",
+                    NAME: "차종",
+                    MODEL: "모델",
+                    COLOR: "색상",
+                    PRICE: "가격",
+                    COUNT: "판매 대수",
+                    TOTAL: "매출액",
+                    DATE: "판매일",
+                    DATE_YEAR: "년",
+                    DATE_HALF: "반기",
+                    DATE_QTR: "분기",
+                    DATE_MONTH: "월"
+                });
+                setPriceShareValues();
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 같은 집계 함수에 기준 가격만 전달합니다. 원본과 현재 필터는 유지합니다.
+            function setPriceShareValues() {
+                const minPrice = Number(document.getElementById("min_price").value);
+                AUIPivot.setValueFields(myPivotID, [
+                    { dataField: "COUNT", operation: "SUM", customLabelText: "판매 대수", formatString: "#,##0" },
+                    {
+                        dataField: "COUNT",
+                        operation: "PRICE_THRESHOLD_SHARE",
+                        // minPrice는 위에서 등록한 집계 함수가 읽는 기준 가격입니다.
+                        aggregatorOptions: { minPrice: minPrice },
+                        customLabelText: "기준 가격 이상 판매 비중",
+                        formatString: "0.00%"
+                    }
+                ]);
+            }
+
+            // 가격을 바꾸면 기존 보고서의 설정에 새 계산 기준을 반영합니다.
+            function changeMinPrice() {
+                setPriceShareValues();
+                AUIPivot.updatePivot(myPivotID);
+            }
+
+            // 필드 패널을 열어 행, 열, 필터를 직접 바꿔 볼 수 있습니다.
+            function togglePivotPanel() {
+                if (AUIPivot.getPivotPanelState(myPivotID) === "shown") {
+                    AUIPivot.hidePivotPanel(myPivotID);
+                } else {
+                    AUIPivot.showPivotPanel(myPivotID);
+                }
+            }
+        </script>
+    </head>
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 테마 선택은 원본 JSON 링크 바로 옆에 배치합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>기준 가격 이상 차량의 판매 비중</h1>
+                    <code class="demo-api-label">registerCustomAggregator</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>각 지점에서 판매한 차량 중 기준 가격 이상인 차량이 차지하는 비중입니다.</p>
+                    <p>
+                        registerCustomAggregator()로 전체 판매 대수와 조건에 맞는 판매 대수를 모은 뒤 나누는 계산을
+                        등록합니다. PRICE는 한 대 가격, COUNT는 판매 대수입니다.
+                    </p>
+                    <p>
+                        예를 들어 전체 10대 중 기준 가격 이상인 차량을 3대 팔았다면 30%입니다. 판매기록 수가 아닌 판매
+                        대수로 계산합니다.
+                    </p>
+                    <p>
+                        등록한 id를 operation에 지정하고, aggregatorOptions.minPrice에 기준 가격을 전달하십시오.
+                        formatString으로 계산 결과를 백분율로 표시합니다.
+                    </p>
+                    <pre class="demo-code" tabindex="0" aria-label="조건별 판매 비중 집계 등록 예제">
+AUIPivot.registerCustomAggregator(myPivotID, {
+    id: "PRICE_THRESHOLD_SHARE",
+    version: 1,
+    labelText: "기준 가격 이상 판매 비중",
+    // 기준 가격을 따로 지정하지 않으면 300만 원을 사용합니다.
+    defaultOptions: { minPrice: 3000000 },
+    validateOptions: function (options, context) {
+        // 판매 대수 외에 같은 기록의 가격도 계산에 필요합니다.
+        context.requireField("PRICE");
+        return Number.isFinite(options.minPrice) &amp;&amp; options.minPrice &gt;= 0;
+    },
+    create: function () {
+        // 각 지점과 분기마다 전체 대수, 조건에 맞는 대수를 따로 모읍니다.
+        return { allUnits: 0, matchedUnits: 0 };
+    },
+    accumulate: function (state, value, context) {
+        // value는 COUNT 필드의 판매 대수입니다. 기록 한 건이 3대이면 3을 더합니다.
+        if (!Number.isFinite(value) || value &lt;= 0) return;
+        state.allUnits += value;
+
+        // 가격을 확인할 수 있고 기준 이상인 경우에만 조건에 맞는 대수에 더합니다.
+        const price = context.getValue("PRICE");
+        if (Number.isFinite(price) &amp;&amp; price &gt;= context.options.minPrice) {
+            state.matchedUnits += value;
+        }
+    },
+    merge: function (target, source) {
+        // 소계와 총계에서는 비율을 평균내지 않고 두 판매 대수 합계를 합칩니다.
+        target.allUnits += source.allUnits;
+        target.matchedUnits += source.matchedUnits;
+    },
+    finalize: function (state) {
+        // 조건에 맞는 대수를 전체 대수로 나눕니다. 판매 대수가 없으면 빈칸입니다.
+        return state.allUnits === 0 ? null : state.matchedUnits / state.allUnits;
+    }
+});
+
+// 등록한 집계를 값 필드에 지정하고 기준 가격을 전달합니다.
+AUIPivot.setValueFields(myPivotID, [
+    { dataField: "COUNT", operation: "SUM", customLabelText: "판매 대수", formatString: "#,##0" },
+    {
+        dataField: "COUNT",
+        operation: "PRICE_THRESHOLD_SHARE",
+        // minPrice는 위에서 등록한 집계 함수가 읽는 기준 가격입니다.
+        aggregatorOptions: { minPrice: 3000000 },
+        customLabelText: "기준 가격 이상 판매 비중",
+        formatString: "0.00%"
+    }
+]);</pre>
+                    <p>
+                        필터를 적용하면 해당 기록 안에서 비중을 계산합니다. 소계와 총계도 각 범위의 판매 대수 합계로
+                        다시 나눕니다.
+                    </p>
+                    <label
+                        >기준 가격
+                        <select id="min_price" onchange="changeMinPrice()" disabled>
+                            <option value="2500000">250만 원 이상</option>
+                            <option value="3000000" selected>300만 원 이상</option>
+                            <option value="4000000">400만 원 이상</option>
+                        </select>
+                    </label>
+                    <button type="button" class="btn" onclick="togglePivotPanel()">피벗 패널 닫기/보이기</button>
+                    <p id="load_message" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
+                </div>
+                <div style="position: relative">
+                    <!-- 피벗과 필드 패널의 상단을 같은 위치에 맞춥니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 600px"></div>
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 600px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

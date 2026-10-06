@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <!-- 브라우저 다운로딩 할 수 있는 JS 추가 -->
+        <script src="../export_server_samples/FileSaver.min.js"></script>
+
+        <style>
+            /* 컨텍스트 사용자 정의 메뉴 아이템 */
+            .my-context-item {
+                color: #ff0000;
+                font-weight: bold;
+            }
+        </style>
+        <script>
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 시작점
+            function init() {
+                // AUIPivot 을 생성합니다.
+                createPivotGrid();
+
+                // 피벗팅 할 데이터 요청
+                requestData("./data/car_sales.json");
+            }
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid() {
+                // 피봇 그리드 속성 설정
+                const pivotProps = {
+                    // layoutType : table 방식은 행 필드로 지정된 필드들이 개별적으로 각각 칼럼의 요소가 되어 출력됨.
+                    layoutType: "table",
+
+                    defaultFormatString: "#,##0",
+
+                    // 컨텍스트 메뉴 사용
+                    useContextMenu: true,
+
+                    // 헤더 컨텍스트 메뉴 사용
+                    useContextHeaderMenu: true,
+
+                    // 컨텍스트 메뉴 아이템들
+                    contextMenuItems: [
+                        {
+                            label: "값 : $value",
+                            callback: contextItemHandler // label 에 $value 를 설정하면 마우스가 있는 곳의 value 값으로 대체됩니다.
+                        },
+                        {
+                            label: "_$line" // label 에 _$line 을 설정하면 라인을 긋는 아이템으로 인식합니다.
+                        },
+                        {
+                            label: "Export To Excel",
+                            style: "my-context-item",
+                            callback: contextItemHandler
+                        },
+                        {
+                            label: "Open Google.com",
+                            callback: contextItemHandler
+                        },
+                        {
+                            label: "서브 메뉴",
+                            children: [
+                                {
+                                    label: "서브 메뉴1",
+                                    callback: contextItemSubHandler
+                                },
+                                {
+                                    label: "서브 메뉴2",
+                                    style: "my-context-item",
+                                    callback: contextItemSubHandler
+                                },
+                                {
+                                    label: "서브 메뉴3",
+                                    callback: contextItemSubHandler
+                                }
+                            ]
+                        }
+                    ],
+
+                    // 헤더 컨텍스트 메뉴 아이템 정의
+                    contextMenuHeaderItems: [
+                        {
+                            label: "헤더 메뉴 1",
+                            callback: contextItemHeaderHandler
+                        },
+                        {
+                            label: "헤더 메뉴 2",
+                            callback: contextItemHeaderHandler
+                        },
+                        {
+                            label: "_$line" // label 에 _$line 을 설정하면 라인을 긋는 아이템으로 인식합니다.
+                        },
+                        {
+                            label: "헤더 서브 메뉴",
+                            children: [
+                                {
+                                    label: "서브 메뉴1",
+                                    callback: contextItemHeaderSubHandler
+                                },
+                                {
+                                    label: "서브 메뉴2",
+                                    style: "my-context-item",
+                                    callback: contextItemHeaderSubHandler
+                                },
+                                {
+                                    label: "서브 메뉴3",
+                                    callback: contextItemHeaderSubHandler
+                                }
+                            ]
+                        }
+                    ],
+
+                    //  컨텍스트 메뉴를 보기 위해 오른쪽 클릭을 한 경우 클릭 지점이 왼쪽 클릭과 같이 셀 선택을 할지 여부
+                    enableRightDownFocus: true // 기본값 : false
+                };
+
+                // 실제로 #pivot_wrap 에 그리드 생성
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+
+                // contextMenu 이벤트 바인딩
+                AUIPivot.bind(myPivotID, "contextMenu", function (event) {
+                    console.log(event);
+                });
+            }
+
+            //피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+            function initPivotData(data) {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["DATE_HALF", "DATE_QTR", "DATE_MONTH"]);
+
+                // 필터 필드, 원하면 주석 제거
+                //AUIPivot.setFilterFields(myPivotID, ["COLOR"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(myPivotID, [{ "dataField": "TOTAL", "operation": "SUM" }]);
+
+                // 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+
+                // 피봇그리드에 데이터 삽입
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 피벗 필드들 변경하여 업데이트
+            function changePivotFields() {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["COLOR"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(myPivotID, [{ "dataField": "COUNT", "operation": "SUM" }]);
+
+                // 피봇팅 다시 실행
+                AUIPivot.updatePivot(myPivotID);
+            }
+
+            //데이터 요청
+            function requestData(url) {
+                // ajax 로더 표시
+                AUIPivot.showAjaxLoader(myPivotID);
+
+                fetch(url)
+                    .then((res) => {
+                        if (!res.ok) throw new Error("데이터 요청 실패");
+                        return res.json();
+                    })
+                    .then((data) => {
+                        // 피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+                        initPivotData(data);
+
+                        // 로더 제거
+                        //AUIPivot.removeAjaxLoader(myPivotID);
+                    })
+                    .catch((err) => console.error("데이터 로딩 오류:", err));
+            }
+
+            //컨텍스트 메뉴 아이템 핸들러
+            function contextItemHandler(event) {
+                console.log(event);
+                switch (event.contextIndex) {
+                    case 0:
+                        alert(event.value + ", rowIndex : " + event.rowIndex + ", columnIndex : " + event.columnIndex);
+                        break;
+                    case 2:
+                        // 내보내기 실행
+                        AUIPivot.exportToXlsx(event.pid);
+                        break;
+                    case 3:
+                        window.open("https://www.google.com", "_blank");
+                        break;
+                }
+            }
+
+            // 컨텍스트 서브 메뉴 아이템 선택 핸들러
+            function contextItemSubHandler(event) {
+                switch (event.contextIndex) {
+                    case 0:
+                        alert(
+                            "서브 메뉴 1 : " +
+                                event.value +
+                                ", rowIndex : " +
+                                event.rowIndex +
+                                ", columnIndex : " +
+                                event.columnIndex
+                        );
+                        break;
+                    case 1:
+                        alert("서브 메뉴 2");
+                        break;
+                    case 2:
+                        alert("서브 메뉴 3");
+                        break;
+                }
+            }
+
+            // 헤더 컨텍스트 메뉴 아이템 선택 핸들러
+            function contextItemHeaderHandler(event) {
+                console.log(event);
+                alert(event.contextItem.label + ", " + event.value + " 클릭");
+            }
+
+            // 헤더 컨텍스트 서브 메뉴 아이템 선택 핸들러
+            function contextItemHeaderSubHandler(event) {
+                console.log(event);
+                alert(event.contextItem.label + " 클릭");
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>오른쪽 클릭 메뉴</h1>
+                    <code class="demo-api-label">contextMenu</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>AUIPivot 의 컨텍스트 메뉴를 정의한 데모입니다.</p>
+                    <p>
+                        useContextMenu=true 설정으로 contextMenuItems 에서 정의한 바디 컨텍스트 메뉴를 활성화 할 수
+                        있습니다.
+                    </p>
+                    <p>
+                        useContextHeaderMenu = true 설정으로 contextMenuHeaderItems 에서 정의한 헤더 컨텍스트 메뉴를
+                        활성화 할 수 있습니다.
+                    </p>
+                    <p>
+                        컨텍스트 메뉴를 보기 위해 마우스 오른쪽을 클릭 한 경우, 기본적으로 클릭 셀에 셀렉션이 되지
+                        않습니다.
+                    </p>
+                    <p>
+                        셀렉션을 클릭한 지점으로 이동하고자 한다면 enableRightDownFocus=true 설정하십시오.(기본값:false)
+                    </p>
+                </div>
+            </div>
+            <div style="position: relative">
+                <!-- AUIPivot 그리드가 이곳에 생성됩니다. -->
+                <div id="pivot_wrap" style="width: 1200px; height: 480px"></div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="copyright">
+                <p>
+                    Copyright © AUISoft Co., Ltd.
+                    <a href="https://www.auisoft.net" target="_blank" class="link" style="color: #b2ccff"
+                        >https://www.auisoft.net</a
+                    >
+                </p>
+            </div>
+        </div>
+        </div>
+    </body>
+</html>

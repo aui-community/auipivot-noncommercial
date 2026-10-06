@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        
+
+        
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        
+
+        <script>
+
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 공통 demo.js가 문서와 테마 준비를 마치면 한 번 호출합니다.
+            function init() {
+                createPivotGrid();
+                return requestData("./data/car_sales.json");
+            }
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid() {
+                // 피봇 그리드 속성 설정
+                const pivotProps = {
+                    // 피벗 패널 사용을 위해 피벗 패널이 생성될 DIV 의 아이디를 지정함.
+                    pivotPanelId: "#pivot_panel",
+                    // 피벗 그리드의 높이(height)가 피벗팅 된 결과에 따라 유동적으로 최적화되어 표현될지 여부
+                    autoGridHeight: true, // 기본값 : true 임
+                    // autoGridHeight 을 적용할 때 높이가 부모도 같이 적용 시킬지 여부
+                    // 즉, 데모 상의 #pivot_wrap DIV 가 같이 적용될지 여부.
+                    autoGridParentHeight: false,
+                    // 피벗 보고서의 숫자의 기본 포맷 스트링 설정
+                    defaultFormatString: "#,##0"
+                };
+
+                // 실제로 #pivot_wrap 에 그리드 생성
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+
+                // 셀 더블 클릭 이벤트 바인딩 - 상세 리스트 출력을 하게 됨
+                AUIPivot.bind(myPivotID, "cellDoubleClick", function (event) {
+                    // 피벗 행 레이블인 경우
+                    if (event.columnIndex === 0) {
+                        alert("피벗 행 레이블의 셀 클릭!! : " + event.value);
+                        return;
+                    }
+
+                    // 클릭한 셀의 rowIndex, columnIndex 를 기반으로 소스로 사용된 상세 리스트를 얻어옴.
+                    const detailList = AUIPivot.getCellDetailList(myPivotID, event.rowIndex, event.columnIndex);
+                    // 상세 원본을 확인하고 사용 중인 그리드에 전달하십시오.
+                    console.log(detailList);
+                    alert('그리드와 연결하세요.');
+                });
+            }
+
+            //피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+            function initPivotData(data) {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["DATE_HALF", "DATE_QTR", "DATE_MONTH"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(myPivotID, [{ "dataField": "TOTAL", "operation": "SUM" }]);
+
+                // 필터 필드
+                AUIPivot.setFilterFields(myPivotID, ["COLOR"]);
+
+                // 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+
+                // 주어진 JSON 데이터의 필드명을 구분하기 쉽게 alias 를 지정합니다.
+                // [{"REGION":"서울 지점","NAME":"아반테","MODEL":"1.6 GDi","COLOR":"Blue","PRICE":1384000,"COUNT":1,"DATE":"2015/01/01","TOTAL":1384000},{
+                AUIPivot.setFieldAlias(myPivotID, {
+                    "REGION": "판매 지점",
+                    "NAME": "차종",
+                    "MODEL": "모델",
+                    "COLOR": "색상",
+                    "PRICE": "가격",
+                    "COUNT": "판매 대수",
+                    "TOTAL": "매출액",
+                    "DATE": "일",
+                    "DATE_YEAR": "년",
+                    "DATE_HALF": "반기",
+                    "DATE_QTR": "분기",
+                    "DATE_MONTH": "월"
+                });
+
+                // 피봇그리드에 데이터 삽입
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 기본 fetch로 판매 자료를 읽고 실패한 경우 공통 데모 안내에 오류를 전달합니다.
+            function requestData(url) {
+                AUIPivot.showAjaxLoader(myPivotID);
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 원본을 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        document.getElementById("desc").textContent =
+                            data.length + " rows 데이터를 주어진 피벗 필드에 맞게 분석하여 표현하였습니다.";
+                        initPivotData(data);
+                    })
+                    .finally(function () {
+                        // 요청 실패 시에도 로딩 표시가 화면에 계속 남지 않게 합니다.
+                        AUIPivot.removeAjaxLoader(myPivotID);
+                    });
+            }
+
+            // 사용자가 피벗 패널을 닫은 경우 다시 열도록 함.
+            function showPivoPanel() {
+                if (AUIPivot.getPivotPanelState(myPivotID) === "shown") {
+                    AUIPivot.hidePivotPanel(myPivotID);
+                    return;
+                }
+                AUIPivot.showPivotPanel(myPivotID);
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>집계값의 원본 기록 확인</h1>
+                    <code class="demo-api-label">getCellDetailList</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>다음은 각 반기, 분기, 월 별로 요약하여 출력한 보고서입니다.</p>
+                    <p>
+                        피벗팅 된 그리드의 특정 셀을 더블 클릭하면, 요약 전의 원본 데이터 중에서 해당 셀의
+                        소스(source)로 사용된 상세 리스트를 확인 할 수 있습니다.
+                    </p>
+                    <p>
+                        데모 상에선 더블 클릭으로 구성했지만, 다른 이벤트를 받아 상세 리스트 확인 가능합니다.(예: 엔터
+                        키, 클릭 등)
+                    </p>
+                    <p>얻어온 상세 리스트(Array)를 개발자 도구의 콘솔에 출력합니다. 이 데이터를 사용 중인 그리드와 연결하십시오.</p>
+                    <p style="margin-top: 24px"><strong>아래 피벗 그리드의 셀을 더블 클릭하십시오.</strong></p>
+                </div>
+                <div style="position: relative">
+                    <!-- AUIPivot 그리드가 이곳에 생성됩니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 600px"></div>
+                    <!-- AUIPivot 피벗 필드 패널이 이곳에 생성됩니다. -->
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 600px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+                <div id="desc"></div>
+            </div>
+            <div id="footer">
+                <div class="copyright">
+                    <p>
+                        Copyright © AUISoft Co., Ltd.
+                        <a href="https://www.auisoft.net" target="_blank" class="link" style="color: #b2ccff"
+                            >https://www.auisoft.net</a
+                        >
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        
+    </body>
+</html>

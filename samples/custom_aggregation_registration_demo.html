@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 기존 데모의 본문, 코드와 하단 여백을 사용합니다. -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+        <!-- 원본을 바꾸지 않고 데모용 고객 번호를 붙이는 공통 함수입니다. -->
+        <script src="./car_sales_extensions.js"></script>
+
+        <script>
+            // AUIPivot 생성 후 반환 ID와 고객 번호를 붙인 판매 자료입니다.
+            let myPivotID;
+            let sourceData;
+
+            // 시작점: 피벗을 만든 뒤 기존 자동차 판매 JSON을 요청합니다.
+            function init() {
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 피벗을 만들고 이 피벗에서 사용할 고객당 평균 계산을 한 번 등록합니다.
+            function createPivotGrid() {
+                const pivotProps = {
+                    pivotPanelId: "#pivot_panel",
+                    defaultFormatString: "#,##0",
+                    autoGridHeight: false
+                };
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+                registerCustomerAverage(myPivotID);
+                // 필터나 대상 자료를 바꿔도 안내에는 실제 표의 총계를 표시합니다.
+                AUIPivot.bind(myPivotID, "pivotComplete", showTotalCalculation);
+            }
+
+            // 원본 JSON에는 고객 번호가 없어 기존 공통 규칙으로 가상 번호를 붙입니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        // 연속된 두 기록에 같은 고객 번호를 부여하고, 240개 번호를 반복합니다.
+                        // 원본의 가격, 판매 대수, 매출액은 바꾸지 않습니다.
+                        sourceData = extendCarSalesData(data, ["CUSTOMER_ID"]);
+                        initPivotData();
+                        document.getElementById("data_scope").disabled = false;
+                    })
+                    .catch(function (error) {
+                        document.getElementById("load_message").textContent = error.message;
+                    });
+            }
+
+            // 지점별로 매출, 고객 수, 고객당 평균을 나란히 비교합니다.
+            function initPivotData() {
+                const aliases = createCarSalesAliases();
+                aliases.CUSTOMER_ID = "고객 번호";
+                AUIPivot.setFieldAlias(myPivotID, aliases);
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+                AUIPivot.setRowFields(myPivotID, ["REGION"]);
+                AUIPivot.setColumnFields(myPivotID, []);
+                AUIPivot.setFilterFields(myPivotID, ["NAME", "REGION"]);
+                AUIPivot.setValueFields(myPivotID, [
+                    // 1. 모든 판매기록의 매출액을 더합니다.
+                    { dataField: "TOTAL", operation: "SUM", customLabelText: "매출 합계" },
+                    // 2. 고객 번호가 같은 기록은 한 고객으로 셉니다.
+                    { dataField: "CUSTOMER_ID", operation: "DISTINCT_COUNT", customLabelText: "고객 수(중복 제외)" },
+                    // 3. 위에서 등록한 계산으로 매출 합계를 고객 수로 나눕니다.
+                    {
+                        dataField: "TOTAL",
+                        operation: "CUSTOMER_AVG_SALES",
+                        aggregatorOptions: { customerField: "CUSTOMER_ID" },
+                        customLabelText: "고객당 평균 매출",
+                        formatString: "#,##0.00"
+                    }
+                ]);
+                changeDataScope();
+            }
+
+            // 처음에는 작은 자료로 계산을 살펴보고, 같은 계산을 전체 자료에도 적용합니다.
+            function changeDataScope() {
+                if (!sourceData) return;
+                let selected = sourceData;
+                if (document.getElementById("data_scope").value === "first") {
+                    selected = sourceData.filter(function (row) {
+                        return row.DATE === sourceData[0].DATE;
+                    });
+                }
+                // 다시 범위를 선택할 수 있도록 보관한 자료 대신 사본을 전달합니다.
+                AUIPivot.setGridData(
+                    myPivotID,
+                    selected.map(function (row) {
+                        return Object.assign({}, row);
+                    })
+                );
+            }
+
+            // 매출 합계와 고객 번호를 모았다가 마지막에 나누는 사용자 집계입니다.
+            function registerCustomerAverage(pid) {
+                AUIPivot.registerCustomAggregator(pid, {
+                    id: "CUSTOMER_AVG_SALES",
+                    version: 1,
+                    labelText: "고객당 평균 매출",
+                    // customerField에는 고객 번호가 들어 있는 필드 이름을 전달합니다.
+                    validateOptions: function (options, context) {
+                        context.requireField(options.customerField);
+                    },
+                    create: function () {
+                        // 매출을 더할 변수와 고객 번호를 모을 Set을 지점마다 따로 만듭니다.
+                        // Set에 같은 고객 번호를 여러 번 넣어도 하나만 남습니다.
+                        return { sales: 0, customers: new Set() };
+                    },
+                    accumulate: function (state, value, context) {
+                        // value는 이번 판매기록의 매출액(TOTAL)입니다.
+                        const customer = context.getValue(context.options.customerField);
+                        // 매출액과 고객 번호를 모두 확인할 수 있는 기록만 계산합니다.
+                        // 매출 0, 음수도 반영하며 고객 번호 자체는 바꾸지 않습니다.
+                        if (
+                            typeof value !== "number" ||
+                            !Number.isFinite(value) ||
+                            typeof customer !== "string" ||
+                            customer.trim() === ""
+                        )
+                            return;
+                        state.sales += value;
+                        state.customers.add(customer);
+                    },
+                    merge: function (target, source) {
+                        // 총계에서도 매출은 더하고, 같은 고객은 한 번만 셉니다.
+                        // 지점별 고객 수나 평균을 단순히 더하면 중복 고객을 잘못 계산합니다.
+                        target.sales += source.sales;
+                        source.customers.forEach(function (customer) {
+                            target.customers.add(customer);
+                        });
+                    },
+                    finalize: function (state) {
+                        // 매출 합계 ÷ 중복을 제외한 고객 수. 고객이 없으면 빈칸입니다.
+                        return state.customers.size === 0 ? null : state.sales / state.customers.size;
+                    }
+                });
+            }
+
+            // 별도로 재계산하지 않고 표의 총계 세 값을 그대로 읽어 계산식을 안내합니다.
+            function showTotalCalculation() {
+                const message = document.getElementById("load_message");
+                const columns = AUIPivot.getColumnInfoList(myPivotID);
+                const footer = AUIPivot.getFooterData(myPivotID);
+                function total(operation) {
+                    // 열을 그룹으로 나누지 않은 세 계산 열만 찾습니다.
+                    const column = columns.find(function (item) {
+                        return item.dataField === operation;
+                    });
+                    const cell =
+                        column &&
+                        footer.find(function (item) {
+                            return item.index === column.columnIndex;
+                        });
+                    return cell ? cell.value : null;
+                }
+                const sales = total("TOTAL::SUM");
+                const customers = total("CUSTOMER_ID::DISTINCT_COUNT");
+                const average = total("TOTAL::CUSTOMER_AVG_SALES");
+                // 패널에서 열이나 값 구성을 바꿨다면 일부 열의 값을 전체 총계로 안내하지 않습니다.
+                if (!Number.isFinite(sales) || !Number.isFinite(customers) || !Number.isFinite(average)) {
+                    message.textContent = "각 그룹에서 매출 합계를 중복을 제외한 고객 수로 나누어 확인하세요.";
+                    return;
+                }
+                message.textContent =
+                    "총 합계 읽기: " +
+                    sales.toLocaleString("ko-KR") +
+                    "원 ÷ " +
+                    customers.toLocaleString("ko-KR") +
+                    "명 = 고객당 " +
+                    average.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                    "원";
+            }
+
+            // 필드 패널에서 행, 열과 필터를 직접 바꿔 볼 수 있습니다.
+            function togglePivotPanel() {
+                if (AUIPivot.getPivotPanelState(myPivotID) === "shown") {
+                    AUIPivot.hidePivotPanel(myPivotID);
+                } else {
+                    AUIPivot.showPivotPanel(myPivotID);
+                }
+            }
+        </script>
+    </head>
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 테마 선택은 원본 JSON 링크 바로 옆에 배치합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>고객당 평균 매출</h1>
+                    <code class="demo-api-label">registerCustomAggregator</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>
+                        각 지점에서 고객 한 명이 평균적으로 얼마를 구매했는지 보여 줍니다.
+                        <strong>매출 합계 ÷ 중복을 제외한 고객 수</strong>로 계산합니다.
+                    </p>
+                    <p>
+                        예를 들어 A 고객이 10만 원과 20만 원, B 고객이 30만 원을 구매했다면 매출은 60만 원, 고객은
+                        2명입니다. 고객당 평균 매출은 30만 원입니다.
+                    </p>
+                    <p>
+                        registerCustomAggregator()로 이 계산을 등록하고, 등록한 id를 값 필드의 operation에 지정합니다.
+                        Set은 같은 고객 번호를 여러 번 넣어도 하나만 보관합니다.
+                    </p>
+                    <p>
+                        원본에 고객 정보가 없어 연속된 판매기록 두 건에 같은 가상 고객 번호(CUSTOMER_ID)를 붙였습니다.
+                        전체 자료에서는 240개 번호를 반복 사용하며, 실제 고객 통계는 아닙니다.
+                    </p>
+                    <pre class="demo-code" tabindex="0" aria-label="고객당 평균 매출 집계 등록 예제">
+AUIPivot.registerCustomAggregator(myPivotID, {
+    id: "CUSTOMER_AVG_SALES",
+    version: 1,
+    labelText: "고객당 평균 매출",
+    // customerField에는 고객 번호가 들어 있는 필드 이름을 전달합니다.
+    validateOptions: function (options, context) {
+        context.requireField(options.customerField);
+    },
+    create: function () {
+        // 매출을 더할 변수와 고객 번호를 모을 Set을 지점마다 따로 만듭니다.
+        // Set에 같은 고객 번호를 여러 번 넣어도 하나만 남습니다.
+        return { sales: 0, customers: new Set() };
+    },
+    accumulate: function (state, value, context) {
+        // value는 이번 판매기록의 매출액(TOTAL)입니다.
+        const customer = context.getValue(context.options.customerField);
+        // 매출액과 고객 번호를 모두 확인할 수 있는 기록만 계산합니다.
+        // 매출 0, 음수도 반영하며 고객 번호 자체는 바꾸지 않습니다.
+        if (typeof value !== "number" || !Number.isFinite(value) ||
+            typeof customer !== "string" || customer.trim() === "") return;
+        state.sales += value;
+        state.customers.add(customer);
+    },
+    merge: function (target, source) {
+        // 총계에서도 매출은 더하고, 같은 고객은 한 번만 셉니다.
+        // 지점별 고객 수나 평균을 단순히 더하면 중복 고객을 잘못 계산합니다.
+        target.sales += source.sales;
+        source.customers.forEach(function (customer) {
+            target.customers.add(customer);
+        });
+    },
+    finalize: function (state) {
+        // 매출 합계 ÷ 중복을 제외한 고객 수. 고객이 없으면 빈칸입니다.
+        return state.customers.size === 0 ? null : state.sales / state.customers.size;
+    }
+});
+
+AUIPivot.setValueFields(myPivotID, [
+    // 1. 모든 판매기록의 매출액을 더합니다.
+    { dataField: "TOTAL", operation: "SUM", customLabelText: "매출 합계" },
+    // 2. 고객 번호가 같은 기록은 한 고객으로 셉니다.
+    { dataField: "CUSTOMER_ID", operation: "DISTINCT_COUNT", customLabelText: "고객 수(중복 제외)" },
+    // 3. 위에서 등록한 계산으로 매출 합계를 고객 수로 나눕니다.
+    {
+        dataField: "TOTAL",
+        operation: "CUSTOMER_AVG_SALES",
+        aggregatorOptions: { customerField: "CUSTOMER_ID" },
+        customLabelText: "고객당 평균 매출",
+        formatString: "#,##0.00"
+    }
+]);
+</pre>
+                    <p>
+                        총 합계에서도 같은 고객은 한 명입니다. 여러 지점에서 구매한 고객이 있으므로 지점별 고객 수를
+                        더한 값과 다를 수 있습니다.
+                    </p>
+                    <p>
+                        함께 보기: <a href="./custom_price_share_demo.html">기준 가격 이상 차량의 판매 비중</a>,
+                        <a href="./custom_aggregator_demo.html">판매 대수 가중 평균</a>,
+                        <a href="./executive_customer_concentration_demo.html">고객별 매출 집중도</a>
+                    </p>
+                    <label
+                        >대상 자료
+                        <select id="data_scope" onchange="changeDataScope()" disabled>
+                            <option value="first">첫 판매일 (2024/01/01), 기록 16건, 고객 8명</option>
+                            <option value="all">전체 판매일, 기록 5,840건, 고객 240명</option>
+                        </select></label
+                    >
+                    <button class="btn" type="button" onclick="togglePivotPanel()">피벗 패널 닫기/보이기</button>
+                    <!-- 로딩 중에도 한 줄 높이를 유지하여 표와 패널의 상단이 어긋나지 않게 합니다. -->
+                    <p id="load_message" role="status" style="min-height: 24px">
+                        자동차 판매 자료를 불러오는 중입니다.
+                    </p>
+                </div>
+                <div style="position: relative">
+                    <div id="pivot_wrap" style="width: 1000px; height: 560px"></div>
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 560px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,58 @@
+@charset "UTF-8";
+
+/* 제목, 본문 폭과 바깥 여백은 1번 문서의 style.css 및 typography.css를 그대로 사용합니다.
+   이 파일은 안내에 필요한 목차, 상태 패널과 접기 영역만 구성합니다. */
+.mcp-guide .mcp-status {
+	padding: 16px;
+	margin: 20px 0;
+	background: #eeeeee;
+	line-height: 1.6;
+}
+.mcp-guide .mcp-status p {
+	margin-top: 4px;
+}
+.mcp-guide .mcp-toc {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 24px;
+	padding: 16px 0;
+	border-bottom: 1px solid #ddd;
+	line-height: 1.6;
+}
+.mcp-guide details {
+	margin: 12px 0;
+	border: 1px solid #d5dce5;
+	border-radius: 4px;
+	padding: 14px 16px;
+}
+.mcp-guide summary {
+	cursor: pointer;
+	font-weight: bold;
+	line-height: 1.6;
+}
+.mcp-guide summary:focus-visible {
+	outline: 2px solid #0d47a1;
+	outline-offset: 4px;
+}
+.mcp-guide th,
+.mcp-guide td {
+	border-bottom: 1px solid #ddd;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+.mcp-guide th:first-child,
+.mcp-guide td:first-child {
+	width: 180px;
+}
+.mcp-guide p,
+.mcp-guide li {
+	overflow-wrap: anywhere;
+}
+
+/* 공통 모바일 헤더와 본문 여백은 유지하고 표의 첫 열만 좁힙니다. */
+@media (max-width: 640px) {
+	.mcp-guide th:first-child,
+	.mcp-guide td:first-child {
+		width: 124px;
+	}
+}

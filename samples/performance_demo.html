@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Script-Type" content="text/javascript" />
+        <meta http-equiv="Content-Style-Type" content="text/css" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+        <meta property="og:title" content="HTML5 자바스크립트 피벗 그리드 AUIPivot DEMO" />
+        <meta property="og:url" content="https://www.auisoft.net/demo/auipivot/index.html" />
+        <meta property="og:image" content="https://www.auisoft.net/images/logo3d.png" />
+        <meta property="og:description" content="HTML5 자바스크립트 피벗 그리드(javascript pivot grid - AUIPivot" />
+        <meta
+            name="Keywords"
+            content="web pivot grid, web pivot table, javascript pivot grid, javascript pivot table, 자바스크립트 피벗 그리드, 자바스크립트 피벗 테이블, HTML5 피벗 그리드, HTML5 피벗 테이블"
+        />
+
+        <title>HTML5 자바스크립트 피벗 그리드(JavaScript Pivot Grid) - AUIPivot DEMO</title>
+        <link href="https://www.auisoft.net/aui.ico" rel="shortcut icon" />
+
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+<!-- 본 데모를 위한 CSS 파일 -->
+<link href="./demo.css" rel="stylesheet" />
+
+<!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+<!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+<!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+<!-- AUIPivot 메세지 파일  -->
+<script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+<!-- 랜덤 데이터 생성 모듈 -->
+<script src="./generate_data.js"></script>
+<style>
+/* 안내 영역 전체를 사용하여 문구를 가로, 세로 중앙에 배치합니다. */
+.pivot-processing-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+</style>
+<script>
+
+	// AUIPivot 생성 후 반환 ID
+	let myPivotID;
+
+	let dataSize;
+
+	let jsonData;
+
+	// 시작점
+	function init() {
+		// AUIPivot 을 생성합니다.
+		createPivotGrid();
+
+		dataSize = 1000;
+
+		// 랜덤 데이터 생성 generate_data.js 참고
+		jsonData = generateData(dataSize);
+
+		//피벗팅 해당 데이터로 시작
+		initPivotData(jsonData);
+	};
+
+	//AUIPivot 를 생성합니다.
+	function createPivotGrid() {
+		// 피봇 그리드 속성 설정
+		const pivotProps = {
+			// layoutType : tableCellMerge 방식은 행 필드로 지정된 필드들이 개별적으로 각각 칼럼의 요소가 되어 출력되고,
+			// 셀 값들이 병합되어 출력됩니다.
+			layoutType: "tableCellMerge",
+
+			noDataMessage: "피벗팅 시작하기 버튼을 클릭하여 보고서를 완성하십시오."
+		};
+
+		// 실제로 #pivot_wrap 에 그리드 생성
+		myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+
+		let pivotStartTime = 0;
+		const timerLabel = "피벗 보고서 시간";
+
+		// 보고서 계산 시작과 완료 시점을 측정합니다.
+		AUIPivot.bind(myPivotID, ["pivotBegin", "pivotComplete"], function (event) {
+			if (event.type === "pivotBegin") {
+				pivotStartTime = performance.now();
+				console.time(timerLabel);
+				return;
+			}
+
+			// 경과 시간을 밀리초 단위로 표시합니다.
+			const elapsedTime = Math.round(performance.now() - pivotStartTime);
+
+			console.timeEnd(timerLabel);
+			document.getElementById("info").textContent =
+				`피벗팅 완료! ${dataSize}개 피벗팅 출력 소요 시간: ${elapsedTime}ms`;
+		});
+	};
+
+	//피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+	function initPivotData(data) {
+		// 행필드
+		AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+
+		// 칼럼 필드
+		AUIPivot.setColumnFields(myPivotID, ["DATE_QTR", "DATE_MONTH"]);
+
+		// 값 필드
+		AUIPivot.setValueFields(myPivotID, [{ "dataField": "TOTAL", "operation": "SUM", "formatString": "#,##0" }, { "dataField": "COUNT", "operation": "SUM", "formatString": "#,##0" }]);
+
+		// 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
+		AUIPivot.setDateTypeField(myPivotID, "DATE");
+
+		AUIPivot.setDateInputFormat(myPivotID, "yyyymmdd");
+
+		// 피봇그리드에 데이터 삽입
+		AUIPivot.setGridData(myPivotID, data);
+	};
+
+	function dataSelectorChange() {
+		const select = document.getElementById("dataSelect");
+		dataSize = Number(select.value);
+		if (dataSize <= 0) {
+			document.getElementById("startBtn").setAttribute("disabled", "disabled");
+			return;
+		}
+
+		// 랜덤 데이터 생성 generate_data.js 참고
+		jsonData = generateData(dataSize);
+		const msg = `${dataSize} 개의 소스 데이터를 생성을 완료하였습니다. "피벗팅 시작하기" 버튼을 클릭하여 해당 데이터로 피벗팅을 확인하십시오.`;
+
+		document.getElementById("info").innerText = msg;
+		document.getElementById("startBtn").style.display = "block";
+		document.getElementById("startBtn").removeAttribute("disabled");
+		// 피벗팅 초기화(클리어 시키기)
+		AUIPivot.clearPivot(myPivotID);
+	};
+
+	function startPivot() {
+		// 2만 건 이하는 안내문 없이 바로 계산합니다.
+		if (jsonData.length <= 20000) {
+			initPivotData(jsonData);
+			return;
+		}
+
+		// 피벗 영역 중앙에 처리 중 안내문을 표시합니다.
+		AUIPivot.showInfoMessage(myPivotID,
+			`<div class="pivot-processing-message" role="status">
+				보고서 출력을 위해 처리 중입니다. 잠시만 기다려 주십시오.
+			</div>`
+		);
+
+		// 브라우저가 안내문을 먼저 그릴 수 있도록 잠시 후 계산합니다.
+		setTimeout(function () {
+			initPivotData(jsonData);
+		}, 100);
+	};
+</script>
+</head>
+
+<body>
+	<div class="wrap">
+		<!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+		<nav class="demo-navigation" aria-label="데모 안내"><a href="./index.html#aggregation-field-guides">목차로 이동(뒤로 가기)</a></nav>
+		<div id="main">
+			<div class="desc">
+				<p>AUIPivot 은 100% 클라이언트 사이드 OLAP 도구로 사용자의 PC 사양 및 사용 브라우저의 영향을 우선적으로 받습니다.</p>
+				<p>피벗팅 엔진 퍼포먼스는 원본 데이터의 크기와 설정한 행, 열, 값 차원들의 개수(정확히는 차원의 깊이(depth))에 영향을 받습니다.</p>
+				<p>예로 원본 데이터의 크기가 동일한 10만 행이라 하더라도 설정한 행, 열, 값 차원을 어떻게 설정했느냐에 따라 퍼포먼스는 유동적입니다.</p>
+				<p>즉, 동일한 데이터 사이즈라 하더라도 피벗팅하여 나온 보고서(결과물)의 행과 열의 깊이(depth) 가 클수록 더 많은 시간이 필요합니다.</p>
+				<p>다음은 일반적인 각 지점별 판매 차량 월별 보고서를 출력한 모습입니다.</p>
+				<p>원본 데이터의 크기를 변경하여 직접 퍼포먼스를 확인하십시오.</p>
+				<p>순수 AUIPivot 의 퍼포먼스만 보기 위해 DB Select, 서버 비지니스로직 처리, 전송 등의 시간은 무시한 데모입니다.</p>
+				<p>따라서 로컬(Local) 에서 자바스크립트로 랜덤 데이터를 생성하여 적용시킵니다.</p>
+				<p>많은 데이터 선택 시 성능이 낮은 PC에서 한계가 있을 수 있습니다.(스크립트 중지 경고가 발생할 수 있음.)</p>
+				<ul class="nav_u">
+					<li><span>원본 데이터(sourceData) 사이즈 변경 : </span>
+						<select id="dataSelect" onchange="dataSelectorChange()" style="width:300px; height:30px;">
+							<option value="0" selected="selected">=== 데이터 사이즈를 선택하세요 ===</option>
+							<option value="1000">1,000 rows</option>
+							<option value="10000">10,000 rows</option>
+							<option value="50000">50,000 rows</option>
+							<option value="100000">100,000 rows</option>
+							<option value="300000">300,000 rows</option>
+							<option value="500000">500,000 rows (저사양 PC 주의)</option>
+							<option value="1000000">1,000,000 rows (저사양 PC 주의))</option>
+						</select>
+					</li>
+				</ul>
+				<div id="info" style="line-height:2em;color:#aa0000;"></div>
+				<div><button class="btn" id="startBtn" onclick="startPivot();" style="display:none;" disabled>피벗팅 시작하기 ( 이 버튼을 클릭하면 새로 생성된 데이터로 피벗팅을 시작합니다. )</button></div>
+			</div>
+			<div>
+				<!-- AUIPivot 그리드가 이곳에 생성됩니다. -->
+				<div id="pivot_wrap" style="width:100%; height:560px;"></div>
+			</div>
+			<div id="desc">
+			</div>
+		</div>
+		<div id="footer">
+			<div class="copyright">
+				<p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net" target="_blank" class="link" style="color:#B2CCFF;">https://www.auisoft.net</a> </p>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

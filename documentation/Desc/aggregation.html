@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>집계 연산 선택과 사용 | AUIPivot</title>
+<style>
+/* 연산 목록, 계산 예와 설정 코드를 기존 문서의 색상과 간격으로 보여 줍니다. */
+.feature-guide { max-width: 1080px; line-height: 1.75; }
+.feature-guide nav { margin: 20px 0; }
+.feature-guide section { margin: 40px 0; scroll-margin-top: 16px; }
+.feature-guide table { border-collapse: collapse; width: 100%; }
+.feature-guide th, .feature-guide td { border: 1px solid #ddd; padding: 9px; text-align: left; }
+.feature-guide th { background: #f1f4f7; }
+.feature-guide pre { overflow-x: auto; }
+.feature-guide details { margin: 16px 0; }
+.feature-guide summary { cursor: pointer; font-weight: bold; }
+</style>
+<link rel="stylesheet" href="../static/prism.css">
+<link rel="stylesheet" href="../static/style.css">
+<link rel="stylesheet" href="../static/typography.css">
+<link rel="stylesheet" href="../static/code-examples.css">
+<script src="../static/prism.js" data-manual></script>
+<script src="../static/code-examples.js"></script>
+
+<link rel="icon" href="../static/favicon.ico" sizes="any">
+<link rel="icon" href="../static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../static/apple-touch-icon.png">
+<meta name="theme-color" content="#222729">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../static/docs-brand.css">
+</head><body class="demo-typography docs-site"><header class="docs-header"><div class="docs-header-inner">
+    <a id="logo-bar" class="docs-brand" href="https://www.auisoft.net/" aria-label="AUISoft 홈페이지">
+      <img src="../static/favicon.svg" width="40" height="40" alt="">
+      <span>AUISoft<small>에이유아이소프트</small></span>
+    </a>
+    <span id="title" class="docs-context">AUIPivot 2.7 Documentation</span>
+    <nav class="docs-navigation" aria-label="주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav>
+    <details class="docs-mobile-navigation"><summary>메뉴</summary><nav aria-label="모바일 주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
+    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
+    <a href="../index.html">문서</a>
+    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
+    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav></details>
+  </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">4. 집계 연산 선택과 사용</span></nav>
+<main class="MainContent feature-guide"><nav aria-label="개발 가이드"><a href="../index.html">개발 문서 목차</a>, <a href="aggregation.html">집계 연산</a>, <a href="fields-and-grouping.html">가상 필드와 그룹화</a>, <a href="visual-analytics.html">시각 분석</a></nav>
+<h1>4. 집계 연산 선택과 사용</h1>
+<p><strong>집계는 여러 기록을 하나의 값으로 요약하는 계산입니다.</strong> 예를 들어 10, 20, 30을 합계로 계산하면 60, 평균으로 계산하면 20입니다. 피벗의 각 셀은 행과 열 조건에 해당하는 기록을 모아 선택한 방식으로 계산합니다.</p>
+<p>AUIPivot은 17개 내장 연산을 제공합니다. 원하는 연산을 <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a>의 <code>operation</code>에 지정합니다. 직접 만든 계산 방법은 <a href="#custom">registerCustomAggregator()</a>로 등록할 수 있습니다.</p>
+<table id="operation-choice"><thead><tr><th scope="col">선택할 목적</th><th scope="col">연산</th></tr></thead><tbody>
+<tr><td>합계</td><td><a href="#SUM">SUM</a></td></tr>
+<tr><td>개수</td><td><a href="#COUNT">COUNT</a></td></tr>
+<tr><td>중복을 제외한 개수</td><td><a href="#DISTINCT_COUNT">DISTINCT_COUNT</a></td></tr>
+<tr><td>최솟값</td><td><a href="#MIN">MIN</a></td></tr>
+<tr><td>최댓값</td><td><a href="#MAX">MAX</a></td></tr>
+<tr><td>산술 평균</td><td><a href="#AVG">AVG</a></td></tr>
+<tr><td>중앙값</td><td><a href="#MEDIAN">MEDIAN</a></td></tr>
+<tr><td>곱</td><td><a href="#MULTIPLY">MULTIPLY</a></td></tr>
+<tr><td>열 합계 대비 비율</td><td><a href="#RATIO">RATIO</a></td></tr>
+<tr><td>행 합계 대비 비율</td><td><a href="#ROW_RATIO">ROW_RATIO</a></td></tr>
+<tr><td>전체 합계 대비 비율</td><td><a href="#GRAND_TOTAL_RATIO">GRAND_TOTAL_RATIO</a></td></tr>
+<tr><td>전체 개수 대비 비율</td><td><a href="#GRAND_TOTAL_COUNT_RATIO">GRAND_TOTAL_COUNT_RATIO</a></td></tr>
+<tr><td>두 합계의 비율</td><td><a href="#RATIO_OF_SUMS">RATIO_OF_SUMS</a></td></tr>
+<tr><td>모집단 분산</td><td><a href="#VARIANCE">VARIANCE</a></td></tr>
+<tr><td>모집단 표준편차</td><td><a href="#STD_DEVIATION">STD_DEVIATION</a></td></tr>
+<tr><td>표본 분산</td><td><a href="#SAMPLE_VARIANCE">SAMPLE_VARIANCE</a></td></tr>
+<tr><td>표본 표준편차</td><td><a href="#SAMPLE_STD_DEVIATION">SAMPLE_STD_DEVIATION</a></td></tr>
+<tr><td>직접 정한 집계 방법</td><td><a href="#custom">registerCustomAggregator()</a></td></tr>
+</tbody></table>
+
+<section id="configure"><h2>4.1 연산을 지정하는 방법</h2>
+<p><code>dataField</code>에는 계산할 필드 이름, <code>operation</code>에는 연산 이름을 지정합니다. 아래 예제의 <code>VALUE</code>는 설명용 필드 이름입니다. 실제 데이터의 가격, 수량, 점수 등 계산하려는 필드 이름으로 바꿔 사용하세요.</p>
+<pre><code class="language-javascript">// 같은 필드의 합계와 평균을 나란히 표시합니다.
+AUIPivot.setValueFields(pid, [
+  {dataField: "VALUE", operation: "SUM", customLabelText: "합계"},
+  {dataField: "VALUE", operation: "AVG", customLabelText: "평균", formatString: "#,##0.00"}
+]);</code></pre>
+<p>현재 보고서의 설정을 바꾼 뒤에는 <a href="../Pivot/Methods.html#updatePivot">updatePivot()</a>으로 다시 계산합니다. 처음 데이터를 넣을 때는 <a href="../Pivot/Methods.html#setGridData">setGridData()</a>가 계산을 시작합니다.</p>
+<p><code>customLabelText</code>는 제목, <code>formatString</code>은 숫자의 표시 형식입니다. 예를 들어 <code>0.00%</code>는 계산값 0.25를 25.00%로 표시합니다. 표시 형식을 바꿔도 실제 계산값은 바뀌지 않습니다. 같은 필드에 같은 연산을 제목만 달리하여 중복 배치할 수는 없습니다.</p>
+<p>아래 설명은 작은 숫자로 계산 방법을 보여 줍니다. 각 절의 자동차 판매 데모에서는 같은 연산을 실제 데이터에 적용한 모습을 볼 수 있습니다.</p>
+</section>
+
+<section id="SUM"><h2>4.2 SUM — 합계</h2>
+<p>값을 모두 더합니다.</p>
+<p><strong>계산 예:</strong> 10, 20, 30의 합계는 10 + 20 + 30 = <strong>60</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE 필드의 값을 모두 더합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "SUM", formatString: "#,##0"}]);</code></pre>
+<p><strong>주의:</strong> 수량 필드에 SUM을 지정하면 수량의 합계를 구합니다. 기록이 몇 건인지를 세려면 COUNT를 사용합니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_sum_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="COUNT"><h2>4.3 COUNT — 개수</h2>
+<p>지정한 필드에서 빈 값이 아닌 값의 개수를 셉니다. 값이 같아도 각 기록을 따로 셉니다.</p>
+<p><strong>계산 예:</strong> 10, 10, 30은 <strong>3개</strong>입니다. 10, null, 30은 null을 제외하여 <strong>2개</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE 필드에 값이 있는 기록의 개수를 셉니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "COUNT", formatString: "#,##0"}]);</code></pre>
+<p><strong>주의:</strong> null, undefined, 빈 문자열은 제외합니다. 모든 기록을 세려면 모든 기록에 값이 있는 필드를 선택하세요. 수량이 2와 3인 두 기록의 COUNT는 2, SUM은 5입니다. 숫자만 세는 연산은 아니며 자료형별 처리 차이는 <a href="#input-values">입력값 처리</a>를 참고하세요.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_count_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="DISTINCT_COUNT"><h2>4.4 DISTINCT_COUNT — 중복을 제외한 개수</h2>
+<p>같은 값이 여러 번 나타나도 한 번만 셉니다.</p>
+<p><strong>계산 예:</strong> A, A, B, C는 A, B, C로 구분되므로 <strong>3개</strong>입니다. COUNT를 사용하면 4개입니다.</p>
+<pre><code class="language-javascript">// VALUE 필드에서 서로 다른 값이 몇 개인지 셉니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "DISTINCT_COUNT", formatString: "#,##0"}]);</code></pre>
+<p><strong>주의:</strong> null, undefined, 빈 문자열은 제외합니다. 전체 개수도 원본에서 중복을 다시 제거하여 계산합니다. A, B가 있는 그룹과 B, C가 있는 그룹의 전체 고유 개수는 4가 아니라 3입니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_distinct_count_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="MIN"><h2>4.5 MIN — 최솟값</h2>
+<p>가장 작은 값을 찾습니다.</p>
+<p><strong>계산 예:</strong> 30, 10, 20의 최솟값은 <strong>10</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE 필드에서 가장 작은 값을 찾습니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "MIN", formatString: "#,##0"}]);</code></pre>
+<p><strong>주의:</strong> 원본 순서와 관계없이 숫자의 크기로 비교합니다. null이나 빈 문자열은 숫자 변환 시 0이 될 수 있으므로, 값이 없다는 뜻으로 넣은 데이터가 있다면 <a href="#input-values">입력값 처리</a>도 확인하세요.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_min_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="MAX"><h2>4.6 MAX — 최댓값</h2>
+<p>가장 큰 값을 찾습니다.</p>
+<p><strong>계산 예:</strong> 30, 10, 20의 최댓값은 <strong>30</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE 필드에서 가장 큰 값을 찾습니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "MAX", formatString: "#,##0"}]);</code></pre>
+<p><strong>주의:</strong> MIN과 함께 사용하면 값의 범위를 볼 수 있습니다. 숫자 변환 방식은 MIN과 같습니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_max_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="AVG"><h2>4.7 AVG — 산술 평균</h2>
+<p>합계를 개수로 나눕니다. 각 기록을 같은 비중으로 계산하는 일반적인 평균입니다.</p>
+<p><strong>계산 예:</strong> 10, 20, 30의 평균은 (10 + 20 + 30) / 3 = <strong>20</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE 필드의 합계를 개수로 나눕니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "AVG", formatString: "#,##0.00"}]);</code></pre>
+<p><strong>주의:</strong> 별도 수량 필드가 있어도 자동으로 반영하지 않습니다. 수량을 반영한 평균이 필요하면 <a href="#RATIO_OF_SUMS">RATIO_OF_SUMS의 예</a>를 참고하세요. AVG는 SUM과 COUNT를 사용하므로 숫자가 아닌 값이 섞이면 원하는 평균과 달라질 수 있습니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_avg_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="MEDIAN"><h2>4.8 MEDIAN — 중앙값</h2>
+<p>값을 작은 순서로 늘어놓았을 때 가운데에 있는 값입니다. 개수가 짝수이면 가운데 두 값의 평균을 구합니다.</p>
+<p><strong>계산 예:</strong> 10, 20, 100의 중앙값은 <strong>20</strong>입니다. 10, 20, 30, 500의 중앙값은 (20 + 30) / 2 = <strong>25</strong>입니다. 뒤의 예에서 산술 평균은 140이므로 큰 값 하나에 영향을 받는 정도가 다릅니다.</p>
+<pre><code class="language-javascript">// VALUE 필드를 숫자 순서로 정렬했을 때의 가운데 값을 구합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "MEDIAN", formatString: "#,##0.00"}]);</code></pre>
+<p><strong>주의:</strong> 소계와 총계도 해당 원본 값들을 모아서 중앙값을 구합니다. 하위 셀의 중앙값들을 평균내지 않습니다. 계산할 숫자가 없으면 빈 값입니다. 숫자를 모아 정렬하므로 SUM보다 메모리와 계산 시간이 더 필요합니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_median_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="MULTIPLY"><h2>4.9 MULTIPLY — 곱</h2>
+<p>같은 필드의 값들을 차례로 곱합니다.</p>
+<p><strong>계산 예:</strong> 2, 3, 4의 곱은 2 × 3 × 4 = <strong>24</strong>입니다.</p>
+<pre><code class="language-javascript">// 각 기록에 있는 VALUE 값을 서로 곱합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "MULTIPLY", formatString: "#,##0"}]);</code></pre>
+<p><strong>주의:</strong> 한 기록의 가격과 수량을 곱하는 기능과는 다릅니다. 기록마다 두 필드를 곱해 새 필드를 만들려면 <a href="fields-and-grouping.html#derived">setDerivedFields()</a>를 사용합니다. 0이 포함되면 곱은 0이 되며, null이나 빈 문자열도 숫자 변환 시 0이 됩니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_multiply_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="ratio-examples"><h2>4.10 비율은 무엇으로 나누는지가 다릅니다</h2>
+<p>다음은 한 필드의 합계로 만든 표입니다. <strong>A행, X열의 값 10</strong>을 기준으로 세 연산을 비교해 보세요.</p>
+<table><thead><tr><th scope="col">구분</th><th scope="col">X열</th><th scope="col">Y열</th><th scope="col">행 합계</th></tr></thead><tbody>
+<tr><th scope="row">A행</th><td>10</td><td>20</td><td>30</td></tr>
+<tr><th scope="row">B행</th><td>30</td><td>40</td><td>70</td></tr>
+<tr><th scope="row">열 합계</th><td>40</td><td>60</td><td>전체 100</td></tr>
+</tbody></table>
+<table><thead><tr><th scope="col">연산</th><th scope="col">나누는 기준</th><th scope="col">A행, X열 결과</th></tr></thead><tbody>
+<tr><td>RATIO</td><td>X열의 합계 40</td><td>10 / 40 = 25%</td></tr>
+<tr><td>ROW_RATIO</td><td>A행의 합계 30</td><td>10 / 30 ≈ 33.33%</td></tr>
+<tr><td>GRAND_TOTAL_RATIO</td><td>표 전체의 합계 100</td><td>10 / 100 = 10%</td></tr>
+</tbody></table>
+<p>합계 대신 개수로 전체 대비 비율을 구하려면 <a href="#GRAND_TOTAL_COUNT_RATIO">GRAND_TOTAL_COUNT_RATIO</a>, 서로 다른 두 필드의 합계를 나누려면 <a href="#RATIO_OF_SUMS">RATIO_OF_SUMS</a>를 사용합니다.</p>
+<p>여기서 ‘전체’는 <strong>현재 필터 조건에 포함된 데이터 전체</strong>입니다. 필터를 적용하면 나누는 기준도 다시 계산됩니다. 여러 값 필드를 표시하더라도 다른 필드의 합계와 섞지 않습니다.</p>
+</section>
+
+<section id="RATIO"><h2>4.11 RATIO — 열 합계 대비 비율</h2>
+<p>현재 셀의 합계를 같은 열의 전체 합계로 나눕니다.</p>
+<p><strong>계산 예:</strong> 위 표에서 A행, X열은 10 / 40 = <strong>25%</strong>입니다. B행, X열은 30 / 40 = 75%입니다.</p>
+<pre><code class="language-javascript">// 같은 열의 합계를 기준으로 각 셀의 비율을 표시합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "RATIO", formatString: "0.00%"}]);</code></pre>
+<p><strong>주의:</strong> X열은 40, Y열은 60으로 나눕니다. 열이 바뀌면 기준 합계도 달라집니다. 표 전체의 합계 100으로 나누려면 GRAND_TOTAL_RATIO를 사용합니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_ratio_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="ROW_RATIO"><h2>4.12 ROW_RATIO — 행 합계 대비 비율</h2>
+<p>현재 셀의 합계를 같은 행의 전체 합계로 나눕니다.</p>
+<p><strong>계산 예:</strong> 위 표에서 A행, X열은 10 / 30 ≈ <strong>33.33%</strong>입니다. A행, Y열은 20 / 30 ≈ 66.67%입니다.</p>
+<pre><code class="language-javascript">// 같은 행의 합계를 기준으로 각 셀의 비율을 표시합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "ROW_RATIO", formatString: "0.00%"}]);</code></pre>
+<p><strong>주의:</strong> A행은 30, B행은 70으로 나눕니다. 행이 바뀌면 기준 합계도 달라집니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_row_ratio_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="GRAND_TOTAL_RATIO"><h2>4.13 GRAND_TOTAL_RATIO — 전체 합계 대비 비율</h2>
+<p>현재 셀의 합계를 보고서 전체의 합계로 나눕니다. 전체에서 각 부분이 차지하는 비율을 구할 때 사용합니다.</p>
+<p><strong>계산 예:</strong> 위 표에서 A행, X열은 10 / 100 = <strong>10%</strong>입니다. A행 전체는 30 / 100 = 30%, 총계는 100%입니다.</p>
+<pre><code class="language-javascript">// 보고서 전체의 VALUE 합계를 기준으로 비율을 표시합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "GRAND_TOTAL_RATIO", formatString: "0.00%"}]);</code></pre>
+<p><strong>주의:</strong> 각 셀과 소계가 같은 전체 합계로 나눕니다. 필터를 적용하면 분자와 분모 모두 필터에 포함된 데이터로 다시 계산됩니다. 분모가 0이거나 유한한 비율을 구할 수 없으면 빈 값입니다. 음수가 포함되면 비율도 음수이거나 100%를 넘을 수 있습니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_grand_total_ratio_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="GRAND_TOTAL_COUNT_RATIO"><h2>4.14 GRAND_TOTAL_COUNT_RATIO — 전체 개수 대비 비율</h2>
+<p>현재 셀에서 센 개수를 보고서 전체에서 센 개수로 나눕니다. 개수는 같은 필드의 COUNT 방식으로 셉니다.</p>
+<p><strong>계산 예:</strong> 전체에서 센 값이 10개이고 그중 A그룹에 3개가 있으면 3 / 10 = <strong>30%</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE 값의 전체 개수 중 각 셀이 차지하는 비율을 표시합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "GRAND_TOTAL_COUNT_RATIO", formatString: "0.00%"}]);</code></pre>
+<p><strong>주의:</strong> 값의 합계나 중복을 제외한 개수로 계산하지 않습니다. 수량 필드를 지정해도 수량 합계의 비율이 되지는 않습니다. 빈 값의 제외 기준은 COUNT와 같으며, 필터를 적용하면 전체 개수도 바뀝니다. 전체 개수가 0이면 빈 값입니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_grand_total_count_ratio_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="RATIO_OF_SUMS"><h2>4.15 RATIO_OF_SUMS — 두 합계의 비율</h2>
+<p>같은 그룹 안에서 <strong>첫 번째 필드의 합계를 두 번째 필드의 합계로 나눕니다.</strong> <code>numeratorField</code>는 분자 필드, <code>denominatorField</code>는 분모 필드입니다.</p>
+<p><strong>계산 예:</strong> 분자 값이 100, 900이고 분모 값이 2, 3이면 (100 + 900) / (2 + 3) = <strong>200</strong>입니다. 각 기록을 먼저 나눈 50과 300의 평균 175와는 다릅니다.</p>
+<pre><code class="language-javascript">// AMOUNT의 합계를 QUANTITY의 합계로 나눕니다.
+AUIPivot.setValueFields(pid, [{
+  dataField: "AMOUNT",
+  operation: "RATIO_OF_SUMS",
+  numeratorField: "AMOUNT",    // 분자로 사용할 필드입니다.
+  denominatorField: "QUANTITY", // 분모로 사용할 필드입니다.
+  customLabelText: "두 합계의 비율",
+  formatString: "#,##0.00"
+}]);</code></pre>
+<p><strong>주의:</strong> denominatorField는 반드시 지정합니다. numeratorField를 생략하면 dataField를 분자로 사용합니다. 필요한 필드가 없거나 분모 합계가 0이면 빈 값입니다. 소계와 총계도 각 범위의 두 합계를 구한 뒤 나누며, 하위 비율들을 평균내지 않습니다.</p>
+<h3>4.15.1 가중 평균과는 어떤 관계인가요?</h3>
+<p>이 연산 자체의 뜻은 ‘두 합계의 비율’입니다. 무엇을 합하여 나누는지에 따라 결과의 의미가 달라집니다.</p>
+<p>예를 들어 금액이 단가 × 수량이라면, <strong>금액 합계 / 수량 합계</strong>로 수량을 반영한 평균 단가를 구할 수 있습니다. 이것이 수량을 가중치로 사용한 가중 평균입니다. 100원짜리 1개와 300원짜리 3개라면 물건 네 개의 가격은 100, 300, 300, 300원입니다. 평균은 1,000 / 4 = <strong>250원</strong>입니다.</p>
+<p>자동차 판매 데이터에서는 AMOUNT 대신 TOTAL, QUANTITY 대신 COUNT를 사용하면 같은 방식으로 대당 매출을 구할 수 있습니다. 백분율로 보여 줄 값이라면 formatString을 <code>0.00%</code>로 지정하세요.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_ratio_of_sums_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="statistics"><h2>4.16 분산과 표준편차를 고르는 방법</h2>
+<p>둘 다 <strong>값들이 평균 주변에 얼마나 흩어져 있는지</strong> 나타냅니다. 값들이 비슷하면 작고, 차이가 크면 커집니다. 모든 값이 같으면 0입니다.</p>
+<ul>
+<li><strong>모집단:</strong> 알고 싶은 대상 전체를 계산합니다. VARIANCE, STD_DEVIATION을 사용합니다.</li>
+<li><strong>표본:</strong> 대상 전체 중 일부 자료로 전체의 흩어짐을 추정합니다. SAMPLE_VARIANCE, SAMPLE_STD_DEVIATION을 사용합니다.</li>
+</ul>
+<p>자료가 많고 적음에 따라 구분하는 것이 아닙니다. 필터로 고른 자료 자체를 전체 분석 대상으로 삼을 수도 있고, 더 큰 대상의 일부 표본으로 볼 수도 있습니다.</p>
+<p>아래 네 연산은 모두 <strong>2, 4, 6</strong>을 예로 사용합니다. 평균은 4이며, 평균과의 차이는 -2, 0, 2입니다. 차이를 제곱하여 더하면 4 + 0 + 4 = <strong>8</strong>입니다.</p>
+<table><thead><tr><th scope="col">연산</th><th scope="col">계산</th><th scope="col">결과</th></tr></thead><tbody>
+<tr><td>VARIANCE</td><td>8 / 3</td><td>약 2.67</td></tr>
+<tr><td>STD_DEVIATION</td><td>8 / 3의 제곱근</td><td>약 1.63</td></tr>
+<tr><td>SAMPLE_VARIANCE</td><td>8 / (3 - 1)</td><td>4</td></tr>
+<tr><td>SAMPLE_STD_DEVIATION</td><td>4의 제곱근</td><td>2</td></tr>
+</tbody></table>
+</section>
+
+<section id="VARIANCE"><h2>4.17 VARIANCE — 모집단 분산</h2>
+<p>각 값이 평균에서 떨어진 거리를 제곱하여 더한 뒤, 값의 개수로 나눕니다.</p>
+<p><strong>계산 예:</strong> 2, 4, 6의 평균은 4입니다. ((2 - 4)² + (4 - 4)² + (6 - 4)²) / 3 = 8 / 3 ≈ <strong>2.67</strong>입니다.</p>
+<pre><code class="language-javascript">// VALUE의 모든 값을 분석 대상 전체로 보고 분산을 구합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "VARIANCE", formatString: "#,##0.00"}]);</code></pre>
+<p><strong>주의:</strong> 분산의 단위는 원래 값의 단위를 제곱한 것입니다. 원래 단위로 흩어짐을 읽고 싶다면 STD_DEVIATION을 사용합니다. 숫자 하나만 있으면 분산은 0입니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_variance_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="STD_DEVIATION"><h2>4.18 STD_DEVIATION — 모집단 표준편차</h2>
+<p>모집단 분산의 제곱근입니다. 값들이 흩어진 정도를 원래 값과 같은 단위로 표현합니다.</p>
+<p><strong>계산 예:</strong> 2, 4, 6의 분산은 8 / 3이므로 표준편차는 √(8 / 3) ≈ <strong>1.63</strong>입니다. 점수를 계산했다면 표준편차의 단위도 점입니다.</p>
+<pre><code class="language-javascript">// 모집단 분산의 제곱근을 구합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "STD_DEVIATION", formatString: "#,##0.00"}]);</code></pre>
+<p><strong>주의:</strong> VARIANCE와 같은 자료를 사용하되 결과의 단위가 다릅니다. 값이 하나이거나 모두 같으면 0입니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_std_deviation_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="SAMPLE_VARIANCE"><h2>4.19 SAMPLE_VARIANCE — 표본 분산</h2>
+<p>평균과의 차이를 제곱하여 더한 뒤, <strong>개수에서 1을 뺀 값</strong>으로 나눕니다. 일부 자료로 전체의 흩어짐을 추정할 때 사용합니다.</p>
+<p><strong>계산 예:</strong> 2, 4, 6에서는 8 / (3 - 1) = <strong>4</strong>입니다. 같은 자료의 모집단 분산 8 / 3보다 큽니다.</p>
+<pre><code class="language-javascript">// VALUE를 더 큰 대상에서 뽑은 표본으로 보고 분산을 구합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "SAMPLE_VARIANCE", formatString: "#,##0.00"}]);</code></pre>
+<p><strong>주의:</strong> 계산에 포함되는 값이 2개보다 적으면 빈 값입니다. 같은 값이 2개 이상이면 0입니다. 소계와 총계는 각 범위의 원본으로 다시 계산합니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_sample_variance_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="SAMPLE_STD_DEVIATION"><h2>4.20 SAMPLE_STD_DEVIATION — 표본 표준편차</h2>
+<p>표본 분산의 제곱근입니다. 표본으로 추정한 흩어짐을 원래 값과 같은 단위로 표현합니다.</p>
+<p><strong>계산 예:</strong> 2, 4, 6의 표본 분산은 4이므로 표본 표준편차는 √4 = <strong>2</strong>입니다.</p>
+<pre><code class="language-javascript">// 표본 분산의 제곱근을 구합니다.
+AUIPivot.setValueFields(pid, [{dataField: "VALUE", operation: "SAMPLE_STD_DEVIATION", formatString: "#,##0.00"}]);</code></pre>
+<p><strong>주의:</strong> SAMPLE_VARIANCE와 마찬가지로 값이 2개 이상 있어야 계산할 수 있습니다. 대상 전체의 표준편차를 구하려면 STD_DEVIATION을 사용합니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/aggregate_sample_std_deviation_demo.html">자동차 판매 데모</a>, <a href="../Pivot/Methods.html#setValueFields">setValueFields()</a></p>
+</section>
+
+<section id="totals"><h2>4.21 소계, 총계와 필터는 어떻게 반영되나요?</h2>
+<p>소계와 총계는 <strong>그 범위에 포함된 원본 기록</strong>을 기준으로 계산합니다. 화면에 있는 하위 셀들을 무조건 더하거나 평균내는 것이 아닙니다.</p>
+<p>예를 들어 한 그룹의 값이 10이고 다른 그룹의 값이 20, 30이면 전체 평균은 (10 + 20 + 30) / 3 = <strong>20</strong>입니다. 두 그룹의 평균 10과 25를 다시 평균낸 17.5가 아닙니다. 중복을 제외한 개수, 중앙값, 분산과 비율도 각 연산의 계산 방식을 따릅니다.</p>
+<p>필터를 바꾸면 계산에 포함되는 원본이 달라집니다. 정렬이나 접기, 펼치기는 원본의 포함 여부를 바꾸지 않습니다. 총계 행이나 열을 화면에서 숨겨도 전체 비율을 계산하는 기준은 유지됩니다.</p>
+<p><a href="https://www.auisoft.net/demo/auipivot/ratio_demo.html">열, 행, 전체 비율 비교 데모</a></p>
+</section>
+
+<section id="input-values"><h2>4.22 빈 값과 숫자가 아닌 값의 처리</h2>
+<p>위 숫자 예제는 모두 일반적인 숫자를 사용했습니다. 실제 데이터에 빈 값이나 문자열이 섞이면 연산에 따라 처리 방법이 다릅니다. 특히 <strong>화면의 빈 칸과 숫자 0은 다릅니다.</strong></p>
+<details><summary>자료형별 처리와 계산할 수 없는 경우 자세히 보기</summary>
+<ul>
+<li><strong>SUM, MIN, MAX, MULTIPLY:</strong> JavaScript의 Number()로 변환하여 계산합니다. 숫자 문자열은 숫자로, null과 빈 문자열은 0으로 바뀝니다. 변환 결과가 NaN이면 숫자 계산에서 제외합니다. Infinity처럼 유한하지 않은 값이나 지나치게 큰 곱은 정상적인 숫자 결과를 만들지 못할 수 있습니다.</li>
+<li><strong>COUNT, AVG와 분산 연산:</strong> COUNT는 null, undefined, 빈 문자열을 제외하지만 숫자가 아닌 문자열도 셀 수 있습니다. false와 일부 특수값은 값 필드를 하나 또는 여러 개 배치했을 때 개수 판정에 차이가 있습니다. AVG는 SUM / COUNT이며, 분산 연산도 이 개수 판정을 사용합니다. 예를 들어 개수에 포함되는 비숫자 문자열은 통계 누적에서 0으로 처리될 수 있으므로, 숫자 집계를 할 필드는 숫자형으로 일관되게 준비하세요.</li>
+<li><strong>DISTINCT_COUNT:</strong> null, undefined, 빈 문자열을 제외하고 0과 false는 포함합니다. 숫자 1과 문자열 "1"은 서로 다른 값입니다. NaN은 하나로 세며 +0과 -0은 같습니다. 객체와 Date는 내용이 같아도 서로 다른 객체이면 다르게 셉니다. 날짜나 식별자는 일정한 문자열 형태로 준비하면 의도한 중복을 구분하기 쉽습니다.</li>
+<li><strong>MEDIAN:</strong> null, undefined, 빈 문자열을 먼저 제외합니다. 나머지는 Number()로 변환하고 유한한 숫자만 사용합니다. 숫자 문자열, 참과 거짓 값, Date도 숫자로 변환될 수 있습니다.</li>
+<li><strong>RATIO_OF_SUMS:</strong> 분자와 분모를 각각 숫자로 변환하여 합산합니다. 한 기록에서 한쪽 값이 숫자가 아니어도 반대쪽의 정상 값은 자기 합계에 포함됩니다. 분모가 0이거나 필요한 필드가 없거나 유한한 비율을 구할 수 없으면 빈 값입니다.</li>
+<li><strong>비율의 0 분모:</strong> GRAND_TOTAL_RATIO, GRAND_TOTAL_COUNT_RATIO는 빈 값을 반환합니다. 기존 RATIO, ROW_RATIO는 셀에서 NaN이나 Infinity가 나올 수 있어 같은 처리라고 가정하면 안 됩니다.</li>
+<li><strong>분산과 표준편차:</strong> 숫자가 매우 커도 오차를 줄이도록 누적 계산합니다. 예를 들어 10¹² + 1, 10¹² + 2, 10¹² + 3의 모집단 분산은 2 / 3, 표본 분산은 1입니다. 계산 가능한 개수가 부족하거나 유한한 결과를 구할 수 없는 경우는 빈 값입니다.</li>
+</ul>
+</details>
+</section>
+
+<section id="custom"><h2>4.23 사용자 정의 집계 — 직접 정한 집계 방법</h2>
+<p><a href="../Pivot/Methods.html#registerCustomAggregator">registerCustomAggregator()</a>는 <strong>여러 기록을 어떻게 모아 하나의 결과로 계산할지</strong> 직접 작성하여 등록하는 메소드입니다. 등록할 때 정한 ID를 setValueFields()의 operation에 지정하면 내장 연산처럼 사용할 수 있습니다.</p>
+<p>예를 들어 조건을 만족하는 수량의 비율, 중복 고객을 고려한 고객당 평균 등을 만들 수 있습니다. 기존 내장 연산으로 계산할 수 있으면 해당 연산을 사용하고, 별도 조건이나 계산 절차가 필요할 때 사용자 정의 집계를 사용하세요. <a href="fields-and-grouping.html#derived">setDerivedFields()</a>는 기록마다 새 필드를 만드는 메소드이며, 여러 기록을 모아 계산하는 집계와 역할이 다릅니다.</p>
+<h3>4.23.1 네 함수로 계산 방법을 작성합니다</h3>
+<p>계산 도중 모아 둘 값들을 <code>state</code> 객체에 담습니다. 다음 네 함수가 필요합니다.</p>
+<table><thead><tr><th scope="col">함수</th><th scope="col">작성할 내용</th></tr></thead><tbody>
+<tr><td>create(context)</td><td>합계 등을 담을 새 state 객체를 만듭니다. 계산 영역마다 별도 객체를 반환합니다.</td></tr>
+<tr><td>accumulate(state, value, context)</td><td>원본 기록 한 건을 읽어 state에 더합니다. value는 지정한 dataField의 값입니다.</td></tr>
+<tr><td>merge(target, source, context)</td><td>두 영역에서 모은 state를 합칩니다. target에 더하고 source는 변경하지 않습니다.</td></tr>
+<tr><td>finalize(state, context)</td><td>state로 최종 숫자를 구해 반환합니다. state는 변경하지 않습니다.</td></tr>
+</tbody></table>
+<h3>4.23.2 예: 수량을 반영한 평균 가격</h3>
+<p>100원짜리 1개와 300원짜리 3개를 계산해 보겠습니다. 물건 네 개의 가격을 풀어 쓰면 <strong>100, 300, 300, 300원</strong>입니다.</p>
+<table><thead><tr><th scope="col">기록</th><th scope="col">가격 PRICE</th><th scope="col">수량 COUNT</th><th scope="col">가격 × 수량</th></tr></thead><tbody>
+<tr><td>A</td><td>100</td><td>1</td><td>100</td></tr>
+<tr><td>B</td><td>300</td><td>3</td><td>900</td></tr>
+</tbody></table>
+<p>전체 금액은 1,000원, 수량은 4개이므로 개당 평균은 <strong>250원</strong>입니다. PRICE의 두 값만 AVG로 계산하면 (100 + 300) / 2 = 200원입니다. 수량을 반영한 250원이 이 예제의 가중 평균입니다.</p>
+<p>COUNT는 여기서 수량을 담은 <strong>필드 이름</strong>입니다. 개수를 세는 COUNT 연산과 구분하세요. 금액 필드가 이미 있다면 <a href="#RATIO_OF_SUMS">RATIO_OF_SUMS</a>로 계산할 수 있습니다. 아래 코드는 가격 × 수량을 직접 누적하며 사용할 기록의 조건도 지정하는 예입니다.</p>
+<pre id="weighted-example"><code class="language-javascript">// 수량을 반영한 평균 가격의 계산 방법을 등록합니다.
+const weightedPrice = AUIPivot.registerCustomAggregator(pid, {
+  id: "WEIGHTED_PRICE", // 코드에서 사용할 고유한 연산 이름입니다.
+  version: 1, // 이 계산 정의의 버전이며 제품 버전과는 다릅니다.
+  labelText: "수량을 반영한 평균 가격",
+  defaultOptions: {weightField: "COUNT"}, // 수량을 읽을 필드입니다.
+  validateOptions(options, context) {
+    // 이 집계에 필요한 보조 필드를 선언합니다.
+    if (typeof options.weightField !== "string") return false;
+    context.requireField(options.weightField);
+  },
+  create(context) {
+    // 각 계산 영역의 금액 합계와 수량 합계를 담습니다.
+    return {amount: 0, units: 0};
+  },
+  accumulate(state, value, context) {
+    // value는 현재 기록의 PRICE이며, 같은 기록의 수량도 읽습니다.
+    const units = context.getValue(context.options.weightField);
+    // 이 예제에서는 숫자인 가격과 0보다 큰 숫자 수량만 사용합니다.
+    if (typeof value === "number" &amp;&amp; Number.isFinite(value) &amp;&amp;
+        typeof units === "number" &amp;&amp; Number.isFinite(units) &amp;&amp; units &gt; 0) {
+      state.amount += value * units;
+      state.units += units;
+    }
+  },
+  merge(target, source, context) {
+    // 다른 영역에서 구한 금액 합계와 수량 합계를 각각 더합니다.
+    target.amount += source.amount;
+    target.units += source.units;
+  },
+  finalize(state, context) {
+    // 금액 1,000을 수량 4로 나누면 250입니다. 수량이 없으면 빈 값입니다.
+    return state.units &gt; 0 ? state.amount / state.units : null;
+  }
+});
+// 등록한 연산을 일반 평균과 나란히 배치합니다.
+AUIPivot.setValueFields(pid, [
+  {dataField: "PRICE", operation: "AVG", customLabelText: "일반 평균"},
+  {dataField: "PRICE", operation: weightedPrice, formatString: "#,##0.00"}
+]);</code></pre>
+<pre id="weighted-data-example"><code class="language-javascript">// 계산을 눈으로 확인하기 위한 작은 고정 예제입니다.
+AUIPivot.setGridData(pid, [
+  {PRICE: 100, COUNT: 1},
+  {PRICE: 300, COUNT: 3}
+]);
+// 결과: 일반 평균 200, 수량을 반영한 평균 가격 250.00</code></pre>
+<p>첫 기록을 읽으면 state는 <code>{amount: 100, units: 1}</code>, 두 번째 기록까지 읽으면 <code>{amount: 1000, units: 4}</code>가 됩니다. finalize()가 1000 / 4를 계산합니다. 소계와 총계에서도 평균들을 다시 평균내지 않고, 금액과 수량을 각각 합친 뒤 나눕니다.</p>
+<details><summary>등록 옵션과 보고서 저장, 복원 자세히 보기</summary>
+<ul>
+<li><code>id</code>는 내장 연산이나 같은 피벗에 등록한 이름과 겹칠 수 없습니다. 메소드는 이 연산 ID를 반환합니다. <code>labelText</code>는 필드 패널의 연산 목록에 표시할 이름입니다.</li>
+<li><code>defaultOptions</code>는 기본 설정입니다. 값 필드에 <code>aggregatorOptions</code>를 지정하면 그 객체를 사용하며 기본 객체와 합치지 않습니다. weightField는 이 예제에서 직접 정한 옵션 이름입니다.</li>
+<li><code>validateOptions(options, context)</code>는 선택 함수입니다. 잘못된 옵션은 false를 반환하거나 오류를 발생시켜 거부합니다. <code>context.requireField()</code>는 계산에 필요한 보조 필드를 선언합니다. 이 context에는 dataField, operation, requireField가 제공되며 등록 시점에는 dataField가 빈 문자열일 수 있습니다.</li>
+<li>네 계산 함수의 context에는 dataField, operation, options, getValue가 제공됩니다. <code>getValue()</code>는 accumulate 안에서만 사용할 수 있으며 원본 필드와 등록된 파생 필드를 읽습니다. 함수들은 동기 함수로 작성하고 누적, 병합 순서가 달라도 같은 계산 의미가 되게 합니다.</li>
+<li><a href="../Pivot/Methods.html#getCustomAggregators">getCustomAggregators()</a>는 ID, 버전, 표시 이름을 조회합니다. 함수나 계산 중 state를 백업하지 않습니다.</li>
+<li>보고서에는 집계 ID, 버전과 값 필드의 옵션이 저장됩니다. 다른 피벗에서 복원할 때는 먼저 같은 ID와 버전의 계산 정의를 등록하고 <a href="../Pivot/Methods.html#setReportDefinition">setReportDefinition()</a>을 호출합니다.</li>
+<li>콜백 오류에는 집계 ID와 발생 단계가 포함됩니다. 실패한 계산 이전의 화면 전체를 자동 복원하는 기능은 아닙니다.</li>
+</ul>
+</details>
+<p><a href="../Pivot/Methods.html#registerCustomAggregator">registerCustomAggregator() 상세</a>, <a href="https://www.auisoft.net/demo/auipivot/custom_aggregator_demo.html">판매 대수를 반영한 평균 가격 데모</a>, <a href="https://www.auisoft.net/demo/auipivot/custom_aggregation_registration_demo.html">중복 고객을 고려한 고객당 평균 매출 데모</a></p>
+</section>
+<nav aria-label="개발 가이드"><a href="../index.html">개발 문서 목차</a>, <a href="aggregation.html">집계 연산</a>, <a href="fields-and-grouping.html">가상 필드와 그룹화</a>, <a href="visual-analytics.html">시각 분석</a></nav>
+</main><footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body></html>

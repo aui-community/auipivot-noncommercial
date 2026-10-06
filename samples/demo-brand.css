@@ -1,0 +1,21 @@
+/* 제공된 Pivot 로고의 남색과 파란색을 메인, 개별 데모에서 함께 사용합니다.
+   색상 변수만 공유하며 제품 Grid/Pivot의 셀과 패널 스타일은 변경하지 않습니다. */
+.pivot-home, .standalone-demo {
+    --pivot-navy: #1f4e79;
+    --pivot-navy-hover: #173d60;
+    --pivot-blue: #2879ba;
+    --pivot-ink: #202a35;
+    --pivot-muted: #617184;
+    --pivot-line: #dce6f0;
+    --pivot-soft: #f4f8fc;
+    --pivot-tint: #eaf2f9;
+    --pivot-border-active: #83accf;
+    --pivot-focus: #2879ba;
+    --pivot-code-bg: #202d3b;
+    --pivot-code-line: #3a4b5e;
+    --pivot-code-accent: #b6d9f5;
+}
+
+/* 로고 옆 제품명과 플러그인 설명을 두 줄로 정렬합니다. */
+.pivot-home .demo-brand-copy, .standalone-demo .demo-brand-copy { display:flex; flex-direction:column; gap:2px; }
+.pivot-home .demo-brand-subtitle, .standalone-demo .demo-brand-subtitle { color:var(--pivot-blue); font-size:14px; line-height:1.5; font-weight:400; }

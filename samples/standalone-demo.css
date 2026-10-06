@@ -1,0 +1,125 @@
+@charset "UTF-8";
+/* 기존 기본 스타일과 새 화면 스타일을 분리해 소개, 성능 데모의 외관을 보존합니다. */
+@import url("./demo.css");
+@import url("./demo-typography.css");
+@import url("./demo-brand.css");
+
+/* AUIPivot 개별 데모의 탐색, 설명과 예제만 꾸밉니다.
+   제품 셀, 필드 패널, 팝업의 Grid/Pivot 클래스와 크기는 변경하지 않습니다. */
+/* 본문의 기본 글자색은 기존 값을 유지해 제품의 currentColor 상속에 영향을 주지 않습니다. */
+body.standalone-demo { margin:0; background:#fff; -webkit-text-size-adjust:100%; }
+/* 본문, 상단 탐색과 제품 안내의 최대 폭을 1600px로 맞춥니다. */
+.standalone-demo .wrap { width:calc(100% - 40px); max-width:1600px; margin:0 auto; }
+.standalone-site-header { height:72px; border-bottom:1px solid var(--pivot-line); background:#fff; color:var(--pivot-ink); font-family:var(--demo-font); }
+.standalone-header-inner { display:flex; align-items:center; justify-content:space-between; gap:24px; width:calc(100% - 40px); max-width:1600px; height:100%; margin:0 auto; }
+.standalone-site-header a { color:inherit; text-decoration:none; }
+.standalone-brand { display:flex; align-items:center; gap:11px; white-space:nowrap; font-size:21px; font-weight:700; letter-spacing:normal; }
+.standalone-brand strong { font-weight:700; }
+/* 메인과 같은 아홉 칸 마크를 사용하며 기존 헤더 높이는 유지합니다. */
+.standalone-brand-mark { display:block; width:40px; height:40px; flex-shrink:0; }
+.standalone-site-nav { display:flex; align-items:center; gap:28px; font-size:14px; color:var(--pivot-muted); }
+.standalone-site-nav a:hover { color:var(--pivot-blue); }
+.standalone-site-nav span { margin-left:7px; }
+.standalone-demo a:focus-visible, .standalone-demo .demo-source-button:focus-visible, .standalone-demo .demo-copy-button:focus-visible { outline:2px solid var(--pivot-focus); outline-offset:4px; }
+.demo-skip-link { position:fixed; top:-70px; left:20px; padding:12px 18px; z-index:10000; background:#fff; color:#20242a; }
+.demo-skip-link:focus { top:12px; }
+/* 제목 옆에 핵심 API를 두고, 좁은 화면에서는 배지를 자연스럽게 다음 줄로 보냅니다. */
+.demo-page-intro { padding:16px 0 24px; display:flex; justify-content:space-between; align-items:center; gap:24px; font-family:var(--demo-font); }
+.demo-title-line { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; min-width:0; }
+.demo-page-intro h1 { font-size:28px; font-weight:700; letter-spacing:normal; line-height:1.6; margin:0; color:#262b32; }
+.demo-api-label { box-sizing:border-box; max-width:100%; overflow-wrap:anywhere; color:var(--pivot-navy); padding:3px 8px; background:var(--pivot-tint); border:1px solid var(--pivot-line); border-radius:3px; font:14px/1.5 var(--demo-code-font); }
+.demo-source-button { flex-shrink:0; white-space:nowrap; font:600 14px/1.5 var(--demo-font); padding:11px 18px; border:1px solid #d5dae0; border-radius:4px; background:#fff; color:#343c46; cursor:pointer; }
+.demo-source-button:hover { border-color:var(--pivot-border-active); background:var(--pivot-soft); }
+.demo-source-button span { color:var(--pivot-blue); margin-right:8px; font-family:var(--demo-code-font); }
+/* 제품 생성 전에 배치되는 안내이며 화면 폭에 맞춰 자연스럽게 줄바꿈합니다. */
+.standalone-product-notice { background:var(--pivot-soft); border-bottom:1px solid var(--pivot-line); }
+.standalone-demo .standalone-product-notice p { width:calc(100% - 40px); max-width:1600px; margin:0 auto; padding:10px 0; color:#535c67; font:14px/1.5 var(--demo-font); }
+@media (max-width:700px) { .standalone-demo .standalone-product-notice p { width:calc(100% - 32px); } }
+
+/* 제목 위로 옮긴 탐색 줄 안에 JSON 링크와 기존 테마 선택기를 함께 표시합니다. */
+.standalone-demo #demo-page-header { padding:13px 16px !important; margin:32px 0 0 !important; border:1px solid var(--pivot-line) !important; border-radius:5px; background:var(--pivot-soft) !important; }
+.standalone-demo #demo-navigation-row { flex-wrap:wrap; gap:12px 24px !important; overflow:visible !important; }
+.standalone-demo .demo-navigation { display:flex; flex-wrap:wrap; gap:10px 20px; }
+.standalone-demo .demo-navigation a { color:#535e6c; text-decoration:none; font-size:14px; }
+.standalone-demo .demo-navigation a:hover { color:var(--pivot-blue); text-decoration:underline; }
+.standalone-demo #demo-theme-toolbar { font:14px/1.5 var(--demo-font) !important; color:#535e6c !important; }
+.standalone-demo #demo-theme-select { width:162px !important; height:30px !important; border-color:#d0d6de !important; border-radius:4px !important; }
+.standalone-demo #demo-nova-controls { padding-bottom:0; border-bottom:0; }
+.standalone-demo .desc { padding:0 0 20px; font-size:14px; line-height:1.5; color:#535c67; }
+.standalone-demo .desc p { margin:9px 0; }
+.standalone-demo .desc a { color:var(--pivot-navy); text-underline-offset:3px; }
+.standalone-demo .desc strong, .standalone-demo .desc b { color:#292f37; }
+.standalone-demo .desc code { font:14px/1.5 var(--demo-code-font); }
+/* 예제의 기존 onclick, id와 선택 상태를 유지하면서 조작 요소의 외관만 정리합니다. */
+.standalone-demo #main .btn { padding:10px 17px; margin:6px 8px 6px 0; border-radius:4px; font-size:14px; font-weight:600; line-height:1.5; background:var(--pivot-navy); border-color:var(--pivot-navy); transition:background-color .15s; }
+.standalone-demo #main .btn:hover { background:var(--pivot-navy-hover); }
+.standalone-demo #main .btn[aria-pressed="true"] { background:var(--pivot-blue); border-color:var(--pivot-blue); }
+.standalone-demo #main .btn:disabled { opacity:.45; cursor:default; }
+.standalone-demo .desc select, .standalone-demo .desc input[type="text"], .standalone-demo .desc input[type="number"] { padding:6px 8px; border:1px solid #cfd5dd; border-radius:3px; background:#fff; color:#343c47; font-family:var(--demo-font); font-size:14px; line-height:1.5; vertical-align:middle; }
+.standalone-demo .desc input[type="checkbox"], .standalone-demo .desc input[type="radio"] { accent-color:var(--pivot-blue); vertical-align:middle; margin-right:4px; }
+.standalone-demo .desc label { margin-right:8px; }
+.standalone-demo #main .tabe_item { box-sizing:border-box; padding:12px 20px; width:auto; min-width:150px; font-size:14px; color:#68717c; background:#f7f8fa; border-bottom:1px solid #d7dce3; }
+.standalone-demo #main .tabe_item_selected { color:var(--pivot-navy); background:#fff; border:1px solid #d7dce3; border-bottom:2px solid var(--pivot-blue); }
+/* 원래 예제 텍스트를 pre/code로 표시하며, Prism 색상은 복사 도구와 같은 어두운 바탕에 맞춥니다. */
+.demo-code-frame { margin:18px 0; border:1px solid var(--pivot-code-line); border-radius:6px; overflow:hidden; background:var(--pivot-code-bg); }
+.demo-code-toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:9px 15px; border-bottom:1px solid var(--pivot-code-line); font:14px/1.5 var(--demo-font); color:#bdc5cf; }
+.demo-code-toolbar span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.demo-copy-button { flex-shrink:0; font-family:var(--demo-font); font-size:14px; line-height:1.5; color:var(--pivot-code-accent); background:transparent; border:1px solid #606773; padding:3px 9px; border-radius:3px; cursor:pointer; }
+.demo-copy-button:hover { background:#3b424c; }
+.standalone-demo .desc .demo-code-frame pre, .standalone-demo .desc .demo-code-frame xmp { margin:0; padding:17px 19px; max-height:290px; box-sizing:border-box; width:100%; background:transparent; border:0; color:#e2e7ed; font:14px/1.5 var(--demo-code-font); white-space:pre; overflow:auto; overflow-wrap:normal; tab-size:4; }
+.standalone-demo .desc .demo-code-frame pre:focus-visible { outline:2px solid var(--pivot-code-accent); outline-offset:-3px; }
+.demo-copy-status { font-size:14px; line-height:1.5; color:#526473; min-height:17px; margin:5px 0 0; }
+.demo-copy-status:empty { display:none; }
+/* 하단은 결과를 가리지 않는 가벼운 제품 안내로 유지합니다. */
+.standalone-demo #footer, .standalone-demo #footer.demo-footer { box-sizing:border-box; height:auto; margin-top:40px; padding:20px 0 26px; border-top:1px solid #e2e5e9; background:transparent; color:#727b87; text-align:left; }
+.standalone-demo #footer .copyright { margin:0; padding:0; font-size:14px; line-height:1.5; }
+.standalone-demo #footer p { margin:0; }
+.standalone-demo #footer a { color:#727b87 !important; text-decoration:none; }
+/* 전체 소스는 네이티브 dialog로 표시하며 보고서의 기존 대화상자와 분리합니다. */
+.demo-source-dialog { box-sizing:border-box; width:min(1040px, calc(100vw - 40px)); max-height:calc(100vh - 48px); padding:0; border:1px solid #414852; border-radius:8px; background:var(--pivot-code-bg); color:#e4e8ee; box-shadow:0 24px 90px #0004; }
+.demo-source-dialog::backdrop { background:#171d2873; }
+.demo-source-dialog form { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 22px; border-bottom:1px solid #404752; }
+.demo-source-dialog h2 { margin:0; font-size:14px; color:#fff; line-height:1.5; }
+.demo-source-dialog button { font-family:var(--demo-font); cursor:pointer; }
+.demo-source-close { padding:5px 12px; border:1px solid #67717e; border-radius:4px; background:transparent; color:#e5e9ef; font-size:14px; }
+.demo-source-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px; padding:13px 22px; align-items:center; }
+.demo-source-options { display:flex; gap:7px; }
+.demo-source-options button { border:1px solid transparent; border-radius:4px; background:transparent; color:#a9b4c3; padding:6px 10px; font-size:14px; }
+.demo-source-options button[aria-pressed="true"] { border-color:#596471; color:var(--pivot-code-accent); background:#303844; }
+.demo-source-dialog .demo-source-content { margin:0 22px; padding:16px; overflow:auto; box-sizing:border-box; height:min(56vh,560px); border:1px solid #414b57; border-radius:4px; background:#1f252d; color:#e0e7f0; font:14px/1.5 var(--demo-code-font); tab-size:4; white-space:pre; }
+.demo-source-dialog .demo-source-content:focus-visible { outline:2px solid var(--pivot-code-accent); outline-offset:1px; }
+/* Prism 기본 여백과 글꼴 대신 기존 코드 창의 크기를 유지합니다. 토큰별 색상은 prism.css를 사용합니다. */
+.standalone-demo .desc .demo-code-frame pre > code, .demo-source-dialog .demo-source-content > code { display:block; padding:0; border:0; background:none; color:inherit; font:inherit; text-shadow:none; white-space:inherit; }
+.demo-source-help, .demo-source-status { margin:12px 22px; color:#bdc6d2; font-size:14px; line-height:1.5; }
+.demo-source-dialog [hidden] { display:none !important; }
+.demo-source-dialog .demo-copy-button:disabled { opacity:.5; cursor:default; }
+@media (max-width:700px) {
+    /* 모바일에서도 돌아가기와 개발 문서 링크를 모두 사용할 수 있도록 줄바꿈합니다. */
+    .standalone-site-header { height:auto; min-height:62px; }
+    .standalone-header-inner { min-height:62px; box-sizing:border-box; padding:12px 0; flex-wrap:wrap; gap:12px 24px; }
+    .standalone-header-inner, .standalone-demo .wrap { width:calc(100% - 32px); }
+    .standalone-brand { font-size:14px; gap:8px; }
+    .standalone-site-nav { gap:14px; font-size:14px; margin-left:auto; }
+    .demo-page-intro { align-items:flex-start; flex-direction:column; gap:12px; padding:16px 0 20px; }
+    .demo-source-button { padding:9px 14px; }
+    .standalone-demo #demo-page-header { padding:12px !important; margin-top:24px !important; }
+    .standalone-demo #demo-navigation-row { gap:12px !important; }
+    .standalone-demo #demo-theme-toolbar { white-space:normal !important; }
+    .standalone-demo .desc { font-size:14px; }
+    .standalone-demo .desc .demo-code-frame pre { font-size:14px; }
+    .demo-source-dialog { width:calc(100vw - 24px); max-height:calc(100vh - 24px); }
+    .demo-source-dialog form { padding:14px; }
+    .demo-source-toolbar { padding:12px 14px; }
+    .demo-source-dialog .demo-source-content { margin:0 14px; padding:12px; font-size:14px; }
+    .demo-source-help, .demo-source-status { margin:12px 14px; }
+}
+/* 복사 결과는 문서 흐름 밖에서 알리므로 필드 패널의 상단 위치가 변하지 않습니다. */
+.demo-copy-announcement { position:fixed; right:20px; bottom:20px; z-index:10000; margin:0; padding:11px 16px; border-radius:4px; background:var(--pivot-code-bg); color:#fff; font-size:14px; box-shadow:0 3px 15px #0002; pointer-events:none; }
+.demo-copy-announcement:empty { display:none; }
+
+/* 정식 데모와 소스 창의 제목, 설명에도 문서와 같은 위계를 적용합니다. */
+.demo-source-dialog h2 { font-size:21px; line-height:1.6; font-weight:700; }
+.standalone-demo .desc p { margin:10px 0 4px; line-height:1.5; }
+.standalone-demo .desc li { line-height:2; }
+.standalone-demo .desc :is(ul, ol) { padding-left:40px; list-style:revert; }
+.standalone-demo .desc :is(th, td) { font-size:14px; line-height:24px; }

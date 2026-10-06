@@ -1,0 +1,82 @@
+/* 설명과 코드 전체를 한 영역에서 스크롤하여 표가 지나치게 아래로 밀리지 않게 합니다. */
+.demo-setup {
+	box-sizing: border-box;
+	margin: 16px 0;
+	padding: 12px 16px;
+	max-width: 100%;
+	max-height: 300px;
+	overflow: auto;
+	min-width: 0;
+	background: #f7f7f7;
+	border-radius: 4px;
+	color: #25354a;
+	font-size: 12px;
+	line-height: 1.6;
+}
+.demo-setup p {
+	margin: 8px 0;
+}
+/* 파생 필드의 계산 방법과 사용 위치를 한눈에 비교합니다. */
+.demo-setup .demo-field-definitions {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 12px 0;
+}
+.demo-setup .demo-field-definitions th,
+.demo-setup .demo-field-definitions td {
+	padding: 6px 10px;
+	border: 1px solid #d6dde5;
+	text-align: left;
+}
+.demo-setup .demo-field-definitions th {
+	background: #e8edf3;
+}
+.demo-setup > :first-child {
+	margin-top: 0;
+}
+.demo-setup > :last-child {
+	margin-bottom: 0;
+}
+.demo-setup .demo-setup-context {
+	color: #526173;
+}
+
+/* 코드마다 별도 스크롤을 만들지 않고 긴 줄은 영역 안에서 줄바꿈합니다. */
+.demo-setup pre {
+	box-sizing: border-box;
+	max-width: 100%;
+	margin: 10px 0 16px;
+	padding: 0;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: #18283a;
+	text-align: left;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	tab-size: 4;
+}
+.demo-setup pre,
+.demo-setup code {
+	line-height: 1.6em;
+	font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', AppleSDGothicNeo-Light, sans-serif;
+	font: 12px;
+}
+.demo-setup:focus-visible,
+.demo-setup pre:focus-visible,
+.demo-setup summary:focus-visible {
+	outline: 2px solid #2776ad;
+	outline-offset: 2px;
+}
+
+/* 긴 보조 함수는 필요할 때 펼쳐 읽되 핵심 설정 코드는 항상 보이게 둡니다. */
+.demo-setup details {
+	margin: 12px 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+.demo-setup summary {
+	cursor: pointer;
+	color: #17659a;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "auipivot-react-tsx-samples",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "type-check": "tsc --noEmit",
+    "build": "npm run type-check && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "aui-pivot": "1.0.0",
+    "file-saver": "^2.0.5",
+    "prismjs": "^1.30.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/prismjs": "^1.26.6",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.0.4"
+  }
+}

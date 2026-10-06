@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <!-- 원본 자동차 자료를 사본으로 확장하는 공통 helper -->
+        <script src="./car_sales_extensions.js"></script>
+        <script>
+            let myPivotID;
+            let sourceData;
+            // 페이지가 준비되면 표를 만들고 자동차 판매 JSON을 읽습니다.
+            function init() {
+                // AUIPivot을 만든 뒤 정적 자동차 판매 자료를 요청합니다.
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 정적 JSON을 읽은 뒤 이 데모의 필드 설정과 데이터를 적용합니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        sourceData = data;
+                        initPivotData(sourceData);
+                    })
+                    .catch(function (error) {
+                        alert(error.message);
+                    });
+            }
+            // 표와 필드 패널의 위치, 숫자의 표시 형식을 설정합니다.
+            function createPivotGrid() {
+                const pivotProps = {
+                    pivotPanelId: "#pivot_panel",
+                    defaultFormatString: "#,##0",
+                    autoGridHeight: false
+                };
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+            }
+
+            // 계산식과 구간 규칙을 등록하면 새 필드 이름을 행, 열, 값, 필터에서 사용할 수 있습니다.
+            function initPivotData(data) {
+                // 원본을 바꾸지 않고 사용할 계산 항목과 숫자 구간을 직접 정의합니다.
+                AUIPivot.setDerivedFields(myPivotID, [
+                    // 이익: 판매 기록마다 매출액에서 원가를 뺍니다.
+                    {
+                        dataField: "PROFIT", // 새로 사용할 필드 이름
+                        labelText: "이익", // 화면에 표시할 이름
+                        expression: {
+                            operator: "subtract", // 앞의 값에서 뒤의 값을 빼는 계산
+                            operands: ["TOTAL", "COST"] // TOTAL - COST
+                        }
+                    },
+                    // 가격대: PRICE 값을 아래 네 구간 중 하나로 분류합니다.
+                    {
+                        dataField: "PRICE_RANGE",
+                        labelText: "가격대",
+                        sourceField: "PRICE", // 분류할 원본 필드
+                        // min은 포함하고 max는 제외합니다. null은 그쪽 경계가 없다는 뜻입니다.
+                        // id는 필터 등에서 사용하는 값이고 labelText는 화면에 보이는 이름입니다.
+                        ranges: [
+                            { id: "under2m", min: 0, max: 2000000, labelText: "2,000,000 미만" },
+                            { id: "from2m", min: 2000000, max: 3000000, labelText: "2,000,000~3,000,000 미만" },
+                            { id: "from3m", min: 3000000, max: 4000000, labelText: "3,000,000~4,000,000 미만" },
+                            { id: "from4m", min: 4000000, max: null, labelText: "4,000,000 이상" }
+                        ],
+                        // 위 구간에 들어가지 않는 값은 기타로 분류합니다.
+                        fallback: { id: "other", labelText: "기타" }
+                    },
+                    // 손익 구분: 위에서 정의한 PROFIT도 분류 기준으로 사용할 수 있습니다.
+                    {
+                        dataField: "PROFIT_BAND",
+                        labelText: "손익 구분",
+                        sourceField: "PROFIT",
+                        ranges: [
+                            { id: "loss", min: null, max: 0, labelText: "손실" }, // 0 미만
+                            { id: "nonLoss", min: 0, max: null, labelText: "손실 없음" } // 0 이상
+                        ]
+                    }
+                ]);
+                AUIPivot.setFieldAlias(myPivotID, createCarSalesAliases());
+                // 세로로 묶을 항목입니다. 배열의 앞 항목이 바깥 그룹, 뒤 항목이 그 안의 세부 그룹이 됩니다.
+                AUIPivot.setRowFields(myPivotID, ["PRICE_RANGE", "NAME"]);
+                // 가로로 나눌 항목입니다. 빈 배열이면 열을 그룹으로 나누지 않습니다.
+                AUIPivot.setColumnFields(myPivotID, ["REGION"]);
+                // 계산할 항목(dataField)과 계산 방법(operation)을 정합니다. SUM은 합계, AVG는 평균입니다.
+                AUIPivot.setValueFields(myPivotID, [
+                    {
+                        dataField: "PROFIT",
+                        operation: "SUM"
+                    },
+                    {
+                        dataField: "TOTAL",
+                        operation: "SUM"
+                    }
+                ]);
+                // 자료를 골라 볼 조건을 필터 영역에 놓습니다. 실제 선택값은 필터 메뉴에서 정합니다.
+                AUIPivot.setFilterFields(myPivotID, ["PROFIT_BAND"]);
+                // 원본에 없는 COST(가정 원가)만 준비합니다. 이익과 가격대는 위 정의로 계산합니다.
+                AUIPivot.setGridData(myPivotID, extendCarSalesData(data, ["COST"]));
+            }
+            // 같은 가격 구간 ID를 열로 옮겨도 이익 계산식이나 원본은 변경하지 않습니다.
+            function movePriceRange() {
+                const inColumns = document.getElementById("range_position").value === "columns";
+                AUIPivot.setRowFields(myPivotID, inColumns ? ["REGION", "NAME"] : ["PRICE_RANGE", "NAME"]);
+                AUIPivot.setColumnFields(myPivotID, inColumns ? ["PRICE_RANGE"] : ["REGION"]);
+                // 원본을 다시 불러오지 않고, 바꾼 필드, 필터 설정으로 다시 계산합니다.
+                AUIPivot.updatePivot(myPivotID);
+            }
+            // 필터 선택은 표시 문자열이 아닌 Range ID를 사용합니다. 선택된 판매기록만 다시 합산합니다.
+            function filterProfit() {
+                AUIPivot.setFilterCache(
+                    myPivotID,
+                    document.getElementById("profit_filter").value === "loss" ? { PROFIT_BAND: ["loss"] } : {}
+                );
+            }
+        </script>
+    </head>
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 목차와 같은 본문 안에서, 피벗과 이동 가능한 패널이 생성되기 전에 테마 선택을 배치합니다. -->
+            <!-- 모든 정식 데모의 첫 줄에서 목차와 동일 원본 자료로 이동합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>파생 필드로 분석 확장</h1>
+                    <code class="demo-api-label">setDerivedFields</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>계산한 이익과 가격대를 행, 값, 필터에서 함께 사용한 모습입니다.</p>
+                    <p>
+                        setDerivedFields 메소드는 원본에 없는 계산 필드와 숫자 구간을 정의합니다. 원본을 변경하지 않고
+                        행, 열, 값, 필터에서 새 필드처럼 사용할 수 있습니다.
+                    </p>
+                    <p>
+                        아래 배열은 이익(PROFIT), 가격대(PRICE_RANGE), 손익 구분(PROFIT_BAND)의 정의입니다. COST는
+                        데모용 가정 원가입니다. 가격대의 min은 포함하고 max는 제외합니다.
+                    </p>
+                    <!-- 이 데모의 핵심 설정을 기존 예제처럼 본문에 이어 표시합니다. -->
+                    <pre class="demo-code" tabindex="0" aria-label="JavaScript 설정 예제">
+AUIPivot.setDerivedFields(myPivotID, [
+    // 이익: 판매 기록마다 매출액에서 원가를 뺍니다.
+    {
+        dataField: "PROFIT", // 새로 사용할 필드 이름
+        labelText: "이익", // 화면에 표시할 이름
+        expression: {
+            operator: "subtract", // 앞의 값에서 뒤의 값을 빼는 계산
+            operands: ["TOTAL", "COST"] // TOTAL - COST
+        }
+    },
+    // 가격대: PRICE 값을 아래 네 구간 중 하나로 분류합니다.
+    {
+        dataField: "PRICE_RANGE",
+        labelText: "가격대",
+        sourceField: "PRICE", // 분류할 원본 필드
+        // min은 포함하고 max는 제외합니다. null은 그쪽 경계가 없다는 뜻입니다.
+        // id는 필터 등에서 사용하는 값이고 labelText는 화면에 보이는 이름입니다.
+        ranges: [
+            { id: "under2m", min: 0, max: 2000000, labelText: "2,000,000 미만" },
+            { id: "from2m", min: 2000000, max: 3000000, labelText: "2,000,000~3,000,000 미만" },
+            { id: "from3m", min: 3000000, max: 4000000, labelText: "3,000,000~4,000,000 미만" },
+            { id: "from4m", min: 4000000, max: null, labelText: "4,000,000 이상" }
+        ],
+        // 위 구간에 들어가지 않는 값은 기타로 분류합니다.
+        fallback: { id: "other", labelText: "기타" }
+    },
+    // 손익 구분: 위에서 정의한 PROFIT도 분류 기준으로 사용할 수 있습니다.
+    {
+        dataField: "PROFIT_BAND",
+        labelText: "손익 구분",
+        sourceField: "PROFIT",
+        ranges: [
+            { id: "loss", min: null, max: 0, labelText: "손실" }, // 0 미만
+            { id: "nonLoss", min: 0, max: null, labelText: "손실 없음" } // 0 이상
+        ]
+    }
+]);
+
+// 가격대, 차종 순서로 행을 묶습니다.
+AUIPivot.setRowFields(myPivotID, ["PRICE_RANGE", "NAME"]);
+
+// 판매 지점 순서로 열을 나눕니다.
+AUIPivot.setColumnFields(myPivotID, ["REGION"]);
+
+// 값 필드와 집계 연산자 지정하기
+AUIPivot.setValueFields(myPivotID, [
+    // PROFIT
+    { dataField: "PROFIT", operation: "SUM" },
+    // TOTAL
+    { dataField: "TOTAL", operation: "SUM" }
+]);
+
+// 손익 구분 항목을 필터 영역에 놓습니다.
+AUIPivot.setFilterFields(myPivotID, ["PROFIT_BAND"]);
+</pre>
+
+                    <label
+                        >가격대 위치
+                        <select id="range_position" onchange="movePriceRange()">
+                            <option value="rows">가격대를 행으로</option>
+                            <option value="columns">가격대를 열로</option>
+                        </select></label
+                    >
+                    <label
+                        >손익
+                        <select id="profit_filter" onchange="filterProfit()">
+                            <option value="all">전체 기록</option>
+                            <option value="loss">손실 기록만</option>
+                        </select></label
+                    >
+                </div>
+                <!-- 설명과 결과 확인 영역을 먼저 읽고 피벗을 확인합니다. -->
+                <div id="desc"></div>
+                <div style="position: relative">
+                    <!-- 기존 Demo와 동일한 본문/필드 패널 배치입니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 600px"></div>
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 600px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- 공식 데모와 동일하게 피벗 아래 40px 여백 뒤에 저작권 안내를 표시합니다. -->
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

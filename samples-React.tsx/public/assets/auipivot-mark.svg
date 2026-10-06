@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- 제공된 Pivot 이미지처럼 행, 열 머리글과 분석 값을 아홉 칸으로 구분합니다. -->
+  <rect width="64" height="64" rx="15" fill="#1f4e79"/>
+  <g fill="#9aafc3">
+    <rect x="13" y="13" width="10" height="10" rx="2"/>
+    <rect x="27" y="13" width="10" height="10" rx="2"/>
+    <rect x="41" y="13" width="10" height="10" rx="2"/>
+    <rect x="13" y="27" width="10" height="10" rx="2"/>
+    <rect x="13" y="41" width="10" height="10" rx="2"/>
+  </g>
+  <g fill="#fff">
+    <rect x="27" y="27" width="10" height="10" rx="2"/>
+    <rect x="41" y="27" width="10" height="10" rx="2"/>
+    <rect x="27" y="41" width="10" height="10" rx="2"/>
+    <rect x="41" y="41" width="10" height="10" rx="2"/>
+  </g>
+</svg>

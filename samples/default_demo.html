@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <script>
+            // AUIPivot 생성 후 반환 ID
+            let myPivotID;
+
+            // 시작점
+            function init() {
+                // AUIPivot 을 생성합니다.
+                createPivotGrid();
+
+                // 피벗팅 할 데이터 요청
+                requestData("./data/car_sales.json");
+            }
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid() {
+                // 실제로 #pivot_wrap 에 그리드 생성
+                myPivotID = AUIPivot.create("#pivot_wrap");
+            }
+
+            //피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+            function initPivotData(data) {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["DATE_HALF", "DATE_QTR", "DATE_MONTH"]);
+
+                // 필터 필드, 원하면 주석 제거
+                //AUIPivot.setFilterFields(myPivotID, ["COLOR"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(myPivotID, [{ "dataField": "TOTAL", "operation": "SUM" }]);
+
+                // 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
+                AUIPivot.setDateTypeField(myPivotID, "DATE");
+
+                // 피봇그리드에 데이터 삽입
+                AUIPivot.setGridData(myPivotID, data);
+            }
+
+            // 피벗 필드들 변경하여 업데이트
+            function changePivotFields() {
+                // 행필드
+                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);
+
+                // 칼럼 필드
+                AUIPivot.setColumnFields(myPivotID, ["COLOR"]);
+
+                // 값 필드
+                AUIPivot.setValueFields(myPivotID, [{ "dataField": "COUNT", "operation": "SUM" }]);
+
+                // 피봇팅 다시 실행
+                AUIPivot.updatePivot(myPivotID);
+            }
+
+            //데이터 요청
+            function requestData(url) {
+                // ajax 로더 표시
+                AUIPivot.showAjaxLoader(myPivotID);
+                fetch(url)
+                    .then((res) => {
+                        if (!res.ok) throw new Error("데이터 요청 실패");
+                        return res.json();
+                    })
+                    .then((data) => {
+                        // 하단에 분석할 데이터의 rows 수 표시
+                        document.getElementById("desc").innerText =
+                            data.length + " rows 데이터를 주어진 피벗 필드에 맞게 분석하여 표현하였습니다.";
+
+                        // 피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+                        initPivotData(data);
+
+                        // 로더 제거
+                        //AUIPivot.removeAjaxLoader(myPivotID);
+                    })
+                    .catch((err) => console.error("데이터 로딩 오류:", err));
+            }
+        </script>
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 현재 탐색 링크와 테마 선택은 v2.6 데모 복원 후에도 유지합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>처음 만나는 AUIPivot</h1>
+                    <code class="demo-api-label">create</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>
+                        AUIPiovt 그리드는 리스트형 JSON 데이터를 다양한 관점에서 분석하여, 요약 정보를 표시 합니다.
+                        (100% 클라이언트 사이드 처리)
+                    </p>
+                    <p>
+                        AUIPivot 을 생성하기 위해서는 일반 JSON 리스트와 피벗 필드(행, 열, 값, 필터)를 구성함으로써
+                        가능합니다.
+                    </p>
+                    <p>다음은 반기, 분기, 월 별로 각 지점에서 판매한 자동차 모델의 판매 합계를 분석한 내용입니다.</p>
+                    <p>예를 들어 각 지역에서 가장 인기있는 차종의 색상은 무엇인지 분석해 볼 수 있습니다.</p>
+                    <p>
+                        <button class="btn" onclick="changePivotFields()">
+                            각 지역에서 가장 인기있는 차종의 색상 보기 실행</button
+                        ><span
+                            >즉, 각 지점에서 판매한 차종[ 행 필드 ]의 색상 별로 [ 열 필드 ] 판매 대수의 합 [ 값 필드 ]
+                            을 피벗팅</span
+                        >
+                    </p>
+                    <p>
+                        <button
+                            class="btn"
+                            onclick="
+                                javascript: window.open(
+                                    './data/car_sales.json',
+                                    '_blank',
+                                    'width=1024 height=768 scrollbars=yes'
+                                );
+                            "
+                        >
+                            원본 JSON 데이터 구조 보기
+                        </button>
+                    </p>
+                </div>
+                <div style="position: relative">
+                    <!-- AUIPivot 그리드가 이곳에 생성됩니다. -->
+                    <div id="pivot_wrap" style="width: 100%; height: 480px"></div>
+                </div>
+                <div id="desc"></div>
+            </div>
+            <div id="footer">
+                <div class="copyright">
+                    <p>
+                        Copyright © AUISoft Co., Ltd.
+                        <a href="https://www.auisoft.net" target="_blank" class="link" style="color: #b2ccff"
+                            >https://www.auisoft.net</a
+                        >
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+        <title>AUIPivot | 실행 예제</title>
+        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
+        <link rel="stylesheet" href="./prism.css" />
+        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
+        <script src="./prism.js" data-manual></script>
+
+        <!-- 탐색과 코드 복사 기능을 먼저 준비합니다. 피벗 실행 코드는 각 HTML에 있습니다. -->
+        <script src="./demo-page.js"></script>
+        <!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+
+        <!-- 본 데모를 위한 CSS 파일 -->
+        <link href="./standalone-demo.css" rel="stylesheet" />
+
+        <!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+
+        <!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+
+        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+
+        <!-- 피벗 한국어 메시지 -->
+        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+
+        <script>
+            // 만든 표의 ID입니다. 이후 API를 호출할 때 어느 표를 바꿀지 이 값으로 지정합니다.
+            let myPivotID;
+
+            // 페이지가 준비되면 실행합니다. 표를 만들고 판매 자료를 불러옵니다.
+            function init() {
+                // AUIPivot을 만든 뒤 정적 자동차 판매 자료를 요청합니다.
+                createPivotGrid();
+                requestData("./data/car_sales.json");
+            }
+
+            // 정적 JSON을 읽은 뒤 이 데모의 필드 설정과 데이터를 적용합니다.
+            function requestData(url) {
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        // 불러온 판매 기록에 이 페이지의 보고서 설정을 적용합니다.
+                        initPivotData(data);
+                    })
+                    .catch(function (error) {
+                        alert(error.message);
+                    });
+            }
+
+            //AUIPivot 를 생성합니다.
+            function createPivotGrid() {
+                // 피봇 그리드 속성 설정
+                const pivotProps = {
+                    layoutType: "table",
+                    // 기본 포맷 스트링
+                    defaultFormatString: "#,##0",
+                    // 피벗 패널 사용을 위해 피벗 패널이 생성될 DIV 의 아이디를 지정함.
+                    pivotPanelId: "#pivot_panel"
+                };
+
+                // 실제로 #pivot_wrap 에 그리드 생성
+                myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+
+                // 피벗 완료 이벤트 바인딩
+                AUIPivot.bind(myPivotID, "pivotComplete", function (event) {
+                    // 첫번째 셀에 선택되도록 지시
+                    AUIPivot.setSelectionByIndex(myPivotID, 0, 0);
+                });
+
+                // 선택 변경(selectionChange) 이벤트 바인딩
+                AUIPivot.bind(myPivotID, "selectionChange", function (event) {
+                    const selectedItems = event.selectedItems;
+                    if (selectedItems.length <= 0) return;
+
+                    const firstItem = selectedItems[0]; // singleCell 이 아닌 multipleCells 인 경우 선택한 개수 만큼 있음.
+                    document.getElementById("desc").innerText =
+                        "현재 셀 : ( " +
+                        firstItem.rowIndex +
+                        ", " +
+                        firstItem.headerText +
+                        " ), 값 : " +
+                        firstItem.value;
+                    // 안내 내용으로 피벗 위치가 달라지면 패널 상단도 함께 맞춥니다.
+                    alignDemoPivotPanel(myPivotID);
+                });
+            }
+
+            //표에 사용할 항목과 계산 방법을 지정하고 판매 기록을 넣습니다.
+            function initPivotData(data) {
+                // 세로로 묶을 항목입니다. 배열의 앞 항목이 바깥 그룹, 뒤 항목이 그 안의 세부 그룹이 됩니다.
+                AUIPivot.setRowFields(myPivotID, ["NAME", "MODEL"]);
+
+                // 가로로 나눌 항목입니다. 빈 배열이면 열을 그룹으로 나누지 않습니다.
+                AUIPivot.setColumnFields(myPivotID, ["REGION"]);
+
+                // 계산할 항목(dataField)과 계산 방법(operation)을 정합니다. SUM은 합계, AVG는 평균입니다.
+                AUIPivot.setValueFields(myPivotID, [{ "dataField": "TOTAL", "operation": "SUM" }]);
+
+                // 이 자료로 표를 계산합니다. 행, 열, 값 설정을 먼저 지정한 다음 데이터를 넣습니다.
+                AUIPivot.setGridData(myPivotID, data);
+            }
+        </script>
+
+        <!-- 설정 예제에만 적용하는 공통 스타일입니다. -->
+        <link href="./demo-setup.css" rel="stylesheet" />
+    </head>
+
+    <body class="standalone-demo">
+        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
+                class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#demo-library">데모 메뉴로 돌아가기</a
+            ><a href="http://127.0.0.1:8083/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+        <div class="wrap">
+            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
+            <!-- 목차와 같은 본문 안에서, 피벗과 이동 가능한 패널이 생성되기 전에 테마 선택을 배치합니다. -->
+            <!-- 모든 정식 데모의 첫 줄에서 목차와 동일 원본 자료로 이동합니다. -->
+            <nav class="demo-navigation" aria-label="데모 안내">
+                <a href="./index.html#aggregation-field-guides">데모 목록</a>
+                <a href="./data/car_sales.json">원본 JSON</a>
+            </nav>
+            <script src="./demo-theme.js"></script>
+            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+            <header class="demo-page-intro">
+                <div class="demo-title-line">
+                    <h1>선택 변경 이벤트</h1>
+                    <code class="demo-api-label">selectionChange</code>
+                </div>
+                <button type="button" id="demo-open-source" class="demo-source-button">
+                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
+                </button>
+            </header>
+            <div id="main">
+                <div class="desc">
+                    <p>마우스나 키보드로 다른 셀을 선택해 보세요.</p>
+                    <p>선택이 바뀔 때마다 선택한 셀의 정보를 위쪽 기록에 표시합니다.</p>
+                    <!-- 이 데모의 설정 방법입니다. 아래 코드는 설명용이며 자동 실행하지 않습니다. -->
+                    <div class="demo-setup" tabindex="0" role="region" aria-label="데모 설정 코드">
+                        <p data-demo-role="true">
+                            bind()는 selectionChange 이벤트가 발생했을 때 실행할 함수를 연결합니다.
+                        </p>
+                        <p>
+                            선택을 바꿀 때 새 선택 정보가 event로 전달됩니다. 아래 두 번째 예제는 계산이 끝난 뒤 0번째
+                            행과 0번째 열을 선택합니다.
+                        </p>
+                        <pre
+                            tabindex="0"
+                            aria-label="javascript 설정 예제"
+                        ><code class="language-javascript">// 이벤트 등록은 표를 만든 뒤 한 번만 합니다.
+AUIPivot.bind(myPivotID, "selectionChange", function (event) {
+    console.log(event);
+});</code></pre>
+
+                        <pre
+                            tabindex="0"
+                            aria-label="javascript 설정 예제"
+                        ><code class="language-javascript">// 셀이 생긴 다음 선택해야 하므로 완료 이벤트에서 실행합니다.
+AUIPivot.bind(myPivotID, "pivotComplete", function () {
+    AUIPivot.setSelectionByIndex(myPivotID, 0, 0);
+});</code></pre>
+                    </div>
+                </div>
+                <!-- 설명과 결과 확인 영역을 먼저 읽고 피벗을 확인합니다. -->
+                <div id="desc"></div>
+                <div style="position: relative">
+                    <!-- AUIPivot 그리드가 이곳에 생성됩니다. -->
+                    <div id="pivot_wrap" style="width: 1000px; height: 600px"></div>
+                    <!-- AUIPivot 피벗 필드 패널이 이곳에 생성됩니다. -->
+                    <div
+                        id="pivot_panel"
+                        style="position: absolute; width: 400px; height: 600px; left: 1020px; top: 0"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- 공식 데모와 동일하게 피벗 아래 40px 여백 뒤에 저작권 안내를 표시합니다. -->
+            <footer id="footer" class="demo-footer">
+                <div class="copyright">
+                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,31 @@
+/* 새 예제의 조작부와 슬라이서에만 적용하여 기존 메뉴의 화면을 유지합니다. */
+.wrapper-methods .wrapper-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0; }
+.wrapper-methods .wrapper-controls select { padding: 6px; }
+.wrapper-methods .wrapper-controls button:disabled { opacity: 0.5; cursor: default; }
+.wrapper-methods .wrapper-status { min-height: 42px; line-height: 1.5; }
+.wrapper-methods .wrapper-slicer { width: 100%; height: 200px; margin-top: 16px; }
+/* 기존 샘플의 전체 button 흰색 규칙이 슬라이서의 흰 배경 글자를 가리지 않게 합니다. */
+.wrapper-methods .wrapper-slicer button { margin: 0; color: inherit !important; }
+.wrapper-methods .wrapper-slicer .aui-pivot-slicer-header button[aria-pressed="true"] { color: var(--aui-accent, #387fb7) !important; }
+.wrapper-methods .wrapper-slicer .aui-pivot-slicer-item[aria-pressed="true"] { color: var(--aui-accent-contrast, #fff) !important; }
+
+/* 표와 기록을 나란히 보여 주고 좁은 화면에서는 기록을 아래로 옮깁니다. */
+.wrapper-methods .wrapper-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; }
+.wrapper-methods .wrapper-pivot { min-width: 0; }
+.wrapper-methods .wrapper-events { display: flex; flex-direction: column; height: 400px; padding: 12px; box-sizing: border-box; border: 1px solid #d4dbe3; background: #f7f9fc; color: #25354a; }
+.wrapper-methods .wrapper-event-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.wrapper-methods .wrapper-event-heading h3 { margin: 0; font-size: 16px; }
+.wrapper-methods .wrapper-event-heading button { margin: 0; padding: 6px 10px; font-size: 12px; }
+.wrapper-methods .wrapper-event-heading button:disabled { opacity: 0.5; cursor: default; }
+.wrapper-methods .wrapper-events p { margin: 8px 0; font-size: 13px; line-height: 1.5; }
+/* 기록 영역만 스크롤하므로 이벤트가 늘어나도 표의 높이는 바뀌지 않습니다. */
+.wrapper-methods .wrapper-event-scroll { flex: 1; min-height: 0; overflow: auto; }
+.wrapper-methods .wrapper-event-list { list-style: none; margin: 0; padding: 0; }
+.wrapper-methods .wrapper-event-list li { padding: 8px 0; border-bottom: 1px solid #dfe5ec; overflow-wrap: anywhere; }
+.wrapper-methods .wrapper-event-list code { font-size: 13px; font-weight: 600; }
+.wrapper-methods .wrapper-event-list time { color: #59697c; font-size: 11px; }
+.wrapper-methods .wrapper-event-list p { margin: 4px 0 0; }
+@media (max-width: 1050px) {
+ .wrapper-methods .wrapper-workspace { grid-template-columns: minmax(0, 1fr); }
+ .wrapper-methods .wrapper-events { height: 240px; }
+}
