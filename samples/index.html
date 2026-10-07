@@ -1,44 +1,310 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="Content-Script-Type" content="text/javascript">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=800">
-<meta property="og:title" content="HTML5 자바스크립트 피벗 그리드 AUIPivot DEMO"/>
-<meta property="og:url"  content="http://www.auisoft.net/demo/auipivot/index.html">
-<meta property="og:description"  content="HTML5 자바스크립트 피벗 그리드(javascript pivot grid - AUIPivot"/>
-<title>HTML5 자바스크립트 피벗 그리드(JavaScript Pivot Grid) - AUIPivot DEMO</title>
-<style type="text/css">
-body {
-	font-size:13px;
-	font-family: 'Malgun Gothic','맑은 고딕',AppleSDGothicNeo-Light,Cambria, Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;
-}
-h1 > p {
-	margin-top:10px;
-}
-h5 {
-	font-size:1.2em;
-}
-</style>
-<script type="text/javascript">
-function changeLocation(href) {
-	location.href = href;
-}
-</script>
-</head>
-<body>
-<h1>AUIPivot v2.7.0 Samples</h1>
-	
-	<p>■ "unauthorized hosts for AUIPivot" 메세지 출력에 대한 대응</p>
-	<ul>
-		<li>Case 1 : 웹 서버에 올리지 않고 바로 윈도우 탐색기에서 index.html 을 실행한 경우입니다. <br/>반드시 웹 서버에 올린 후 http://... 또는 https:// 와 같은 URL 경로로 접근하십시오.</li>
-		<li  style="padding-top:10px;">Case 2 : 구매한 정품 라이센스의 접속 도메인(or 접속 IP)가 아닌 곳에서 AUIPivot 를 실행하고 있는 경우입니다.</li>
-		<li  style="padding-top:10px;">Case 3 : 테스트 임시 라이선스를 신청 한 경우 해당 접속 도메인(or 접속 IP)가 아닌 곳에서 AUIPivot 를 실행하고 있는 경우입니다.</li>
-	</ul>
-	
-	            <div class="container content">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="AUIPivot 배포 샘플의 주요 기능과 활용 예제입니다." />
+        <title>AUIPivot v2.7.0 Samples</title>
+        <style>
+            /* 배포 목차는 파일 위치와 관계없이 표시되도록 스타일을 내장합니다.
+               개별 데모의 글꼴, 색상과 최대 너비를 따르며 제품의 셀 스타일에는 관여하지 않습니다. */
+            :root {
+                font-family: "Segoe UI", sans-serif;
+                font-size: 14px;
+                line-height: 1.5;
+                color: #202a35;
+                background: #fff;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+            }
+            a {
+                color: #1f4e79;
+                text-decoration: none;
+            }
+            a:hover {
+                color: #2879ba;
+                text-decoration: underline;
+            }
+            a:focus-visible,
+            summary:focus-visible {
+                outline: 2px solid #2879ba;
+                outline-offset: 4px;
+            }
+            h1,
+            h2,
+            h3,
+            h5 {
+                font-weight: 700;
+                line-height: 1.6;
+            }
+            .sample-shell {
+                width: calc(100% - 40px);
+                max-width: 1600px;
+                margin: 0 auto;
+            }
+            .sample-header {
+                border-bottom: 1px solid #dce6f0;
+            }
+            .sample-header .sample-shell {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                min-height: 80px;
+                padding: 16px 0;
+            }
+            .sample-brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-width: 0;
+            }
+            .sample-brand svg {
+                width: 40px;
+                height: 40px;
+                flex-shrink: 0;
+            }
+            .sample-brand h1 {
+                margin: 0;
+                font-size: 21px;
+            }
+            .sample-header nav {
+                display: flex;
+                gap: 24px;
+                flex-shrink: 0;
+            }
+            .sample-header nav a {
+                color: #617184;
+            }
+            .sample-skip {
+                position: absolute;
+                top: 8px;
+                left: 20px;
+                padding: 10px 16px;
+                background: #1f4e79;
+                color: #fff;
+                transform: translateY(-160%);
+            }
+            .sample-skip:focus {
+                transform: none;
+            }
+            main {
+                padding-top: 24px;
+                padding-bottom: 40px;
+            }
+            .sample-heading {
+                margin: 0;
+                font-size: 21px;
+            }
+            .sample-description {
+                margin: 6px 0 18px;
+                color: #617184;
+            }
+            /* 실행 안내는 필요할 때 펼칩니다. 라이선스나 제품 JS 없이도 목차를 읽을 수 있습니다. */
+            .sample-guide {
+                margin-bottom: 24px;
+                border: 1px solid #dce6f0;
+                border-radius: 5px;
+                background: #f4f8fc;
+            }
+            .sample-guide summary {
+                padding: 12px 16px;
+                cursor: pointer;
+                color: #1f4e79;
+                font-weight: 600;
+            }
+            .sample-guide .guide-body {
+                padding: 0 20px 16px;
+                color: #535c67;
+            }
+            .sample-guide p {
+                margin: 0 0 8px;
+            }
+            .sample-guide ul {
+                margin: 0;
+                padding-left: 20px;
+            }
+            .sample-guide li {
+                margin-top: 8px;
+            }
+            .sample-guide code {
+                font-family: Consolas, Monaco, monospace;
+                overflow-wrap: anywhere;
+            }
+            #sample-menu {
+                scroll-margin-top: 20px;
+            }
+            .sample-section-title,
+            #sample-menu .sf_title {
+                margin: 24px 0 14px;
+                font-size: 21px;
+            }
+            /* 기존 메뉴의 링크와 순서를 그대로 사용하고 Bootstrap에 의존하던 배치만 정의합니다. */
+            #sample-menu .container.content {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 14px;
+            }
+            #sample-menu .row {
+                display: contents;
+            }
+            #sample-menu .margin-bottom-40,
+            #sample-menu .icon-info-blocks {
+                display: none;
+            }
+            #sample-menu .info-blocks {
+                padding: 18px 20px;
+                border: 1px solid #dce6f0;
+                border-radius: 5px;
+            }
+            #sample-menu .info-blocks:hover,
+            #sample-menu .info-blocks:focus-within {
+                border-color: #83accf;
+                background: #f8fbfe;
+            }
+            #sample-menu .info-blocks h3 {
+                margin: 0 0 8px;
+                font-size: 16px;
+            }
+            #sample-menu .info-blocks h3 a {
+                display: block;
+            }
+            #sample-menu .info-blocks p {
+                margin: 0;
+                color: #617184;
+            }
+            #sample-menu > div > ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            #sample-menu > div > ul > li {
+                margin-top: 20px;
+                padding: 0 20px 16px;
+                border: 1px solid #dce6f0;
+                border-radius: 5px;
+            }
+            #sample-menu h5 {
+                margin: 0 -20px 12px;
+                padding: 12px 20px;
+                border-bottom: 1px solid #dce6f0;
+                border-radius: 5px 5px 0 0;
+                background: #f4f8fc;
+                font-size: 16px;
+            }
+            #sample-menu ol {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 2px 36px;
+                padding-left: 24px;
+                margin: 0;
+            }
+            #sample-menu ol li {
+                padding: 5px 0;
+                color: #617184;
+            }
+            #sample-menu ol a {
+                display: block;
+                overflow-wrap: anywhere;
+            }
+            .sample-footer {
+                padding: 20px 0;
+                border-top: 1px solid #dce6f0;
+                color: #617184;
+            }
+            /* 화면 폭이 줄어도 제목이나 긴 메소드명이 잘리지 않도록 한 열까지 순서대로 줄입니다. */
+            @media (max-width: 1050px) {
+                #sample-menu .container.content {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+            @media (max-width: 700px) {
+                .sample-shell {
+                    width: calc(100% - 32px);
+                }
+                .sample-header .sample-shell {
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
+                .sample-brand h1 {
+                    font-size: 18px;
+                }
+                .sample-header nav {
+                    gap: 20px;
+                }
+                #sample-menu .container.content,
+                #sample-menu ol {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+                #sample-menu .info-blocks {
+                    padding: 16px;
+                }
+            }
+        </style>
+        <script>
+            // 공통 메뉴에서 기존 이동 함수를 사용하는 경우에도 동일한 예제 주소로 이동합니다.
+            function changeLocation(href) {
+                location.href = href;
+            }
+        </script>
+    </head>
+    <body>
+        <a class="sample-skip" href="#sample-menu">데모 목록으로 바로가기</a>
+        <header class="sample-header">
+            <div class="sample-shell">
+                <div class="sample-brand">
+                    <!-- 개별 데모와 같은 Pivot 마크를 내장하여 추가 이미지 경로가 필요하지 않습니다. -->
+                    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
+                        <rect width="64" height="64" rx="15" fill="#1f4e79" />
+                        <g fill="#9aafc3">
+                            <rect x="13" y="13" width="10" height="10" rx="2" />
+                            <rect x="27" y="13" width="10" height="10" rx="2" />
+                            <rect x="41" y="13" width="10" height="10" rx="2" />
+                            <rect x="13" y="27" width="10" height="10" rx="2" />
+                            <rect x="13" y="41" width="10" height="10" rx="2" />
+                        </g>
+                        <g fill="#fff">
+                            <rect x="27" y="27" width="10" height="10" rx="2" />
+                            <rect x="41" y="27" width="10" height="10" rx="2" />
+                            <rect x="27" y="41" width="10" height="10" rx="2" />
+                            <rect x="41" y="41" width="10" height="10" rx="2" />
+                        </g>
+                    </svg>
+                    <h1>AUIPivot v2.7.0 Samples</h1>
+                </div>
+                <nav aria-label="배포 샘플 안내">
+                    <!-- 현재 목차로 이동하는 링크는 생략하고 실행 안내와 문서만 제공합니다. -->
+                    <a href="#run-guide">실행 안내</a>
+                    <!-- 인터넷 연결 없이도 패키지에 포함된 개발 문서를 엽니다. -->
+                    <a href="../documentation/index.html">문서</a>
+                </nav>
+            </div>
+        </header>
+        <main class="sample-shell">
+            <h2 class="sample-heading">데모 목록</h2>
+            <p class="sample-description">원하는 예제를 선택해 실행 화면과 소스를 확인하세요.</p>
+            <details class="sample-guide" id="run-guide">
+                <summary>실행 및 라이선스 안내</summary>
+                <div class="guide-body">
+                    <p><code>unauthorized hosts for AUIPivot</code> 메시지가 나타나면 다음 항목을 확인하세요.</p>
+                    <ul>
+                        <li>
+                            파일을 직접 열지 말고 웹 서버에 올린 뒤 <code>http://</code> 또는
+                            <code>https://</code> 주소로 접속하세요.
+                        </li>
+                        <li>정품 라이선스를 사용하는 경우, 허용된 접속 도메인 또는 IP인지 확인하세요.</li>
+                        <li>평가판 라이선스를 사용하는 경우에도 신청한 접속 도메인 또는 IP로 접속하세요.</li>
+                    </ul>
+                </div>
+            </details>
+            <!-- Builder가 기존 메뉴를 삽입하고 각 목차 위치에 맞는 상대 경로로 연결합니다. -->
+            <section id="sample-menu" aria-labelledby="sample-features-title">
+                <h2 class="sample-section-title" id="sample-features-title">주요 기능</h2>
+                            <div class="container content">
                 <div class="margin-bottom-40"></div>
                 <!-- 주요 기능은 네 칸씩 이어 배치하여 중간에 빈 메뉴 공간이 생기지 않게 합니다. -->
                 <div class="row margin-bottom-60">
@@ -512,5 +778,10 @@ function changeLocation(href) {
                 </ul>
             </div>
 
-</body>
+            </section>
+        </main>
+        <footer class="sample-footer">
+            <div class="sample-shell">Copyright © AUISoft Co., Ltd.</div>
+        </footer>
+    </body>
 </html>

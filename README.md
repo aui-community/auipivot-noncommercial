@@ -1,227 +1,184 @@
 # AUIPivot Non-Commercial
 
-AUIPivot는 자바스크립트, HTML, CSS만으로 작성된 웹 피벗 그리드(Pivot Grid)입니다.
+AUIPivot 는 Active-X 사용 없이 자바스크립트와 HTML, CSS 로 작성된 웹 피벗 그리드(Pivot Grid) 입니다.
 
-AUIPivot에는 상용 라이선스(Enterprise License)와 비상용 라이선스(Non-Commercial License)가 있으며, 이 패키지는 **비상용 라이선스**에 해당합니다.
+AUIPivot 는 상용 라이선스(Enterprise License) 와 비상용 라이선스(Non-Commercial License)가 존재합니다.
 
-- 비상업적 목적의 로컬호스트(`localhost`, `127.0.0.1`) 환경에서 영구적으로 무료 사용할 수 있습니다.
-- 상용 라이선스와 기능 차이가 없습니다. 모두 동일한 기능을 제공합니다.
-- 로컬호스트 외의 접속 도메인이나 접속 IP에서 평가하려면 [30일 평가판](https://www.auisoft.net/dcenter.html)을 이용하십시오.
-- 사용 전에 아래 [라이선스](#라이선스) 항목을 반드시 확인하십시오.
+이 패키지는 비상용 라이선스(Non-Commercial License)에 해당되므로 사용을 원하는 분은 라이선스 세부항목 확인 후 사용하십시오.
 
-## 목차
+## 무료 라이선스 사용권 부여 및 제한
 
-- [빠른 시작 (CDN)](#빠른-시작-cdn)
-- [기본 사용 방법](#기본-사용-방법)
-- [디렉토리 구성](#디렉토리-구성)
-- [문서](#문서)
-- [MCP 서버](#mcp-서버)
-- [라이선스](#라이선스)
-- [기술 지원 및 유지보수](#기술-지원-및-유지보수)
-- [문의](#문의)
+비상용 목적의 로컬호스트(localhost, 127.0.0.1) 환경에서 영구적으로 사용 가능합니다.
 
-## 빠른 시작 (CDN)
+상용 라이선스와 비상용 라이선스 상의 기능적 제한은 없습니다.
 
-jsDelivr CDN으로 제공되는 `dist` 디렉토리를 사용합니다. 아래 4개 파일을 HTML에 추가하면 됩니다.
-
-```html
-<!-- AUIPivot 테마 CSS (필수) - 원하는 테마가 있다면 다른 파일로 교체하십시오. -->
-<link href="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot_style.css" rel="stylesheet" />
-
-<!-- AUIPivot 라이선스 파일 (필수) -->
-<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivotLicense.js"></script>
-
-<!-- AUIPivot 라이브러리 (필수) -->
-<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot.js"></script>
-
-<!-- AUIPivot 메시지 파일 (필수) - 원하는 언어로 교체할 수 있습니다. -->
-<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/messages/AUIPivot.messages.kr.js"></script>
-```
-
-| 파일                               | 설명                        |
-| ---------------------------------- | --------------------------- |
-| `AUIPivot_style.css`               | AUIPivot 테마 CSS           |
-| `AUIPivotLicense.js`               | AUIPivot 라이선스 파일      |
-| `AUIPivot.js`                      | AUIPivot 라이브러리 본체    |
-| `messages/AUIPivot.messages.kr.js` | AUIPivot 한국어 메시지 파일 |
-
-## 기본 사용 방법
-
-HTML 구조 작성부터 피벗 그리드 출력, 원시 데이터(JSON) 로딩까지 포함한 가장 간단한 예제입니다.
-
-```html
-<!DOCTYPE html>
-<html lang="ko">
-	<head>
-		<meta charset="UTF-8" />
-		<title>AUIPivot Quick Start</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-		<!-- AUIPivot 테마 CSS (필수) - 원하는 테마가 있다면 다른 파일로 교체하십시오. -->
-		<link href="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot_style.css" rel="stylesheet" />
-		<!-- AUIPivot 라이선스 파일 (필수) -->
-		<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivotLicense.js"></script>
-		<!-- AUIPivot 라이브러리 (필수) -->
-		<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot.js"></script>
-		<!-- AUIPivot 메시지 파일 (필수) - 원하는 언어로 교체할 수 있습니다. -->
-		<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/messages/AUIPivot.messages.kr.js"></script>
-
-		<script>
-			// AUIPivot 생성 후 반환 ID
-			let myPivotID;
-
-			document.addEventListener('DOMContentLoaded', () => {
-				// 피벗 속성 설정
-				const pivotProps = {
-					// table 방식: 행 필드로 지정된 필드들이 각각 개별 칼럼으로 출력됩니다.
-					layoutType: 'table'
-				};
-
-				// #pivot_wrap 에 피벗 그리드 생성
-				myPivotID = AUIPivot.create('#pivot_wrap', pivotProps);
-
-				// 원시 데이터 로딩
-				fetch('./data/car_sales.json')
-					.then((response) => {
-						if (!response.ok) throw new Error('HTTP error ' + response.status);
-						return response.json();
-					})
-					.then((data) => {
-						// 해당 데이터로 초기화 및 피벗팅 시작
-						initPivotData(data);
-					})
-					.catch((error) => {
-						alert('데이터 요청 실패: ' + error.message);
-					});
-			});
-
-			// 피벗 그리드를 해당 데이터로 초기화하고 피벗팅 시작
-			function initPivotData(data) {
-				// 행 필드
-				AUIPivot.setRowFields(myPivotID, ['REGION', 'NAME', 'MODEL']);
-				// 열 필드
-				AUIPivot.setColumnFields(myPivotID, ['DATE_HALF', 'DATE_QTR', 'DATE_MONTH']);
-				// 값 필드
-				AUIPivot.setValueFields(myPivotID, [{ dataField: 'TOTAL', operation: 'SUM' }]);
-				// 필터 필드 (원하면 주석 제거)
-				// AUIPivot.setFilterFields(myPivotID, ["COLOR"]);
-				// 날짜 필드를 지정하여 연, 반기, 분기 등으로 나눠 표시
-				AUIPivot.setDateTypeField(myPivotID, 'DATE');
-				// 피벗 그리드에 데이터 삽입
-				AUIPivot.setGridData(myPivotID, data);
-			}
-		</script>
-	</head>
-	<body>
-		<h1>AUIPivot Quick Start</h1>
-		<!-- 피벗 그리드가 이곳에 생성됩니다. -->
-		<div id="pivot_wrap" style="width:1200px;height:600px;"></div>
-	</body>
-</html>
-```
-
-> **주의**: 이 예제는 복사하여 바로 실행할 수 있는 구조이지만, `fetch` 경로(`./data/car_sales.json`)에 맞는 JSON 파일이 반드시 존재해야 합니다.
-
-### 주요 요소
-
-| 구성                     | 설명                                |
-| ------------------------ | ----------------------------------- |
-| `AUIPivot.create()`      | 피벗 그리드 생성 함수 (필수)        |
-| `pivotProps`             | 피벗 속성 정의 객체 (선택)          |
-| `AUIPivot.setGridData()` | 피벗 원시 데이터 삽입 메소드 (필수) |
-| `AUIPivot.bind()`        | 피벗 이벤트 바인딩 메소드 (선택)    |
-
-## 디렉토리 구성
-
-| 디렉토리            | 설명                                                                                        |
-| ------------------- | ------------------------------------------------------------------------------------------- |
-| `AUIPivot`          | AUIPivot 라이브러리와 스타일(CSS). 실제 프로젝트에서는 이 디렉토리만 복사해서 사용하십시오. |
-| `AUIPivot/messages` | 언어별 메시지 파일                                                                          |
-| `dist`              | `AUIPivot` 디렉토리와 동일한 내용. CDN 배포용입니다.                                        |
-
-## MCP 서버
-
-AI 도구에서 AUIPivot MCP 서버를 연결해 사용할 수 있습니다. 연결 방식은 두 가지입니다.
-
-| 방식                   | 조건               | 사용 시점                            |
-| ---------------------- | ------------------ | ------------------------------------ |
-| 원격 엔드포인트 (권장) | 설치 불필요        | 일반적인 경우                        |
-| 로컬 npm 패키지        | Node.js 22.12 이상 | 네트워크에서 외부 연결이 차단된 경우 |
-
-### 원격 엔드포인트 (권장)
-
-Streamable HTTP 방식이며 인증이 필요 없습니다.
-
-```
-https://auipivot.com/mcp
-```
-
-- URL을 정확히 그대로 사용하십시오. 끝에 슬래시(`/`)를 붙이지 않습니다.
-- 브라우저에서 이 주소를 열면 405가 반환되는데, 정상 동작입니다.
-
-### 로컬 npm 패키지
-
-AI 도구가 npx(stdio)로 [`auipivot-mcp-server`](https://www.npmjs.com/package/auipivot-mcp-server)를 실행합니다. Node.js 22.12 이상이 필요합니다.
-
-```bash
-npx -y auipivot-mcp-server@latest
-```
-
-## 라이선스
-
-이 패키지는 비상용 라이선스(Non-Commercial License)로 제공됩니다. 비상업적 목적의 로컬호스트(`localhost`, `127.0.0.1`) 환경에서 영구적으로 사용할 수 있습니다.
-
-### 1. 허용된 사용
-
-다음과 같은 비상업적 목적으로 소프트웨어를 사용할 수 있습니다.
-
-- 교육, 학술 및 연구 목적
-- 개인적 용도
-- 테스트, 개발 및 데모 목적
-- 로컬호스트(`localhost`, `127.0.0.1`) 환경에서의 사용
-
-### 2. 금지된 사용
-
-다음과 같은 상업적 용도로는 소프트웨어를 사용할 수 없습니다.
-
-- 비즈니스 또는 전문적인 운영 목적
-- 소프트웨어 또는 그 수정본을 라이선스, 임대, 교환, 판매하는 행위
-- 상업 제품 또는 서비스에 소프트웨어를 포함하는 행위
-- 정부 기관 또는 국제 기구에서의 사용
-
-### 3. 비상업적 평가 목적
-
-기업 직원은 상업적 환경이 아닌 환경에서 평가, 개발 및 테스트 목적으로만 소프트웨어를 사용할 수 있습니다.
-
-### 4. 로컬호스트 사용 제한
-
-본 소프트웨어는 로컬호스트(`localhost`, `127.0.0.1`) 환경에서만 사용이 허용됩니다.
-
-외부 웹 서버에 업로드하여 별도의 접속 도메인이나 접속 IP가 존재하는 경우, 유효한 상용 라이선스를 구매해야 합니다. 구매 전 평가가 필요하다면 아래 30일 평가판을 이용하십시오.
-
-### 5. 30일 평가판 안내
+모두 동일한 기능을 제공합니다.
 
 로컬호스트(`localhost`, `127.0.0.1`) 환경 외의 접속 도메인이나 접속 IP에서 사용하고자 하는 경우, 30일 평가판을 제공합니다.
 
 - 평가판 라이선스는 정품과 동일한 기능을 제공합니다.
 - 사전 평가, 적합성 검토(PoC), 테스트 목적으로 사용할 수 있습니다.
 - 제공 기간은 30일입니다.
-- 다운로드: <https://www.auisoft.net/dcenter.html>
+- 다운로드: [AUIPivot 평가판 다운로드](https://www.auisoft.net/dcenter.html?product=AUIPivot)
 
-### 6. 상업적 이용 안내
+자세한 사항은 다음의 허가된 사용 및 금지된 사용, 상업적 이용에 대하여 확인하십시오.
 
-소프트웨어를 상업적 목적으로 사용하려면 라이선스 제공자와 협의하여 적절한 라이선스를 구매해야 합니다. 상용 라이선스에 대한 자세한 내용은 <https://www.auisoft.net> 에서 확인할 수 있습니다.
+1 허용된 사용
+
+귀하는 다음과 같은 비상업적 목적으로 소프트웨어를 사용할 수 있습니다:
+
+-   교육, 학술 및 연구 목적
+-   개인적 용도
+-   테스트, 개발 및 데모 목적으로 사용
+-   로컬호스트(localhost, 127.0.0.1) 환경에서의 사용
+
+2 금지된 사용
+
+귀하는 다음과 같은 상업적 용도로 소프트웨어를 사용할 수 없습니다:
+
+-   비즈니스 또는 전문적인 운영 목적
+-   소프트웨어 또는 그 수정본을 라이선스, 임대, 교환, 판매하는 행위
+-   상업 제품 또는 서비스에 소프트웨어를 포함하는 행위
+-   정부 기관 또는 국제 기구에서의 사용
+
+3 비상업적 평가 목적
+
+기업 직원은 상업적 환경이 아닌 환경에서 평가, 개발 및 테스트 목적으로만 소프트웨어를 사용할 수 있습니다.
+
+4 상업적 이용 안내
+
+소프트웨어를 상업적 목적으로 사용하려면 라이선스 제공자와 협의하여 적절한 라이선스를 구매해야 합니다.
+상업적 사용이 필요한 경우 당사(aui@auisoft.net)에 문의해 주시기 바랍니다.
+상세한 상업 라이선스에 대한 내용은 https://www.auisoft.net 에서 확인 가능합니다.
+
+5 로컬호스트 사용 제한
+
+본 소프트웨어는 로컬호스트(localhost, 127.0.0.1) 환경에서만 사용이 허용됩니다.
+외부 웹 서버의 도메인이나 IP에서 평가하려면 위의 별도 평가판을 사용하십시오. 상업적 서비스나 운영 환경에서는 유효한 상업용 라이선스가 필요합니다.
+
+## 디렉토리 설명
+
+-   AUIPivot : AUIPivot 라이브러리와 스타일(css) 가 있는 디렉토리입니다.
+    실제로 AUIPivot 를 사용할 때 이 디렉토리만 복사해서 사용하십시오.
+
+-   AUIPivot-React : AUIPivot 를 React.js 라이브러리에서 사용토록 작성된 서브 컴포넌트입니다.
+
+-   AUIPivot-Vue : AUIPivot 를 Vue.js 프레임워크에서 사용토록 작성된 서브 컴포넌트입니다.
+
+-   dist : AUIPivot 디렉토리와 동일합니다. CDN 배포를 위해 추가된 디렉토리입니다.
+
+-   documentation : AUIPivot 다큐멘트 문서가 있습니다.
+    index.html 파일을 실행하십시오.
+
+-   export_server_samples : 엑셀, CSV, PDF 등 내보내기 할 때 서버사이드에서 처리할 예제가 있습니다.
+    PHP, JSP, ASP 소스 샘플이 있으니 맞는 서버 사이드를 선택해서 사용하십시오.
+
+-   pdfkit : PDF 출력을 위한 라이브러리가 있습니다.
+    PDF 저장 기능을 사용할 때만 필요한 라이브러리이니 참고하십시오.
+
+-   samples : 개별적인 모든 샘플이 있는 디렉토리입니다.
+
+-   samples-React.js : React.js 라이브러리에서의 샘플이 있는 디렉토리입니다.
+
+-   samples-React.tsx : React.js + Typescript 라이브러리에서의 샘플이 있는 디렉토리입니다.
+
+-   samples-Vue.js : Vue.js 프레임워크에서의 샘플이 있는 디렉토리입니다.
+
+-   samples-Vue.ts : Vue.js + Typescript 프레임워크에서의 샘플이 있는 디렉토리입니다.
+
+## CDN 사용
+
+[비상업용 GitHub 저장소](https://github.com/aui-community/auipivot-noncommercial)의 `dist` 디렉토리를 jsDelivr CDN으로 제공합니다.
+[CDN 시작 안내와 단일 HTML 예제](https://www.auisoft.net/documentation/auipivot/Desc/noncommercial.html)에서 파일을 내려받아 바로 실행할 수 있습니다.
+다음 라이브러리, 라이선스, CSS와 한국어 메시지를 HTML 파일에 연결합니다.
+
+```html
+<!-- AUIPivot 스타일: CDN 스타일을 읽을 수 있도록 crossorigin을 지정합니다. -->
+<link href="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot_style.css" rel="stylesheet" crossorigin="anonymous" />
+<!-- AUIPivot 라이선스 -->
+<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivotLicense.js"></script>
+<!-- AUIPivot 라이브러리 -->
+<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot.js"></script>
+<!-- AUIPivot 한국어 메시지 -->
+<script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/messages/AUIPivot.messages.kr.js"></script>
+```
+
+예제 페이지는 로컬 웹 서버에서 `http://localhost:포트/` 또는 `http://127.0.0.1:포트/`로 실행합니다.
+
+## 기본적인 사용방법
+
+다음 코드를 배포본 루트의 `start.html`로 저장하고 로컬 웹 서버에서 실행하십시오.
+데이터는 배포본의 `samples/data/car_sales.json`을 사용합니다.
+CDN 대신 로컬 파일을 사용하려면 아래 CDN 주소의 `dist/`까지를 `./AUIPivot/`으로 바꿉니다.
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AUIPivot 비상업용 시작하기</title>
+    <!-- AUIPivot 스타일: CDN 스타일을 읽을 수 있도록 crossorigin을 지정합니다. -->
+    <link href="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot_style.css" rel="stylesheet" crossorigin="anonymous" />
+    <!-- AUIPivot 라이선스 -->
+    <script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivotLicense.js"></script>
+    <!-- AUIPivot 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/AUIPivot.js"></script>
+    <!-- AUIPivot 한국어 메시지 -->
+    <script src="https://cdn.jsdelivr.net/gh/aui-community/auipivot-noncommercial@main/dist/messages/AUIPivot.messages.kr.js"></script>
+    <script>
+    // 페이지 준비 후 피벗을 생성하고 자동차 판매 데이터를 읽습니다.
+    let myPivotID;
+    document.addEventListener("DOMContentLoaded", init);
+
+    function init() {
+      createPivotGrid();
+      requestData("./samples/data/car_sales.json");
+    }
+
+    function createPivotGrid() {
+      // 지점과 차종별 매출액을 색상별로 비교합니다.
+      const pivotProps = { layoutType: "tree" };
+      myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+      AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);
+      AUIPivot.setColumnFields(myPivotID, ["COLOR"]);
+      AUIPivot.setValueFields(myPivotID, [{ dataField: "TOTAL", operation: "SUM" }]);
+      AUIPivot.setFieldAlias(myPivotID, {
+        REGION: "판매 지점", NAME: "차종", COLOR: "색상", TOTAL: "매출액"
+      });
+      // 셀을 클릭하면 해당 셀의 이벤트 정보를 확인합니다.
+      AUIPivot.bind(myPivotID, "cellClick", function(event) {
+        console.log(event);
+      });
+    }
+
+    // 배포본에 포함된 원본 JSON을 불러와 피벗 분석을 실행합니다.
+    function requestData(url) {
+      fetch(url)
+        .then(function(response) {
+          if (!response.ok) throw new Error("HTTP error " + response.status);
+          return response.json();
+        })
+        .then(function(data) {
+          AUIPivot.setGridData(myPivotID, data);
+        })
+        .catch(function(error) {
+          alert("데이터 요청 실패: " + error.message);
+        });
+    }
+    </script>
+</head>
+<body>
+    <div id="pivot_wrap" style="width:100%;height:480px;"></div>
+</body>
+</html>
+```
+
+React, Vue의 JavaScript 및 TypeScript 샘플은 실행 전에 배포본의 `AUIPivot` 폴더를 각 샘플의 `src/static/AUIPivot`에 복사합니다.
+TypeScript 샘플은 npm의 `aui-pivot@latest` 타입 패키지를 사용합니다. 각 샘플 README의 설치와 실행 안내를 참고하십시오.
 
 ## 기술 지원 및 유지보수
 
-- **기술 지원**: Non-Commercial 사용자는 공식적인 기술 지원을 받을 수 없습니다.
-- **업데이트**: Non-Commercial 사용자를 위한 소프트웨어 업데이트를 제공할 의무가 없습니다.
-- **유지보수 및 보안 패치**: 당사의 재량에 따라 제공될 수 있습니다.
-
-## 문의
-
-상업적 사용이 필요한 경우 아래로 문의해 주시기 바랍니다.
-
-- 이메일: <aui@auisoft.net>
-- 홈페이지: <https://www.auisoft.net>
+-   기술 지원: Non-Commercial 사용자는 공식적인 기술 지원을 받을 수 없습니다.
+-   업데이트 및 유지보수: Non-Commercial 사용자를 위한 소프트웨어 업데이트를 제공할 의무가 없습니다.
+-   Non-Commercial 사용자의 유지보수 및 보안 패치는 당사의 재량에 따라 제공될 수 있습니다.

@@ -3,7 +3,7 @@
 
 # AUIPivot Vue + TypeScript 샘플
 
-기존 Vue JavaScript 샘플과 같은 4개 메뉴를 TypeScript로 작성했습니다. `aui-pivot@1.0.0`의 타입 정의와 AUIPivot 2.7 제품 파일을 사용합니다.
+기존 Vue JavaScript 샘플과 같은 4개 메뉴를 TypeScript로 작성했습니다. `aui-pivot@latest`의 타입 정의와 AUIPivot 2.7 제품 파일을 사용합니다.
 
 ## 설치와 실행
 
@@ -16,12 +16,12 @@ npm run dev
 
 `aui-pivot`은 타입과 `EventKind`를 제공합니다. 엔진과 라이선스는 포함하지 않습니다. 배포본의 공통 `AUIPivot` 폴더에는 비상업용 엔진과 라이선스가 포함되어 있습니다.
 
-이 프로젝트는 공개 npm의 `aui-pivot@1.0.0`을 사용합니다. `package-lock.json`을 함께 제공하므로 동일한 의존성을 설치하려면 `npm ci`를 실행합니다. 로컬 타입 패키지를 빌드하거나 압축 파일을 준비할 필요가 없습니다.
+이 프로젝트는 공개 npm의 `aui-pivot@latest`를 사용하며 `package.json`에 `"aui-pivot": "latest"`로 선언합니다. `package-lock.json`을 함께 제공하므로 동일한 의존성을 설치하려면 `npm ci`를 실행합니다. 로컬 타입 패키지를 빌드하거나 압축 파일을 준비할 필요가 없습니다. 최신 버전으로 갱신하려면 `npm update aui-pivot`을 실행합니다. `latest`는 향후 주요 버전도 가리킬 수 있으므로 새 API는 해당 기능을 지원하는 제품 엔진과 함께 사용하십시오.
 
 기존 프로젝트에 타입 패키지만 추가할 때는 다음 명령을 사용합니다.
 
 ```sh
-npm install aui-pivot@1.0.0
+npm install aui-pivot@latest
 ```
 
 속성, 메소드와 이벤트 객체는 `import type`으로 가져오며 이벤트 이름은 `EventKind`로 지정할 수 있습니다.
@@ -77,7 +77,7 @@ AUIPivot 비상업용 버전은 `localhost` 또는 `127.0.0.1`에서 비상업�
 - 평가판 라이선스는 정품과 동일한 기능을 제공합니다.
 - 사전 평가, 적합성 검토(PoC), 테스트 목적으로 사용할 수 있습니다.
 - 제공 기간은 30일입니다.
-- 다운로드: [AUIPivot 평가판 다운로드](https://www.auisoft.net/dcenter.html)
+- 다운로드: [AUIPivot 평가판 다운로드](https://www.auisoft.net/dcenter.html?product=AUIPivot)
 
 [비상업용 CDN 시작 안내](https://www.auisoft.net/documentation/auipivot/Desc/noncommercial.html)는 연결 방법과 데이터가 포함된 단일 HTML 예제를 제공합니다. CDN은 비상업용 버전 전용이며, 정품은 제공받은 제품 파일을 연결합니다. 이 프레임워크 샘플은 로컬 파일을 import하므로 제품 파일을 배치하고 기존 import 경로에 맞춰 실행하세요.
 

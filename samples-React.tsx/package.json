@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "aui-pivot": "1.0.0",
+    "aui-pivot": "latest",
     "file-saver": "^2.0.5",
     "prismjs": "^1.30.0",
     "react": "^19.1.0",

@@ -30,7 +30,8 @@ function App() {
 						</NavLink>
 						<div className="sample-header-links">
 							<a href="https://www.auisoft.net/price-pivot.html">라이선스 안내</a>
-							<a className="sample-download" href="https://www.auisoft.net/dcenter.html">평가판 다운로드</a>
+							{/* 다운로드 센터에 AUIPivot 선택 인수를 전달합니다. */}
+							<a className="sample-download" href="https://www.auisoft.net/dcenter.html?product=AUIPivot">평가판 다운로드</a>
 						</div>
 					</div>
 				</header>

@@ -15,6 +15,8 @@
         <!-- 본 데모를 위한 JS 파일 -->
 <script src="./demo.js"></script>
 
+        
+
 
         <!-- 본 데모를 위한 CSS 파일 -->
         <link href="./standalone-demo.css" rel="stylesheet" />
@@ -31,7 +33,7 @@
         <!-- 피벗 한국어 메시지 -->
         <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
 
-        <!-- 브라우저 다운로딩 할 수 있는 JS 추가 -->
+        <!-- 브라우저에서 파일을 저장하는 FileSaver.js (MIT 라이선스) -->
         <script src="../export_server_samples/FileSaver.min.js"></script>
 
         <script>
@@ -108,33 +110,29 @@
                 AUIPivot.setGridData(myPivotID, data);
             }
 
-            //엑셀 내보내기 할 때 브라우저 자원만을 갖고 다운로딩 처리
-            //HTML5 완전히 지원하는 브라우저만 가능
+            // 현재 피벗 보고서를 엑셀 파일로 바로 다운로드합니다.
             function exportToLocal() {
-                // 내보내기 실행
                 AUIPivot.exportToXlsx(myPivotID);
             }
 
+            // 엑셀 Blob을 콜백으로 받아 다운로드하고 Base64 문자열도 확인합니다.
             function getXlsxBlob() {
-                // 내보내기 실행
                 AUIPivot.exportToXlsx(myPivotID, {
-                    localControl: true, // 로컬 컨트롤 사용
-                    // 로컬 컨트롤 함수
-                    localControlFunc: function (data) {
-                        // 여기서 반환된 Blob 데이터를 개발자가 원하는 방식대로 처리 가능
-                        console.log(data); // Blob 데이터 확인
+                    // 자동 다운로드 대신 생성된 Blob을 아래 함수에 전달합니다.
+                    localControl: true,
+                    localControlFunc: function (blob) {
+                        console.log(blob);
 
-                        // 바로 다운로딩처리.
-                        window.saveAs(data, "얻어온 Blob 데이터 다운로딩.xlsx");
+                        // FileSaver.js로 받은 Blob을 파일로 저장합니다.
+                        window.saveAs(blob, "얻어온 Blob 데이터 다운로딩.xlsx");
 
-                        // 다음은 Blob 을 Base64 로 변경하는 방법
+                        // 파일 읽기가 끝나면 Data URL의 앞부분을 제외한 Base64를 출력합니다.
                         const reader = new FileReader();
-                        reader.readAsDataURL(data);
-                        reader.onloadend = function () {
-                            const result = reader.result;
-                            const base64data = result.split(",")[1];
-                            console.log(base64data); // Base64 데이터 확인
+                        reader.onload = function () {
+                            const base64data = reader.result.split(",")[1];
+                            console.log(base64data);
                         };
+                        reader.readAsDataURL(blob);
                     }
                 });
             }
@@ -144,6 +142,7 @@
     <body class="standalone-demo">
         <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
 <a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+
 <header class="standalone-site-header">
     <div class="standalone-header-inner">
         <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
@@ -183,68 +182,64 @@
             <div id="main">
                 <div class="desc">
                     <p>
-                        기본적으로 HTML5 를 완전히 지원하는 브라우저에서는 서버 사이드를 거치지 않고, 바로 로컬에서
-                        다운로드 처리합니다.
+                        현재 피벗 보고서를 브라우저에서 엑셀 파일로 다운로드합니다. 파일을 만들기 위한 서버 처리는
+                        필요하지 않습니다.
                     </p>
                     <p>
-                        중간에 개발자가 따로 처리할 필요가 없습니다. 그러나 개발자가 임의로 처리를 하고자 한다면
-                        localControl = true 설정하십시오.
+                        <code>localControl: true</code>를 설정하면 자동 다운로드 대신
+                        <code>localControlFunc</code> 콜백으로 Blob을 전달합니다. 받은 Blob은 파일로 저장하거나 서버로
+                        전송하는 등 원하는 방식으로 처리할 수 있습니다.
                     </p>
+                    <p><strong>파일 저장 준비</strong></p>
                     <p>
-                        localControl = true 설정하면 피벗 그리드에 의해 작성된 엑셀, CSV 등의 서식 데이터를 다운로딩
-                        처리하지 않고 Blob 데이터로 반환하게 됩니다.
+                        브라우저에서 파일을 저장하려면
+                        <a href="https://github.com/eligrey/FileSaver.js/" target="_blank" rel="noopener noreferrer"
+                            >FileSaver.js</a
+                        >를 불러옵니다. MIT 라이선스로 제공되며, 정품과 평가판 패키지의
+                        <code>export_server_samples</code> 폴더에 포함되어 있습니다. 파일 위치에 맞게 경로를 지정하세요.
                     </p>
-                    <p>
-                        따라서 피벗 그리드가 작성한 엑셀, CSV 등의 Blob 데이터를 개발자가 원하는 방식대로 처리
-                        가능합니다.
-                    </p>
-                    <p>바로 다운로딩을 하거나 ajax 요청을 통해 서버로 보내던가 원하는 방식대로 처리할 수 있습니다.</p>
-                    <p>
-                        본 데모의 엑셀(xlsx)은 Blob 데이터를 얻어온 후 이를 Base64 로 바꿔서 console 에 출력 시켰습니다.
-                        (개발자 모드의 콘솔창 확인)
-                    </p>
-                    <p>
-                        <strong
-                            >참고 : 자바스크립트에서 Blob 자료형은 IE 10 이상의 최신 브라우저에서만 사용
-                            가능합니다.(따라서 해당 기능은 IE 10 이상만 가능)</strong
-                        >
-                    </p>
-                    <p>
-                        <strong
-                            >■ 로컬에서 바로 다운로드 설정하는 방법 (<a
-                                href="https://github.com/eligrey/FileSaver.js/"
-                                target="_blank"
-                                >FileSaver.js(출처 : https://github.com/eligrey/FileSaver.js/)</a
-                            >이용, MIT 라이센스)</strong
-                        >
-                    </p>
-                    <xmp>
-					<!-- 브라우저 다운로딩 할 수 있는 JS 추가 -->
-					<!-- 정품 및 평가판 압축 해제 후, export_server_samples 폴더 안에 있음 -->
-					<script src="../export_server_samples/FileSaver.min.js"></script>
-					.....
-					function exportToLocal() {
-					// 로컬에서 바로 내보내기 실행
-					AUIPivot.exportToXlsx(myPivotID);
-					};
-				</xmp>
+                    <pre
+                        class="language-markup"
+                        aria-label="FileSaver.js 연결"
+                    ><code class="language-markup">&lt;!-- FileSaver.js를 먼저 불러옵니다. --&gt;
+&lt;script src="../export_server_samples/FileSaver.min.js"&gt;&lt;/script&gt;</code></pre>
+                    <p><strong>엑셀 파일 바로 다운로드</strong></p>
+                    <pre
+                        class="language-javascript"
+                        aria-label="엑셀 다운로드"
+                    ><code class="language-javascript">// 현재 피벗 보고서를 엑셀 파일로 바로 다운로드합니다.
+function exportToLocal() {
+    AUIPivot.exportToXlsx(myPivotID);
+}</code></pre>
+                    <p><strong>Blob을 받아 직접 처리</strong></p>
+                    <p>이 예제는 받은 Blob을 다운로드하고, Blob과 Base64 문자열을 개발자 도구의 콘솔에 출력합니다.</p>
+                    <pre
+                        class="language-javascript"
+                        aria-label="엑셀 Blob 처리"
+                    ><code class="language-javascript">// 엑셀 Blob을 콜백으로 받아 다운로드하고 Base64 문자열도 확인합니다.
+function getXlsxBlob() {
+    AUIPivot.exportToXlsx(myPivotID, {
+        // 자동 다운로드 대신 생성된 Blob을 아래 함수에 전달합니다.
+        localControl: true,
+        localControlFunc: function (blob) {
+            console.log(blob);
 
-                    <p><strong>■ 작성된 엑셀을 개발자가 임의로 처리하기 위해 Blob으로 얻는 방법</strong></p>
-                    <pre>
-AUIPivot.exportToXlsx(myPivotID, {
-	localControl : true, // 로컬 컨트롤 사용
-	// 로컬 컨트롤 함수
-	localControlFunc : function(data) {
-		// 여기서 반환된 Blob 데이터를 개발자가 원하는 방식대로 처리 가능
-		...
-	}
-};
-</pre>
+            // FileSaver.js로 받은 Blob을 파일로 저장합니다.
+            window.saveAs(blob, "얻어온 Blob 데이터 다운로딩.xlsx");
+
+            // 파일 읽기가 끝나면 Data URL의 앞부분을 제외한 Base64를 출력합니다.
+            const reader = new FileReader();
+            reader.onload = function () {
+                const base64data = reader.result.split(",")[1];
+                console.log(base64data);
+            };
+            reader.readAsDataURL(blob);
+        }
+    });
+}</code></pre>
                     <p>
-                        <button class="btn" onclick="exportToLocal()">로컬(Local)에서 바로 다운로드 하기</button>
-                        <button class="btn" onclick="getXlsxBlob()">
-                            Blob 데이터 얻은 후 다운로드 하기 (콘솔 확인)
-                        </button>
+                        <button type="button" class="btn" onclick="exportToLocal()">엑셀 바로 다운로드</button>
+                        <button type="button" class="btn" onclick="getXlsxBlob()">Blob으로 다운로드 (콘솔 확인)</button>
                     </p>
                 </div>
                 <div>

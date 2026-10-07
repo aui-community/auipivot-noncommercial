@@ -23,25 +23,15 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../static/docs-brand.css">
+<link rel="stylesheet" href="../static/package-header.css">
 </head>
 
 <body class="demo-typography mcp-guide docs-site">
   <header class="docs-header"><div class="docs-header-inner">
-    <a id="logo-bar" class="docs-brand" href="https://www.auisoft.net/" aria-label="AUISoft 홈페이지">
-      <img src="../static/favicon.svg" width="40" height="40" alt="">
-      <span>AUISoft<small>에이유아이소프트</small></span>
+    <a id="logo-bar" class="docs-brand docs-package-brand" href="../index.html" aria-label="AUIPivot 문서 홈">
+      <img src="../static/auipivot-mark.svg" width="40" height="40" alt="">
+      <span id="title">AUIPivot v<span data-documentation-version>2.7</span> DOCUMENTATION</span>
     </a>
-    <span id="title" class="docs-context">AUIPivot 2.7 Documentation</span>
-    <nav class="docs-navigation" aria-label="주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
-    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
-    <a href="../index.html">문서</a>
-    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
-    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav>
-    <details class="docs-mobile-navigation"><summary>메뉴</summary><nav aria-label="모바일 주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
-    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
-    <a href="../index.html">문서</a>
-    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
-    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav></details>
   </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">9. AI 개발 지원: AUIPivot MCP Server</span></nav>
   <main class="MainContent">
     <h1>9. AI 개발 지원: AUIPivot MCP Server</h1>
@@ -66,6 +56,7 @@
       <a href="#connect">로컬 연결</a>
       <a href="#usage">사용 예</a>
       <a href="#tools">제공 도구</a>
+      <a href="#versions">제품 버전과 지원 여부</a>
       <a href="#troubleshooting">연결 문제 해결</a>
     </nav>
 
@@ -239,6 +230,38 @@
     <p>MCP는 패키지에 포함된 자료를 읽으며 웹에서 최신 문서를 자동 수집하지 않습니다.
       원격 자료는 운영 서버에서 갱신하며 로컬 방식은 새 자료가 게시되면 최신 패키지로 MCP를 다시 시작합니다. 특정 패키지 버전을 유지하려면 연결 설정의 <code>@latest</code>를 해당 버전으로 바꿉니다.
       고객 프로젝트나 피벗 데이터를 읽고 조작하는 도구는 포함하지 않습니다.</p>
+    <!-- 실제 자료 버전과 고객 제품 버전을 구분하고 지원 판정의 한계를 함께 안내합니다. -->
+    <h3 id="versions">제품 버전과 지원 여부</h3>
+    <p>먼저 <code>list_versions</code>로 실제 자료 버전과 허용 제품판을 확인합니다.
+      현재 문서판은 <code>2.7</code>, 엔진 버전은 <code>2.7.0</code>이며 MCP 최초 지원 기준은 <code>2.7.0</code>입니다.
+      <code>acceptedProductVersions</code>에는 <code>2.7</code>이 등록되어 있고 <code>acceptsPatchVersions: true</code>이므로
+      주.부.패치 형식도 허용합니다. <code>2.6</code>, 미등록 제품판과 네 자리 버전은 허용하지 않습니다.
+      패치 요청 허용은 해당 패치의 출시나 별도 문서 보유를 뜻하지 않습니다.</p>
+    <p>고객의 제품 버전을 알면 <code>search_docs</code>, <code>get_api</code>, <code>list_examples</code>, <code>get_example</code>에
+      같은 <code>version</code>을 전달합니다. 모르면 임의로 추정하지 않고 생략하여 실제 자료의 기본 버전을 사용합니다.
+      제품 버전과 MCP 및 타입 npm 패키지 버전은 구분합니다.</p>
+    <p>다음은 <code>get_api</code>에 전달하는 인수입니다.</p>
+    <pre><code class="language-json">{ "id": "Pivot/Properties.html#layoutType", "version": "2.7.0" }</code></pre>
+    <p>응답의 <code>requestedVersion</code>은 입력한 <code>2.7.0</code>을 유지하고 <code>version</code>은 실제 문서판 <code>2.7</code>입니다.
+      <code>list_versions</code>의 <code>versions</code>에는 실제 보유한 문서판만 나열합니다. 허용 제품판이 과거 문서 보유 목록은 아닙니다.</p>
+    <table>
+      <thead><tr><th scope="col">응답 필드</th><th scope="col">의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>baselineVersion</code></td><td>MCP 지원 판정의 시작 제품 버전</td></tr>
+        <tr><td><code>since</code>, <code>available</code></td><td>항목의 지원 기준과 요청 제품의 기준 충족 여부</td></tr>
+        <tr><td><code>introducedVersion</code></td><td>API, 페이지와 타입의 실제 도입 이력. 원본 기록이 없으면 null</td></tr>
+        <tr><td><code>compatibilityNote</code></td><td>현재 문서를 다른 제품판에 적용할 때의 한계</td></tr>
+      </tbody>
+    </table>
+    <p><code>since</code>는 최초 지원 기준과 실제 도입 버전 중 높은 값입니다.
+      미지원 항목은 검색과 목록에 <code>available: false</code>로 표시하고 검색 본문 대신 사용 불가 설명을 제공합니다.
+      상세 설명, TypeScript 선언과 예제 소스는 <code>VERSION_NOT_AVAILABLE</code> 오류로 차단하며 예제의 보조 파일도 같습니다.
+      필요한 제품 버전을 확인하고 지원이 검증된 기존 기능을 사용하거나 업그레이드하십시오. 미지원 코드를 동작하는 예제로 사용하지 않습니다.</p>
+    <p><code>available: true</code>는 도입 기준 충족만 뜻합니다. 최신 옵션, 기본값 변경, 중첩 타입의 새 멤버와 현재 예제 전체의 구버전 동작을 보장하지 않습니다.
+      예제는 명시 버전과 연결 API 목록으로 판정하며 전체 소스를 자동 분석하지 않습니다.</p>
+    <p>npm과 원격 서버는 별도로 갱신됩니다. npm 게시만으로 실행 중인 원격 자료가 바뀌지 않으며 운영 서버의 자료 교체와 재시작이 필요합니다.
+      고객 PC에서 원격 연결을 사용하면 Node.js를 설치할 필요가 없고, 로컬 연결은 Node.js 22.12 이상을 사용합니다.</p>
+
     <h3 id="cdn-start">비상업용 CDN으로 시작하기</h3>
     <p>AUIPivot은 비상업용 버전의 CDN을 제공합니다. 비상업용 목적의 <code>localhost</code> 또는 <code>127.0.0.1</code>에서 무료로 시작할 수 있습니다.
       CDN은 비상업용 버전 전용이며, 정품은 제공받은 제품 파일을 연결합니다.</p>
@@ -247,7 +270,7 @@
       <li>평가판 라이선스는 정품과 동일한 기능을 제공합니다.</li>
       <li>사전 평가, 적합성 검토(PoC), 테스트 목적으로 사용할 수 있습니다.</li>
       <li>제공 기간은 30일입니다.</li>
-      <li>다운로드: <a href="https://www.auisoft.net/dcenter.html">AUIPivot 평가판 다운로드</a></li>
+      <li>다운로드: <a href="https://www.auisoft.net/dcenter.html?product=AUIPivot">AUIPivot 평가판 다운로드</a></li>
     </ul>
     <p>MCP에서 <a href="noncommercial.html">CDN 연결 방법과 사용 조건</a>을 조회하고,
       데이터가 포함된 <a href="../examples/noncommercial-cdn.html" download="index.html">HTML 예제</a>를 가져올 수 있습니다.
@@ -267,7 +290,7 @@
       <li><strong>로컬 연결에서 npx를 찾을 수 없음:</strong> Node.js 설치 후 AI 도구를 다시 시작합니다. 터미널에서만 인식된다면 설정의 <code>command</code>에 npx의 절대 경로를 지정합니다.</li>
       <li><strong>로컬 패키지를 받지 못함:</strong> 인터넷 및 npm 접속 상태와 사내 프록시 설정을 확인합니다. 최초 설치가 오래 걸리면 AI 도구의 MCP 시작 제한 시간을 늘립니다.</li>
       <li><strong>도구가 보이지 않음:</strong> AI 도구에서 MCP를 활성화하고 다시 시작합니다. 도구 사용 승인이 표시되면 조회 도구의 사용을 허용합니다.</li>
-      <li><strong>원하는 문서 버전이 없음:</strong> <code>list_versions</code>로 포함된 버전을 확인합니다. 원격 자료는 운영 서버에서 갱신하며 로컬 방식은 해당 자료가 들어 있는 MCP 패키지를 선택합니다.</li>
+      <li><strong>제품 버전이 거부됨:</strong> <code>list_versions</code>의 <code>acceptedProductVersions</code>와 패치 허용 여부를 확인합니다. npm 버전을 제품 버전으로 전달하지 않습니다. 원격 자료는 운영 서버에서 갱신하며 로컬 방식은 해당 자료가 들어 있는 MCP 패키지를 선택합니다.</li>
       <li><strong>로컬 연결에서 Node.js 버전 오류:</strong> AI 도구가 사용하는 Node.js를 22.12 이상으로 갱신합니다. 터미널과 AI 도구가 같은 Node.js를 사용하는지도 확인합니다.</li>
     </ul>
 

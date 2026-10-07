@@ -17,13 +17,15 @@
 		</p>
 		<p>본 데모는 Vue 3 + TypeScript + Vite 환경에서 다음 의존도로 작성되었습니다.</p>
 		<p>타입 정의와 이벤트 상수는 npm의 <code>aui-pivot</code> 패키지를 사용합니다.</p>
-		<CodeBlock language="none">npm install aui-pivot@1.0.0</CodeBlock>
+		<!-- 최신 타입 설치와 기존 잠금 파일 갱신 명령을 구분해 안내합니다. -->
+		<CodeBlock language="none">npm install aui-pivot@latest</CodeBlock>
+		<p>이 샘플은 <code>latest</code> 태그를 사용합니다. 최신 버전으로 갱신하려면 <code>npm update aui-pivot</code>을 실행하세요.</p>
 		<!-- HOME의 기존 안내와 예제는 유지하고 의존성 영역만 카드로 구분합니다. -->
 		<div class="home-dependencies">
 			<section class="dependency-card">
 				<h2>Dependencies</h2>
 				<ul>
-					<li><strong>aui-pivot</strong>: 1.0.0</li>
+					<li><strong>aui-pivot</strong>: latest</li>
 					<li><strong>file-saver</strong>: ^2.0.5</li>
 					<li><strong>vue</strong>: ^3.5.17</li>
 					<li><strong>vue-router</strong>: ^4.5.1</li>

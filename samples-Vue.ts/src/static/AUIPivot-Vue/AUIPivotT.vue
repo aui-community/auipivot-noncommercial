@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 	/**
-	 * AUIPivotT.vue for Vue.js v1.2.20261006
+	 * AUIPivotT.vue for Vue.js v1.2.20261007
 	 * Based on AUIPivot v2.7.0
 	 * Copyright © AUISoft Co., Ltd.
 	 * www.auisoft.net

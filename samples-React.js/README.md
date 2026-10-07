@@ -32,7 +32,7 @@ AUIPivot 비상업용 버전은 `localhost` 또는 `127.0.0.1`에서 비상업�
 - 평가판 라이선스는 정품과 동일한 기능을 제공합니다.
 - 사전 평가, 적합성 검토(PoC), 테스트 목적으로 사용할 수 있습니다.
 - 제공 기간은 30일입니다.
-- 다운로드: [AUIPivot 평가판 다운로드](https://www.auisoft.net/dcenter.html)
+- 다운로드: [AUIPivot 평가판 다운로드](https://www.auisoft.net/dcenter.html?product=AUIPivot)
 
 [비상업용 CDN 시작 안내](https://www.auisoft.net/documentation/auipivot/Desc/noncommercial.html)는 연결 방법과 데이터가 포함된 단일 HTML 예제를 제공합니다. CDN은 비상업용 버전 전용이며, 정품은 제공받은 제품 파일을 연결합니다. 이 프레임워크 샘플은 로컬 파일을 import하므로 제품 파일을 배치하고 기존 import 경로에 맞춰 실행하세요.
 

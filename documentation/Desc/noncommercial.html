@@ -21,24 +21,14 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../static/docs-brand.css">
+<link rel="stylesheet" href="../static/package-header.css">
 </head>
 <body class="demo-typography mcp-guide docs-site">
   <header class="docs-header"><div class="docs-header-inner">
-    <a id="logo-bar" class="docs-brand" href="https://www.auisoft.net/" aria-label="AUISoft 홈페이지">
-      <img src="../static/favicon.svg" width="40" height="40" alt="">
-      <span>AUISoft<small>에이유아이소프트</small></span>
+    <a id="logo-bar" class="docs-brand docs-package-brand" href="../index.html" aria-label="AUIPivot 문서 홈">
+      <img src="../static/auipivot-mark.svg" width="40" height="40" alt="">
+      <span id="title">AUIPivot v<span data-documentation-version>2.7</span> DOCUMENTATION</span>
     </a>
-    <span id="title" class="docs-context">AUIPivot 2.7 Documentation</span>
-    <nav class="docs-navigation" aria-label="주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
-    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
-    <a href="../index.html">문서</a>
-    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
-    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav>
-    <details class="docs-mobile-navigation"><summary>메뉴</summary><nav aria-label="모바일 주 메뉴"><a href="https://www.auisoft.net/demo/auigrid/index.html">AUIGrid 데모</a>
-    <a href="https://www.auisoft.net/demo/auipivot/index.html">AUIPivot 데모</a>
-    <a href="../index.html">문서</a>
-    <a href="https://www.auisoft.net/board/bbs/board.php?bo_table=support">고객지원</a>
-    <a class="docs-download" href="https://www.auisoft.net/dcenter.html">다운로드 센터</a></nav></details>
   </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">10. 비상업용 CDN으로 시작하기</span></nav>
   <main class="MainContent">
     <h1>10. 비상업용 CDN으로 시작하기</h1>
@@ -100,8 +90,9 @@
     <p>GitHub에는 <code>samples-React.js</code>, <code>samples-React.tsx</code>, <code>samples-Vue.js</code>,
       <code>samples-Vue.ts</code>의 네 샘플 프로젝트와 래퍼가 포함되어 있습니다.
       해당 샘플은 로컬 파일을 import하는 구조이므로 <a href="setup.html">프레임워크 샘플 실행 안내</a>에 따라 시작하십시오.</p>
-    <p>npm의 <a href="https://www.npmjs.com/package/aui-pivot"><code>aui-pivot</code></a>는 TypeScript 타입 정의와 <code>EventKind</code> enum을 제공합니다. <code>aui-pivot@1.0.0</code>은 AUIPivot.js <code>2.7</code>의 API를 반영합니다.
+    <p>npm의 <a href="https://www.npmjs.com/package/aui-pivot"><code>aui-pivot</code></a>는 TypeScript 타입 정의와 <code>EventKind</code> enum을 제공합니다. <code>npm install aui-pivot@latest</code>로 최신 타입을 설치합니다. AUIPivot.js <code>2.7</code>부터 지원하며, 새 API는 해당 기능을 지원하는 제품 엔진과 함께 사용하십시오.
       피벗을 실행하는 엔진, 라이선스 및 CSS는 비상업용 배포본이나 사용 환경에 맞는 제품 배포본에서 준비합니다.</p>
+    <p>공식 TypeScript 샘플은 <code>"aui-pivot": "latest"</code>로 의존성을 선언합니다. <code>npm ci</code>는 잠금 파일에 기록된 버전을 설치하며, 최신 버전으로 갱신하려면 <code>npm update aui-pivot</code>을 실행합니다.</p>
 
     <h2 id="ai">10.5 AI와 함께 예제 만들기</h2>
     <p>AI 개발 도구에 <code>https://auipivot.com/mcp</code>를 Streamable HTTP로 등록하면 인증 없이 공개 문서와 예제를 읽기 전용으로 조회할 수 있습니다.
@@ -130,10 +121,10 @@
       <li>평가판 라이선스는 정품과 동일한 기능을 제공합니다.</li>
       <li>사전 평가, 적합성 검토(PoC), 테스트 목적으로 사용할 수 있습니다.</li>
       <li>제공 기간은 30일입니다.</li>
-      <li>다운로드: <a href="https://www.auisoft.net/dcenter.html">AUIPivot 평가판 다운로드</a></li>
+      <li>다운로드: <a href="https://www.auisoft.net/dcenter.html?product=AUIPivot">AUIPivot 평가판 다운로드</a></li>
     </ul>
     <ol>
-      <li><a href="https://www.auisoft.net/dcenter.html">평가판 다운로드 페이지</a>에서 제품으로 <strong>AUIPivot</strong>을 선택합니다.</li>
+      <li><a href="https://www.auisoft.net/dcenter.html?product=AUIPivot">평가판 다운로드 페이지</a>에서 제품으로 <strong>AUIPivot</strong>을 선택합니다.</li>
       <li><strong>접속 도메인</strong> 항목에 테스트할 서버의 도메인이나 IP를 입력합니다. 최대 4개까지 지정할 수 있습니다.</li>
       <li>회사 또는 기관명, 이름, 이메일과 페이지의 약관 및 동의 항목을 확인한 뒤 평가판을 내려받습니다.</li>
       <li>평가판에 포함된 엔진, 라이선스 및 CSS를 프로젝트에 배치하고, 입력한 도메인이나 IP로 접속하여 확인합니다.
@@ -143,7 +134,7 @@
       IP로 접속한다면 해당 IP만 입력하며 <code>http://</code>, <code>https://</code>, 포트 번호와 페이지 경로는 제외합니다.</p>
     <p>평가 기간이 끝나면 평가판 라이선스도 만료됩니다. 프로젝트에 적합한지 확인한 뒤 실제 개발 및 운영에 사용할 제품은
       <a href="https://www.auisoft.net/">AUISoft</a>의 정품 구매 안내를 참고하십시오.
-      자세한 평가판 이용 조건은 <a href="https://www.auisoft.net/dcenter.html">다운로드 페이지</a>에서 확인할 수 있습니다.</p>
+      자세한 평가판 이용 조건은 <a href="https://www.auisoft.net/dcenter.html?product=AUIPivot">다운로드 페이지</a>에서 확인할 수 있습니다.</p>
     <p><a href="../index.html">문서 홈으로 돌아가기</a></p>
   </main>
 <footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body>

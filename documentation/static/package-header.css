@@ -1,0 +1,12 @@
+@charset "UTF-8";
+/* 고객 패키지의 상단은 피벗 이미지와 버전이 포함된 문서 제목만 표시합니다. */
+.docs-site .docs-package-brand { min-width: 0; flex-shrink: 1; }
+.docs-package-brand img { flex-shrink: 0; }
+.docs-site .docs-package-brand #title {
+    display: block; padding: 0; color: var(--docs-ink);
+    font-size: 24px; font-weight: 700; line-height: 1.35;
+}
+/* 좁은 화면에서는 제목을 자연스럽게 줄바꿈하여 가로 넘침을 방지합니다. */
+@media (max-width: 760px) {
+    .docs-site .docs-package-brand #title { font-size: 18px; }
+}
