@@ -50,10 +50,11 @@ body.standalone-demo { margin:0; background:#fff; -webkit-text-size-adjust:100%;
 .standalone-demo .desc a { color:var(--pivot-navy); text-underline-offset:3px; }
 .standalone-demo .desc strong, .standalone-demo .desc b { color:#292f37; }
 .standalone-demo .desc code { font:14px/1.5 var(--demo-code-font); }
-/* 예제의 기존 onclick, id와 선택 상태를 유지하면서 조작 요소의 외관만 정리합니다. */
-.standalone-demo #main .btn { padding:10px 17px; margin:6px 8px 6px 0; border-radius:4px; font-size:14px; font-weight:600; line-height:1.5; background:var(--pivot-navy); border-color:var(--pivot-navy); transition:background-color .15s; }
-.standalone-demo #main .btn:hover { background:var(--pivot-navy-hover); }
-.standalone-demo #main .btn[aria-pressed="true"] { background:var(--pivot-blue); border-color:var(--pivot-blue); }
+/* 개별 데모의 실행 버튼과 링크형 버튼에만 색상을 적용합니다.
+   링크형 버튼도 흰 글자를 사용하고, 선택 상태는 테두리로 구분합니다. */
+.standalone-demo #main .btn { padding:10px 17px; margin:6px 8px 6px 0; border-radius:4px; font-size:14px; font-weight:600; line-height:1.5; background:#337ab7; color:#fff; border-color:#337ab7; transition:background-color .15s; }
+.standalone-demo #main .btn:hover { background:#286090; }
+.standalone-demo #main .btn[aria-pressed="true"] { border-color:#286090; box-shadow:inset 0 0 0 1px #286090; }
 .standalone-demo #main .btn:disabled { opacity:.45; cursor:default; }
 .standalone-demo .desc select, .standalone-demo .desc input[type="text"], .standalone-demo .desc input[type="number"] { padding:6px 8px; border:1px solid #cfd5dd; border-radius:3px; background:#fff; color:#343c47; font-family:var(--demo-font); font-size:14px; line-height:1.5; vertical-align:middle; }
 .standalone-demo .desc input[type="checkbox"], .standalone-demo .desc input[type="radio"] { accent-color:var(--pivot-blue); vertical-align:middle; margin-right:4px; }

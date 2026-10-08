@@ -79,9 +79,23 @@ body.docs-home .MainContent .main_ul { display: grid; grid-template-columns: rep
 body.docs-home .main_ul > li { counter-increment: doc-chapter; margin: 0; font-size: 18px !important; }
 .docs-chapters a { display: flex; align-items: center; gap: 18px; min-height: 104px; padding: 22px 24px; height: 100%; border: 1px solid var(--docs-line); border-radius: 12px; color: var(--docs-ink); line-height: 1.5; text-decoration: none; transition: border-color .15s, background-color .15s; }
 .docs-chapters a::before { content: counter(doc-chapter, decimal-leading-zero); color: var(--docs-blue); font-size: 15px; font-weight: 700; flex-shrink: 0; }
+/* 제목이 길어도 오른쪽 이동 아이콘의 공간을 유지하고, 장식이 링크 이름으로 읽히지 않게 합니다. */
+.docs-chapters a > span { min-width: 0; }
+.docs-chapters a::after {
+    content: ''; flex: 0 0 20px; height: 20px; margin-left: auto; background-color: var(--docs-muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 10h14M11 4l6 6-6 6' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 10h14M11 4l6 6-6 6' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
 .docs-chapters a:hover { border-color: var(--docs-blue); background: var(--docs-surface); text-decoration: none; }
 .docs-chapters strong { display: block; font-size: 18px; font-weight: 600; }
 .docs-chapters small { display: block; color: var(--docs-muted); font-size: 14px; line-height: 1.6; margin-top: 5px; }
+/* 자주 사용하는 API 문서만 Grid와 같은 배경, 테두리와 표식으로 강조합니다. */
+.docs-chapter-api > a { border-color: var(--docs-blue); background: #edf5fc; box-shadow: inset 3px 0 0 var(--docs-blue); }
+.docs-chapter-api > a:hover, .docs-chapter-api > a:focus-visible { border-color: var(--docs-blue-dark); background: #e2effa; }
+.docs-chapter-api strong { color: var(--docs-blue-dark); font-weight: 700; }
+/* 기존 SVG 이동 아이콘은 글자색 대신 마스크의 배경색으로 강조합니다. */
+.docs-chapter-api > a::after { background-color: var(--docs-blue-dark); }
+.docs-chapters .docs-chapter-badge { display: inline-block; margin-bottom: 6px; padding: 3px 8px; border-radius: 4px; background: var(--docs-blue); color: #fff; font-size: 12px; font-weight: 700; line-height: 1.5; }
 .docs-related { margin-top: 28px; padding: 20px 24px; background: var(--docs-surface); border: 1px solid var(--docs-line); border-radius: 12px; }
 body.docs-home .docs-related p { margin: 0 0 8px; }
 body.docs-home .docs-related p:last-child { margin: 0; }

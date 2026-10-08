@@ -41,3 +41,10 @@ const price: number | undefined = pivot.getSourceData()?.[0].PRICE;
 void price;
 // @ts-expect-error PRICE는 문자열이 아닙니다.
 const wrongPrice: string | undefined = pivot.getSourceData()?.[0].PRICE;
+
+// 새 옵션은 컴포넌트에 전달하며 엔진 pivotProps에는 넣지 않습니다.
+import type { AUIPivotWrapperProps } from '../src/static/AUIPivot-React.tsx/AUIPivotReact';
+const resizeOptions: AUIPivotWrapperProps = { resizeMode: 'container', resizeDelayTime: 100 };
+// @ts-expect-error 지원하지 않는 감지 방식입니다.
+const wrongResize: AUIPivotWrapperProps = { resizeMode: 'parent' };
+void resizeOptions; void wrongResize;

@@ -1,5 +1,5 @@
 /**
- * AUIPivotReact.jsx v1.2.20261007
+ * AUIPivotReact.jsx v1.2.20261008
  * Based on AUIPivot v2.7.0
  * Copyright © AUISoft Co., Ltd.
  * www.auisoft.net
@@ -17,6 +17,67 @@ import '../AUIPivot/AUIPivot_style.css';
 // 이 아래 소스는 절대 수정하지 마세요.
 const $ag = typeof window === 'undefined' ? {} : window.AUIPivot;
 
+// 호스트 DIV의 크기만 관찰하고, 해제된 관찰 알림이 새 피벗에 간섭하지 않게 합니다.
+function createContainerResize(getPID, getDelay) {
+	let observer = null, host = null, timer = null, frame = null;
+	let generation = 0, width = -1, height = -1;
+	function stop() {
+		generation++;
+		if (observer) observer.disconnect();
+		observer = null;
+		window.removeEventListener('resize', schedule);
+		if (timer !== null) clearTimeout(timer);
+		if (frame !== null) window.cancelAnimationFrame(frame);
+		timer = frame = null;
+		host = null;
+		width = height = -1;
+	}
+	function schedule() {
+		if (!host) return;
+		const current = generation;
+		if (timer !== null) clearTimeout(timer);
+		if (frame !== null) window.cancelAnimationFrame(frame);
+		frame = null;
+		// 연속 알림을 지정한 지연 시간으로 합친 뒤 한 프레임에서 크기를 반영합니다.
+		timer = setTimeout(() => {
+			if (current !== generation) return;
+			timer = null;
+			frame = window.requestAnimationFrame(() => {
+				if (current !== generation || !host) return;
+				frame = null;
+				const pid = getPID();
+				if (!host.isConnected || document.getElementById(pid.slice(1)) !== host || !$ag.isCreated(pid)) return;
+				const nextWidth = host.offsetWidth, nextHeight = host.offsetHeight;
+				// 숨겨진 영역은 다시 나타났을 때 같은 크기라도 재측정합니다.
+				if (nextWidth <= 5 || nextHeight <= 5) { width = height = -1; return; }
+				if (nextWidth === width && nextHeight === height) return;
+				width = nextWidth;
+				height = nextHeight;
+				$ag.resize(pid);
+				// 데이터에 따라 엔진이 높이를 조절한 결과는 새 변경으로 반복 처리하지 않습니다.
+				if (current === generation && host) { width = host.offsetWidth; height = host.offsetHeight; }
+			});
+		}, getDelay());
+	}
+	function start() {
+		const target = document.getElementById(getPID().slice(1));
+		if (!target || host === target) return;
+		stop();
+		host = target;
+		const current = generation;
+		if (typeof window.ResizeObserver === 'function') {
+			observer = new window.ResizeObserver(() => { if (current === generation) schedule(); });
+			observer.observe(target, { box: 'border-box' });
+		} else {
+			// 관찰 API가 없는 환경에서는 기존 창 크기 이벤트로 대체합니다.
+			window.addEventListener('resize', schedule);
+		}
+		schedule();
+	}
+	// 네이티브 핸들은 함수 내부에 두고, Vue에서도 프록시가 되지 않는 제어기만 노출합니다.
+	return Object.freeze({ start, stop });
+}
+
 class AUIPivot extends React.Component {
 	constructor(props) {
 		super(props);
@@ -25,6 +86,7 @@ class AUIPivot extends React.Component {
 		this.id = 'aui-pivot-wrap-' + (this.props.name !== '' ? this.props.name : this.uuid);
 		this.pid = '#' + this.id;
 		this.timerId = null;
+		this.__auiContainerResize = null;
 		this.__auiMountGeneration = 0;
 		this.__auiAnimationFrameId = null;
 		this.__globalResizeHandler = this.__globalResizeHandler.bind(this);
@@ -59,10 +121,17 @@ class AUIPivot extends React.Component {
 
 	__setupGlobalResize() {
 		if (!this.props.autoResize) return;
+		// 옵션을 생략하면 기존 window 구독과 호출 시점을 유지합니다.
+		if (this.props.resizeMode === 'container') {
+			if (!this.__auiContainerResize) this.__auiContainerResize = createContainerResize(() => this.pid, () => this.props.resizeDelayTime ?? 300);
+			this.__auiContainerResize.start();
+			return;
+		}
 		window.addEventListener('resize', this.__globalResizeHandler);
 	}
 
 	__resetGlobalReisze() {
+		if (this.__auiContainerResize) this.__auiContainerResize.stop();
 		// 해제된 컴포넌트의 생성과 resize 예약이 StrictMode 재생성에 간섭하지 않게 합니다.
 		this.__auiMountGeneration++;
 		if (this.__auiAnimationFrameId !== null) {
@@ -134,6 +203,8 @@ class AUIPivot extends React.Component {
 		return $ag.createSlicer.call($ag, this.pid, arguments[0], arguments[1]);
 	}
 	destroy(includePanelParent) {
+		// 수동 제거에서도 관찰과 예약을 해제하고 create()에서 다시 연결합니다.
+		if (this.__auiContainerResize) this.__auiContainerResize.stop();
 		$ag.destroy.call($ag, this.pid, arguments[0]);
 	}
 	destroyPivotPanel(includeParent) {
@@ -469,6 +540,7 @@ class AUIPivot extends React.Component {
 AUIPivot.propTypes = {
 	name: PropTypes.string,
 	autoResize: PropTypes.bool,
+	resizeMode: PropTypes.oneOf(['window', 'container']),
 	resizeDelayTime: PropTypes.number,
 	pivotProps: PropTypes.object,
 	createOnMounted: PropTypes.bool,
@@ -479,6 +551,7 @@ AUIPivot.propTypes = {
 AUIPivot.defaultProps = {
 	name: '',
 	autoResize: true,
+	resizeMode: 'window',
 	resizeDelayTime: 300,
 	pivotProps: {},
 	createOnMounted: true,

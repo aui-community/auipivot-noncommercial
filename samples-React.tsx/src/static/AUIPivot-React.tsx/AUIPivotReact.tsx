@@ -1,5 +1,5 @@
 /**
- * AUIPivotReact.tsx v1.2.20261007
+ * AUIPivotReact.tsx v1.2.20261008
  * Based on AUIPivot v2.7.0
  * Copyright © AUISoft Co., Ltd.
  * www.auisoft.net
@@ -16,8 +16,79 @@ import '../AUIPivot/AUIPivot_style.css';
 // 이 아래 소스는 절대 수정하지 마세요.
 const $ag = typeof window === 'undefined' ? {} as IPivot.API : window.AUIPivot;
 
+// 호스트 DIV의 크기만 관찰하고, 해제된 관찰 알림이 새 피벗에 간섭하지 않게 합니다.
+function createContainerResize(getPID: () => string, getDelay: () => number) {
+	let observer: ResizeObserver | null = null;
+	let host: HTMLElement | null = null;
+	let timer: ReturnType<typeof setTimeout> | null = null;
+	let frame: number | null = null;
+	let generation = 0, width = -1, height = -1;
+	function stop() {
+		generation++;
+		if (observer) observer.disconnect();
+		observer = null;
+		window.removeEventListener('resize', schedule);
+		if (timer !== null) clearTimeout(timer);
+		if (frame !== null) window.cancelAnimationFrame(frame);
+		timer = frame = null;
+		host = null;
+		width = height = -1;
+	}
+	function schedule() {
+		if (!host) return;
+		const current = generation;
+		if (timer !== null) clearTimeout(timer);
+		if (frame !== null) window.cancelAnimationFrame(frame);
+		frame = null;
+		// 연속 알림을 지정한 지연 시간으로 합친 뒤 한 프레임에서 크기를 반영합니다.
+		timer = setTimeout(() => {
+			if (current !== generation) return;
+			timer = null;
+			frame = window.requestAnimationFrame(() => {
+				if (current !== generation || !host) return;
+				frame = null;
+				const pid = getPID();
+				if (!host.isConnected || document.getElementById(pid.slice(1)) !== host || !$ag.isCreated(pid)) return;
+				const nextWidth = host.offsetWidth, nextHeight = host.offsetHeight;
+				// 숨겨진 영역은 다시 나타났을 때 같은 크기라도 재측정합니다.
+				if (nextWidth <= 5 || nextHeight <= 5) { width = height = -1; return; }
+				if (nextWidth === width && nextHeight === height) return;
+				width = nextWidth;
+				height = nextHeight;
+				$ag.resize(pid);
+				// 데이터에 따라 엔진이 높이를 조절한 결과는 새 변경으로 반복 처리하지 않습니다.
+				if (current === generation && host) { width = host.offsetWidth; height = host.offsetHeight; }
+			});
+		}, getDelay());
+	}
+	function start() {
+		const target = document.getElementById(getPID().slice(1));
+		if (!target || host === target) return;
+		stop();
+		host = target;
+		const current = generation;
+		if (typeof window.ResizeObserver === 'function') {
+			observer = new window.ResizeObserver(() => { if (current === generation) schedule(); });
+			observer.observe(target, { box: 'border-box' });
+		} else {
+			// 관찰 API가 없는 환경에서는 기존 창 크기 이벤트로 대체합니다.
+			window.addEventListener('resize', schedule);
+		}
+		schedule();
+	}
+	// 네이티브 핸들은 함수 내부에 두고, Vue에서도 프록시가 되지 않는 제어기만 노출합니다.
+	return Object.freeze({ start, stop });
+}
+
+// 기존 npm 타입과 함께 사용할 수 있도록 컴포넌트의 추가 옵션을 선언합니다.
+export interface AUIPivotWrapperProps extends IPivot.WrapperProps {
+	/** 자동 크기 감지 방식입니다. 기본값은 window입니다. */
+	resizeMode?: 'window' | 'container';
+}
+
 // Row는 원본 데이터를 조회할 때 반환할 행 타입입니다.
-class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<IPivot.WrapperProps> implements IPivot.WrapperMethods<Row> {
+class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<AUIPivotWrapperProps> implements IPivot.WrapperMethods<Row> {
+	private __auiContainerResize: ReturnType<typeof createContainerResize> | null = null;
 	private uuid: string;
 	private id: string;
 	private pid: IPivot.PivotID;
@@ -26,10 +97,10 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<IPi
 	private __auiAnimationFrameId: number | null;
 	private get __api(): IPivot.API<Row> { return $ag as IPivot.API<Row>; }
 	static defaultProps = {
-		name: '', autoResize: true, resizeDelayTime: 300, pivotProps: {},
+		name: '', autoResize: true, resizeMode: 'window', resizeDelayTime: 300, pivotProps: {},
 		createOnMounted: true, waitPortalRendering: false
 	};
-	constructor(props: IPivot.WrapperProps) {
+	constructor(props: AUIPivotWrapperProps) {
 		super(props);
 		//crypto 로 uuid 생성함. (유니크 값)
 		this.uuid = window.crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
@@ -70,10 +141,17 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<IPi
 
 	__setupGlobalResize() {
 		if (!this.props.autoResize) return;
+		// 옵션을 생략하면 기존 window 구독과 호출 시점을 유지합니다.
+		if (this.props.resizeMode === 'container') {
+			if (!this.__auiContainerResize) this.__auiContainerResize = createContainerResize(() => this.pid, () => this.props.resizeDelayTime ?? 300);
+			this.__auiContainerResize.start();
+			return;
+		}
 		window.addEventListener('resize', this.__globalResizeHandler);
 	}
 
 	__resetGlobalReisze() {
+		if (this.__auiContainerResize) this.__auiContainerResize.stop();
 		// 해제된 컴포넌트의 생성과 resize 예약이 StrictMode 재생성에 간섭하지 않게 합니다.
 		this.__auiMountGeneration++;
 		if (this.__auiAnimationFrameId !== null) {
@@ -145,6 +223,8 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<IPi
 		return this.__api.createSlicer(this.pid, container, options);
 	}
 	destroy(includePanelParent?: boolean): void {
+		// 수동 제거에서도 관찰과 예약을 해제하고 create()에서 다시 연결합니다.
+		if (this.__auiContainerResize) this.__auiContainerResize.stop();
 		return this.__api.destroy(this.pid, includePanelParent);
 	}
 	destroyPivotPanel(includeParent?: boolean): void {

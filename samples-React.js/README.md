@@ -43,3 +43,17 @@ AI 개발 도구에서는 [AUIPivot MCP](https://www.auisoft.net/documentation/a
 1~3번 데모의 **PDF로 내보내기** 버튼으로 현재 보고서를 저장합니다. `index.html`에서 PDF 라이브러리를 불러오고 각 데모의 `exportPdfClick()`에서 `exportToPdf()`를 호출합니다.
 
 예제는 `public/pdfkit/`의 PDF 라이브러리와 [제주고딕 폰트](https://www.jeju.go.kr/jeju/symbol/font/infor.htm)를 사용합니다. 다른 폰트는 `fontPath`로 지정할 수 있습니다. 셀병합 방식은 테이블 형태로 내보냅니다.
+
+## 부모 영역 크기에 맞추기
+
+`resizeMode="container"`를 컴포넌트에 직접 지정하면 창 크기가 그대로여도 사이드바나 부모 배치 변경에 맞춰 피벗 크기를 조정합니다. `pivotProps`에 넣는 엔진 속성이 아닙니다.
+
+```jsx
+<AUIPivot ref={myPivot} resizeMode="container" resizeDelayTime={100} pivotProps={pivotProps} />
+```
+
+`resizeMode` 기본값은 `window`입니다. `autoResize=false`이면 자동 감지를 등록하지 않으며 `resizeDelayTime`은 두 방식 모두 기본 300ms입니다. 생성 시 지정하고, 실행 중 prop 변경만으로 감지 방식을 전환하지 마세요.
+
+컨테이너 방식은 호스트 DIV를 관찰합니다. 너비를 부모에 맞추려면 `pivotProps`의 `width`를 생략하고, 높이를 부모에 맞추려면 부모와 호스트 CSS에 유효한 높이를 지정하세요. Flex/Grid에서는 필요에 따라 `min-width: 0`을 지정합니다. 콘텐츠가 부모를 계속 늘리는 순환 배치는 피하세요.
+
+숨겨진 영역, 5px 이하의 영역, 크기가 같은 영역은 조정하지 않습니다. 숨김이 풀리면 다시 측정합니다. `ResizeObserver`가 없으면 창 크기 이벤트로 대체합니다. 컨테이너 감지는 해제와 `destroy()`에서 정리하고 `create()`에서 다시 연결합니다. 데이터는 크기 조정을 위해 재생성하지 않습니다.

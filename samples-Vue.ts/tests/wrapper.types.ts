@@ -36,3 +36,9 @@ pivot.setProp('layoutType', 'other');
 pivot.setProp('pivotPanelId', '#panel');
 // @ts-expect-error 감도는 숫자입니다.
 pivot.setProperty({ wheelSensitivity: '2' });
+
+// 새 옵션은 컴포넌트에 전달하며 엔진 pivotProps에는 넣지 않습니다.
+const resizeOptions: InstanceType<typeof AUIPivot>['$props'] = { resizeMode: 'container' };
+// @ts-expect-error 지원하지 않는 감지 방식입니다.
+const wrongResize: InstanceType<typeof AUIPivot>['$props'] = { resizeMode: 'parent' };
+void resizeOptions; void wrongResize;

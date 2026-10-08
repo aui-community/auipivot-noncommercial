@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-`aui-pivot`은 타입과 `EventKind`를 제공합니다. 엔진과 라이선스는 포함하지 않습니다. 배포본의 공통 `AUIPivot` 폴더에는 비상업용 엔진과 라이선스가 포함되어 있습니다.
+`aui-pivot`은 타입과 `EventKind`를 제공합니다. 엔진과 라이선스는 포함하지 않습니다. 제품 파일과 발급된 `AUIPivotLicense.js`를 준비하고 컴포넌트의 import 경로를 배치한 위치에 맞추십시오.
 
 이 프로젝트는 공개 npm의 `aui-pivot@latest`를 사용하며 `package.json`에 `"aui-pivot": "latest"`로 선언합니다. `package-lock.json`을 함께 제공하므로 동일한 의존성을 설치하려면 `npm ci`를 실행합니다. 로컬 타입 패키지를 빌드하거나 압축 파일을 준비할 필요가 없습니다. 최신 버전으로 갱신하려면 `npm update aui-pivot`을 실행합니다. `latest`는 향후 주요 버전도 가리킬 수 있으므로 새 API는 해당 기능을 지원하는 제품 엔진과 함께 사용하십시오.
 
@@ -88,3 +88,19 @@ AI 개발 도구에서는 [AUIPivot MCP](https://www.auisoft.net/documentation/a
 1~3번 데모의 **PDF로 내보내기** 버튼으로 현재 보고서를 저장합니다. `index.html`에서 PDF 라이브러리를 불러오고 각 데모의 `exportPdfClick()`에서 `exportToPdf()`를 호출합니다.
 
 예제는 `public/pdfkit/`의 PDF 라이브러리와 [제주고딕 폰트](https://www.jeju.go.kr/jeju/symbol/font/infor.htm)를 사용합니다. 다른 폰트는 `fontPath`로 지정할 수 있습니다. 셀병합 방식은 테이블 형태로 내보냅니다.
+
+## 부모 영역 크기에 맞추기
+
+`resizeMode="container"`를 컴포넌트에 직접 지정하면 창 크기가 그대로여도 사이드바나 부모 배치 변경에 맞춰 피벗 크기를 조정합니다. `pivotProps`에 넣는 엔진 속성이 아닙니다.
+
+```vue
+<AUIPivot ref="myPivot" resizeMode="container" :resizeDelayTime="100" :pivotProps="pivotProps" />
+```
+
+`resizeMode` 기본값은 `window`입니다. `autoResize=false`이면 자동 감지를 등록하지 않으며 `resizeDelayTime`은 두 방식 모두 기본 300ms입니다. 생성 시 지정하고, 실행 중 prop 변경만으로 감지 방식을 전환하지 마세요.
+
+컨테이너 방식은 호스트 DIV를 관찰합니다. 너비를 부모에 맞추려면 `pivotProps`의 `width`를 생략하고, 높이를 부모에 맞추려면 부모와 호스트 CSS에 유효한 높이를 지정하세요. Flex/Grid에서는 필요에 따라 `min-width: 0`을 지정합니다. 콘텐츠가 부모를 계속 늘리는 순환 배치는 피하세요.
+
+숨겨진 영역, 5px 이하의 영역, 크기가 같은 영역은 조정하지 않습니다. 숨김이 풀리면 다시 측정합니다. `ResizeObserver`가 없으면 창 크기 이벤트로 대체합니다. 컨테이너 감지는 해제와 `destroy()`에서 정리하고 `create()`에서 다시 연결합니다. 데이터는 크기 조정을 위해 재생성하지 않습니다.
+
+Vue KeepAlive는 비활성 동안 관찰과 예약을 멈추고 활성화할 때 다시 연결합니다. 캐시된 피벗과 데이터는 유지합니다.

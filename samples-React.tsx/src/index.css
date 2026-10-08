@@ -70,12 +70,13 @@ body { margin:0; background:#fff; font:14px/1.5 var(--sample-font); -webkit-text
 .sample-app .sample-code-frame pre { box-sizing:border-box; margin:0; padding:20px; max-height:460px; overflow:auto; color:#e2e7ed; background:transparent; font:14px/1.5 var(--sample-code-font); text-align:left; white-space:pre; tab-size:4; }
 .sample-app .sample-code-frame code { font:inherit; text-shadow:none; }
 .sample-code-frame pre:focus-visible { outline:2px solid #b6d9f5; outline-offset:-3px; }
-/* 샘플 조작부에만 버튼/입력 모양을 적용해 피벗, 슬라이서의 테마를 덮어쓰지 않습니다. */
+/* 개별 샘플의 실행 버튼만 공통 파란색과 흰 글자를 사용합니다.
+   HOME, 메뉴, 코드 복사 및 피벗/슬라이서 내부 버튼의 색상은 유지합니다. */
 .sample-main .desc button:not(:where([class^="aui-"], [class^="aui-"] *)) {
-  padding:10px 17px; margin:6px 8px 12px 0; border:1px solid var(--sample-navy); border-radius:4px;
-  background:var(--sample-navy); color:#fff; font:600 14px/1.5 var(--sample-font); cursor:pointer;
+  padding:10px 17px; margin:6px 8px 12px 0; border:1px solid #337ab7; border-radius:4px;
+  background:#337ab7; color:#fff; font:600 14px/1.5 var(--sample-font); cursor:pointer;
 }
-.sample-main .desc button:not(:where([class^="aui-"], [class^="aui-"] *)):hover { background:var(--sample-navy-hover); }
+.sample-main .desc button:not(:where([class^="aui-"], [class^="aui-"] *)):hover { background:#286090; }
 .sample-main .desc button:disabled { opacity:.5; cursor:default; }
 .sample-main .wrapper-controls { padding:12px 16px; border:1px solid var(--sample-line); border-radius:6px; background:var(--sample-soft); }
 .sample-main .wrapper-controls button { margin:0 !important; }

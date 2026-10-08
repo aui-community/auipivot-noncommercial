@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AUIPivot 서브 컴포넌트 속성. 설치, 예제, 메소드와 이벤트 사용 방법을 안내합니다.">
+  <title>서브 컴포넌트 속성 | AUIPivot 2.7 Documentation</title>
+  
+  <link rel="stylesheet" href="../static/prism.css">
+  <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="../static/typography.css">
+  <link rel="stylesheet" href="../static/code-examples.css">
+  <link rel="stylesheet" href="../static/mcp-guide.css">
+  <link rel="stylesheet" href="../static/framework-guide.css">
+  <script src="../static/prism.js" data-manual></script>
+  <script src="../static/prism-typescript.min.js"></script>
+  <script src="../static/prism-jsx.min.js"></script>
+  <script src="../static/prism-tsx.min.js"></script>
+  <script src="../static/code-examples.js"></script>
+
+<link rel="icon" href="../static/favicon.ico" sizes="any">
+<link rel="icon" href="../static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../static/apple-touch-icon.png">
+<meta name="theme-color" content="#222729">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../static/docs-brand.css">
+<link rel="stylesheet" href="../static/package-header.css">
+</head>
+<body class="demo-typography mcp-guide docs-site">
+  <!-- 웹사이트와 제품 패키지의 공통 머리글은 문서 생성기가 각각 적용합니다. -->
+  <header class="docs-header"><div class="docs-header-inner">
+    <a id="logo-bar" class="docs-brand docs-package-brand" href="../index.html" aria-label="AUIPivot 문서 홈">
+      <img src="../static/auipivot-mark.svg" width="40" height="40" alt="">
+      <span id="title">AUIPivot v<span data-documentation-version>2.7</span> DOCUMENTATION</span>
+    </a>
+  </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">9.4 서브 컴포넌트 속성</span></nav>
+  <main class="MainContent">
+    <h1>9.4 서브 컴포넌트 속성</h1>
+    <p>다음은 React와 Vue 서브 컴포넌트에 직접 지정하는 속성입니다.
+      피벗 엔진의 속성은 <code>pivotProps</code> 또는 수동 생성 시 <code>create()</code>에 전달합니다.</p>
+    <nav class="mcp-toc" aria-label="컴포넌트 속성">
+      <a href="#autoResize">autoResize</a><a href="#createOnMounted">createOnMounted</a><a href="#name">name</a>
+      <a href="#pivotProps">pivotProps</a><a href="#resizeDelayTime">resizeDelayTime</a><a href="#resizeMode">resizeMode</a>
+      <a href="#waitPortalRendering">waitPortalRendering</a><a href="#size">크기 설정</a><a href="frameworks.html">공통 안내</a>
+    </nav>
+    <!-- 작은 화면에서는 속성 이름과 타입을 잘게 나누지 않고 표만 가로로 탐색합니다. -->
+    <div class="framework-props-scroll" role="region" aria-label="컴포넌트 속성 표" tabindex="0">
+    <table class="framework-props-table">
+      <thead><tr><th scope="col">속성</th><th scope="col">타입</th><th scope="col">기본값</th><th scope="col">지원 컴포넌트</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#autoResize">autoResize</a></td><td>boolean</td><td>true</td><td>React, Vue의 JavaScript 및 TypeScript</td></tr>
+        <tr><td><a href="#createOnMounted">createOnMounted</a></td><td>boolean</td><td>true</td><td>네 컴포넌트 공통</td></tr>
+        <tr><td><a href="#name">name</a></td><td>string</td><td>빈 문자열</td><td>네 컴포넌트 공통</td></tr>
+        <tr><td><a href="#pivotProps">pivotProps</a></td><td>Props 객체</td><td>{}</td><td>네 컴포넌트 공통</td></tr>
+        <tr><td><a href="#resizeDelayTime">resizeDelayTime</a></td><td>number</td><td>300 (밀리초)</td><td>네 컴포넌트 공통</td></tr>
+        <tr><td><a href="#resizeMode">resizeMode</a></td><td>"window" | "container"</td><td>"window"</td><td>네 컴포넌트 공통</td></tr>
+        <tr><td><a href="#waitPortalRendering">waitPortalRendering</a></td><td>boolean</td><td>false</td><td>React JavaScript 및 TypeScript만 지원</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h2 id="autoResize">9.4.1 autoResize</h2>
+    <p>컴포넌트가 크기 변경을 감지해 피벗 크기를 자동으로 맞출지 지정합니다. 기본값은 <code>true</code>입니다.
+      <code>false</code>이면 자동 감지를 사용하지 않으며, 필요할 때 ref의 <code>resize()</code>를 직접 호출합니다.</p>
+    <h2 id="createOnMounted">9.4.2 createOnMounted</h2>
+    <p>마운트 시 <code>pivotProps</code>로 피벗을 자동 생성합니다. 기본값은 <code>true</code>입니다.
+      <code>false</code>이면 DOM이 준비된 후 ref의 <code>create(pivotProps)</code>를 호출하십시오.
+      행, 열, 값 설정과 데이터 입력은 생성 이후에 수행합니다.</p>
+    <h2 id="name">9.4.3 name</h2>
+    <p>피벗 영역의 DOM ID에 사용할 이름입니다. 기본값인 빈 문자열이면 이름을 자동 생성합니다.
+      명시한 경우 <code>aui-pivot-wrap-이름</code> 형태가 되므로 같은 화면에서 중복되지 않는 값을 사용하십시오.
+      생성 후 이름을 바꾸지 않습니다. 실제 피벗 ID는 ref의 <code>getPID()</code>로 확인할 수 있습니다.</p>
+    <h2 id="pivotProps">9.4.4 pivotProps</h2>
+    <p>자동 생성 시 사용할 <a href="../Pivot/Properties.html">피벗 엔진 속성</a>입니다. 기본값은 빈 객체입니다.
+      TypeScript에서는 <code>aui-pivot</code>의 <code>Props</code>로 선언합니다.
+      수동 생성에서는 이 객체를 <code>create(pivotProps)</code>에 직접 전달합니다.</p>
+<pre><code class="language-javascript">// 너비를 생략하면 부모 영역에 맞춥니다. 높이 단위는 픽셀입니다.
+const pivotProps = {
+    height: 400,
+    layoutType: 'table',
+    showPivotPanel: true
+};</code></pre>
+    <p>생성 후 객체 변경을 자동으로 반영하지 않습니다. <code>setProp()</code> 등 해당 속성의 적용 API를 사용하십시오.</p>
+    <h2 id="resizeDelayTime">9.4.5 resizeDelayTime</h2>
+    <p>크기 변경을 감지한 뒤 자동 조정을 실행하기까지 기다리는 시간입니다. 기본값은 <code>300</code>밀리초입니다.
+      <code>0</code> 이상의 숫자를 지정하며, 연속 알림은 마지막 알림 기준으로 합칩니다.
+      수동 <code>resize()</code> 호출에는 이 대기 시간을 적용하지 않습니다.</p>
+    <h2 id="resizeMode">9.4.6 resizeMode</h2>
+    <p><code>autoResize=true</code>일 때 감지 대상을 지정합니다. 기본값은 <code>"window"</code>입니다.</p>
+    <ul>
+      <li><code>window</code>: 브라우저 창의 resize 이벤트를 감지합니다.</li>
+      <li><code>container</code>: ResizeObserver로 피벗 호스트 영역의 크기를 감지합니다.
+        사이드바, 분할 화면, CSS 레이아웃처럼 창 크기가 그대로인 상태의 영역 변경에 사용합니다.</li>
+    </ul>
+    <p>컨테이너 모드에서는 <code>resizeDelayTime</code> 이후 다음 화면 프레임에서 크기를 맞춥니다.
+      숨겨져 있거나 화면에서 해제된 영역, 크기가 같은 반복 알림은 처리하지 않습니다.
+      ResizeObserver를 지원하지 않는 환경에서는 창 resize 이벤트로 대체합니다.</p>
+<pre><code class="language-jsx">// React: 자동 생성과 부모 영역 크기 감지를 함께 사용합니다.
+&lt;AUIPivot ref={myPivot} pivotProps={pivotProps}
+    resizeMode="container" resizeDelayTime={100} /&gt;</code></pre>
+<pre><code class="language-html">&lt;!-- Vue: 숫자와 객체 속성은 바인딩으로 전달합니다. --&gt;
+&lt;AUIPivot ref="myPivot" :pivotProps="pivotProps"
+    resizeMode="container" :resizeDelayTime="100" /&gt;</code></pre>
+    <h2 id="waitPortalRendering">9.4.7 waitPortalRendering</h2>
+    <p>React에서 자동 생성을 한 프레임 늦춥니다. 기본값은 <code>false</code>이며 React JavaScript와 TypeScript만 지원합니다.
+      <code>createOnMounted=true</code>일 때 적용됩니다. 수동 <code>create()</code>에는 적용되지 않습니다.</p>
+    <p>이 설정은 Portal의 생성 시점을 조절하는 옵션입니다. 애니메이션이나 숨겨진 탭의 표시 완료까지 기다리는 설정은 아닙니다.</p>
+    <h2 id="size">9.4.8 크기 설정과 표시 시점</h2>
+    <p><code>width</code>, <code>height</code>는 피벗 엔진의 숫자 속성입니다.
+      부모 너비에 맞추려면 <code>width</code>를 생략하십시오. <code>width: "100%"</code>와 같은 문자열을 넣지 않습니다.
+      부모 영역에는 실제 너비가 있어야 하며 Flex나 Grid 항목이 줄어들어야 할 때는 <code>min-width: 0</code>을 지정합니다.</p>
+    <p>일정한 높이가 필요하면 <code>height</code>에 픽셀 값을 지정합니다.
+      컨테이너 감지는 피벗의 데이터에 따른 자동 높이 정책을 바꾸거나 부모 높이를 항상 채우도록 강제하지 않습니다.</p>
+    <p>숨겨진 탭, 접힌 패널이나 이동 중인 모달은 표시된 후 크기를 맞추십시오.
+      컨테이너 모드는 영역이 다시 나타나면 재측정하며, 수동으로 제어할 때는 표시 전환이 끝난 뒤 <code>resize()</code>를 호출합니다.</p>
+    <p>래퍼 속성은 생성 전 설정을 기준으로 사용합니다. 생성 후 감지 방식을 바꾸어야 하면 새 설정으로 컴포넌트를 다시 마운트하십시오.
+      Vue의 <code>KeepAlive</code> 동작은 <a href="vue.html#lifecycle">생성과 해제 시점</a>을 참고하십시오.</p>
+    <p><a href="../index.html">문서 홈으로 돌아가기</a></p>
+  </main>
+<footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body>
+</html>

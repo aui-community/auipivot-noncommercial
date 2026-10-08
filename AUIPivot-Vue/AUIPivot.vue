@@ -4,7 +4,7 @@
 <script>
 	/* eslint-disable */
 	/**
-	 * AUIPivot.vue for Vue.js v1.2.20261007
+	 * AUIPivot.vue for Vue.js v1.2.20261008
 	 * Based on AUIPivot v2.7.0
 	 * Copyright © AUISoft Co., Ltd.
 	 * www.auisoft.net
@@ -18,6 +18,67 @@
 	// 이 아래 소스는 절대 수정하지 마세요.
 	const $ag = typeof window === 'undefined' ? {} : window.AUIPivot;
 
+	// 호스트 DIV의 크기만 관찰하고, 해제된 관찰 알림이 새 피벗에 간섭하지 않게 합니다.
+	function createContainerResize(getPID, getDelay) {
+		let observer = null, host = null, timer = null, frame = null;
+		let generation = 0, width = -1, height = -1;
+		function stop() {
+			generation++;
+			if (observer) observer.disconnect();
+			observer = null;
+			window.removeEventListener('resize', schedule);
+			if (timer !== null) clearTimeout(timer);
+			if (frame !== null) window.cancelAnimationFrame(frame);
+			timer = frame = null;
+			host = null;
+			width = height = -1;
+		}
+		function schedule() {
+			if (!host) return;
+			const current = generation;
+			if (timer !== null) clearTimeout(timer);
+			if (frame !== null) window.cancelAnimationFrame(frame);
+			frame = null;
+			// 연속 알림을 지정한 지연 시간으로 합친 뒤 한 프레임에서 크기를 반영합니다.
+			timer = setTimeout(() => {
+				if (current !== generation) return;
+				timer = null;
+				frame = window.requestAnimationFrame(() => {
+					if (current !== generation || !host) return;
+					frame = null;
+					const pid = getPID();
+					if (!host.isConnected || document.getElementById(pid.slice(1)) !== host || !$ag.isCreated(pid)) return;
+					const nextWidth = host.offsetWidth, nextHeight = host.offsetHeight;
+					// 숨겨진 영역은 다시 나타났을 때 같은 크기라도 재측정합니다.
+					if (nextWidth <= 5 || nextHeight <= 5) { width = height = -1; return; }
+					if (nextWidth === width && nextHeight === height) return;
+					width = nextWidth;
+					height = nextHeight;
+					$ag.resize(pid);
+					// 데이터에 따라 엔진이 높이를 조절한 결과는 새 변경으로 반복 처리하지 않습니다.
+					if (current === generation && host) { width = host.offsetWidth; height = host.offsetHeight; }
+				});
+			}, getDelay());
+		}
+		function start() {
+			const target = document.getElementById(getPID().slice(1));
+			if (!target || host === target) return;
+			stop();
+			host = target;
+			const current = generation;
+			if (typeof window.ResizeObserver === 'function') {
+				observer = new window.ResizeObserver(() => { if (current === generation) schedule(); });
+				observer.observe(target, { box: 'border-box' });
+			} else {
+				// 관찰 API가 없는 환경에서는 기존 창 크기 이벤트로 대체합니다.
+				window.addEventListener('resize', schedule);
+			}
+			schedule();
+		}
+		// 네이티브 핸들은 함수 내부에 두고, Vue에서도 프록시가 되지 않는 제어기만 노출합니다.
+		return Object.freeze({ start, stop });
+	}
+
 	export default {
 		name: 'AUIPivot',
 		props: {
@@ -28,6 +89,12 @@
 			autoResize: {
 				type: Boolean,
 				default: true
+			},
+			// 생성 시 자동 감지 대상을 선택합니다. pivotProps에 넣지 않습니다.
+			resizeMode: {
+				type: String,
+				default: 'window',
+				validator: (value) => value === 'window' || value === 'container'
 			},
 			resizeDelayTime: {
 				type: Number,
@@ -46,6 +113,8 @@
 		},
 		data: () => ({
 			timerId: null,
+			auiResizeInactive: false,
+			auiContainerResize: null,
 			auiMountGeneration: 0
 		}),
 		created: function () {
@@ -73,6 +142,15 @@
 			// for Vue 3
 			this.__resetGlobalReisze();
 			if ($ag.isCreated(this.pid)) $ag.destroy(this.pid, true);
+		},
+		// KeepAlive는 피벗 데이터는 보존하고 비활성 기간의 관찰만 멈춥니다.
+		activated() {
+			this.auiResizeInactive = false;
+			if (this.resizeMode === 'container' && $ag.isCreated(this.pid)) this.__setupGlobalResize();
+		},
+		deactivated() {
+			this.auiResizeInactive = true;
+			if (this.auiContainerResize) this.auiContainerResize.stop();
 		},
 		methods: {
 			__setupEvents() {
@@ -114,9 +192,16 @@
 			},
 			__setupGlobalResize() {
 				if (!this.autoResize) return;
+				if (this.resizeMode === 'container') {
+					if (this.auiResizeInactive) return;
+					if (!this.auiContainerResize) this.auiContainerResize = createContainerResize(() => this.pid, () => this.resizeDelayTime);
+					this.auiContainerResize.start();
+					return;
+				}
 				window.addEventListener('resize', this.__globalResizeHandler);
 			},
 			__resetGlobalReisze() {
+				if (this.auiContainerResize) this.auiContainerResize.stop();
 				this.auiMountGeneration++;
 				if (this.timerId !== null) {
 					clearTimeout(this.timerId);
@@ -193,6 +278,8 @@
 				return $ag.createSlicer.call($ag, this.pid, arguments[0], arguments[1]);
 			},
 			destroy(includePanelParent) {
+				// 수동 제거 후 다시 생성할 때 이전 알림이 남지 않게 합니다.
+				if (this.auiContainerResize) this.auiContainerResize.stop();
 				$ag.destroy.call($ag, this.pid, arguments[0]);
 			},
 			destroyPivotPanel(includeParent) {

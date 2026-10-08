@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AUIPivot Vue에서 사용하기. 설치, 예제, 메소드와 이벤트 사용 방법을 안내합니다.">
+  <title>Vue에서 사용하기 | AUIPivot 2.7 Documentation</title>
+  
+  <link rel="stylesheet" href="../static/prism.css">
+  <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="../static/typography.css">
+  <link rel="stylesheet" href="../static/code-examples.css">
+  <link rel="stylesheet" href="../static/mcp-guide.css">
+  <script src="../static/prism.js" data-manual></script>
+  <script src="../static/code-examples.js"></script>
+
+<link rel="icon" href="../static/favicon.ico" sizes="any">
+<link rel="icon" href="../static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../static/apple-touch-icon.png">
+<meta name="theme-color" content="#222729">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../static/docs-brand.css">
+<link rel="stylesheet" href="../static/package-header.css">
+</head>
+<body class="demo-typography mcp-guide docs-site">
+  <!-- 웹사이트와 제품 패키지의 공통 머리글은 문서 생성기가 각각 적용합니다. -->
+  <header class="docs-header"><div class="docs-header-inner">
+    <a id="logo-bar" class="docs-brand docs-package-brand" href="../index.html" aria-label="AUIPivot 문서 홈">
+      <img src="../static/auipivot-mark.svg" width="40" height="40" alt="">
+      <span id="title">AUIPivot v<span data-documentation-version>2.7</span> DOCUMENTATION</span>
+    </a>
+  </div></header><nav class="docs-breadcrumb" aria-label="현재 위치"><a href="../index.html">문서</a><span aria-hidden="true">/</span><span>AUIPivot</span><span aria-hidden="true">/</span><span aria-current="page">9.3 Vue에서 사용하기</span></nav>
+  <main class="MainContent">
+    <h1>9.3 Vue에서 사용하기</h1>
+    <p>Vue 3의 <code>script setup</code>에서 템플릿 ref로 서브 컴포넌트를 참조하고, <code>onMounted</code>에서 초기화합니다.</p>
+    <nav class="mcp-toc" aria-label="Vue 문서">
+      <a href="#javascript">JavaScript</a><a href="#typescript">TypeScript</a><a href="#methods">메소드와 이벤트</a>
+      <a href="#lifecycle">생성과 해제</a><a href="component-props.html">컴포넌트 속성</a><a href="frameworks.html">공통 안내</a>
+    </nav>
+    <h2 id="javascript">9.3.1 JavaScript 예제</h2>
+    <p><a href="frameworks.html#prepare">파일 준비</a>를 마친 샘플 프로젝트에서 사용할 수 있는 예제입니다.
+      아래 파일은 <code>src/samples/Report.vue</code>에 둔다고 가정합니다.
+      샘플에 포함된 <code>public/data/car_sales.json</code>을 읽으며, 실제 배치 위치에 맞춰 경로를 바꾸십시오.</p>
+    <p>예제는 <code>createOnMounted=false</code>로 자동 생성을 끄고 <code>init()</code>에서
+      <code>createPivotGrid()</code>를 호출해 한 번 생성합니다. 행은 지점과 차종, 열은 색상, 값은 매출 합계입니다.
+      <code>requestData()</code>에서 자료를 읽은 후 <code>setGridData()</code>로 집계합니다.</p>
+<pre><code class="language-html">&lt;script setup&gt;
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import AUIPivot from '../static/AUIPivot-Vue/AUIPivot.vue';
+const pivotProps = { height: 400 };
+const myPivot = ref(null);
+let disposed = false;
+// 시작점에서 피벗을 생성한 뒤 자동차 자료를 읽습니다.
+function init() {
+    createPivotGrid();
+    requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
+}
+function createPivotGrid() {
+    const pivot = myPivot.value;
+    if (!pivot) return;
+    pivot.create(pivotProps);
+    pivot.setRowFields(['REGION', 'NAME']);
+    pivot.setColumnFields(['COLOR']);
+    pivot.setValueFields([{ dataField: 'TOTAL', operation: 'SUM' }]);
+    pivot.bind('pivotComplete', event =&gt; console.log(event.type));
+}
+// 요청 도중 화면이 해제되면 결과를 사용하지 않습니다.
+function requestData(url) {
+    return fetch(url).then(response =&gt; {
+        if (!response.ok) throw new Error('자료 요청 실패');
+        return response.json();
+    }).then(data =&gt; {
+        const pivot = myPivot.value;
+        if (!disposed &amp;&amp; pivot?.isCreated()) pivot.setGridData(data);
+    }).catch(error =&gt; { if (!disposed) console.error(error); });
+}
+onMounted(init);
+onBeforeUnmount(() =&gt; { disposed = true; });
+&lt;/script&gt;
+&lt;template&gt;
+    &lt;AUIPivot ref="myPivot" :createOnMounted="false"
+        resizeMode="container" :resizeDelayTime="100" /&gt;
+&lt;/template&gt;</code></pre>
+    <h2 id="typescript">9.3.2 TypeScript 예제</h2>
+    <p><code>lang="ts"</code>를 지정하고 TypeScript용 <code>AUIPivotT.vue</code>를 가져옵니다.
+      엔진 속성은 <code>IPivot.Props</code>, 컴포넌트 참조는 <code>InstanceType&lt;typeof AUIPivot&gt;</code>으로 지정합니다.</p>
+<pre><code class="language-html">&lt;script setup lang="ts"&gt;
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import AUIPivot from '../static/AUIPivot-Vue/AUIPivotT.vue';
+import type * as IPivot from 'aui-pivot';
+const pivotProps: IPivot.Props = { height: 400 };
+const myPivot = ref&lt;InstanceType&lt;typeof AUIPivot&gt; | null&gt;(null);
+let disposed = false;
+// 시작점에서 피벗을 생성한 뒤 자동차 자료를 읽습니다.
+function init() {
+    createPivotGrid();
+    requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
+}
+function createPivotGrid() {
+    const pivot = myPivot.value;
+    if (!pivot) return;
+    pivot.create(pivotProps);
+    pivot.setRowFields(['REGION', 'NAME']);
+    pivot.setColumnFields(['COLOR']);
+    pivot.setValueFields([{ dataField: 'TOTAL', operation: 'SUM' }]);
+    pivot.bind('pivotComplete', event =&gt; console.log(event.type));
+}
+// 요청 도중 화면이 해제되면 결과를 사용하지 않습니다.
+function requestData(url: string) {
+    return fetch(url).then(response =&gt; {
+        if (!response.ok) throw new Error('자료 요청 실패');
+        return response.json();
+    }).then(data =&gt; {
+        const pivot = myPivot.value;
+        if (!disposed &amp;&amp; pivot?.isCreated()) pivot.setGridData(data);
+    }).catch(error =&gt; { if (!disposed) console.error(error); });
+}
+onMounted(init);
+onBeforeUnmount(() =&gt; { disposed = true; });
+&lt;/script&gt;
+&lt;template&gt;
+    &lt;AUIPivot ref="myPivot" :createOnMounted="false"
+        resizeMode="container" :resizeDelayTime="100" /&gt;
+&lt;/template&gt;</code></pre>
+    <h2 id="methods">9.3.3 메소드 호출과 이벤트</h2>
+    <p><code>myPivot.value</code>의 메소드는 피벗 ID를 자동으로 전달합니다.
+      <code>myPivot.value?.setGridData(data)</code>처럼 ID를 제외하고 호출하십시오.</p>
+    <p>템플릿 이벤트는 피벗 생성 시 연결됩니다. 다음 코드는 위 예제에 셀 클릭 처리를 추가하는 부분입니다.</p>
+<pre><code class="language-html">&lt;!-- 기존 AUIPivot 태그에 셀 클릭 처리기를 연결합니다. --&gt;
+&lt;AUIPivot ref="myPivot" :createOnMounted="false" @cellClick="onCellClick" /&gt;
+
+&lt;script setup lang="ts"&gt;
+import type { CellClickEvent } from 'aui-pivot';
+// 기존 script setup 블록에 추가합니다.
+function onCellClick(event: CellClickEvent) {
+    console.log(event.value);
+}
+&lt;/script&gt;</code></pre>
+    <p>같은 이벤트를 템플릿과 <code>bind()</code> 양쪽에 중복 등록하지 마십시오.
+      생성 후 새로 등록할 때는 <code>myPivot.value?.bind('cellClick', handler)</code>를 사용하고,
+      선택적으로 해제할 때는 동일한 함수 참조를 <code>unbind('cellClick', handler)</code>에 전달합니다.</p>
+    <p><a href="../Pivot/Events.html#pivotBegin">pivotBegin</a>, <a href="../Pivot/Events.html#headerClick">headerClick</a>,
+      <a href="../Pivot/Events.html#contextMenu">contextMenu</a>는 처리기의 반환값을 사용합니다.
+      템플릿에 함수 하나를 연결하고 그 함수에서 값을 직접 반환하십시오. 각 이벤트의 취소 및 반환 규칙은 API 문서를 따릅니다.</p>
+
+    <h2 id="lifecycle">9.3.4 생성과 해제 시점</h2>
+    <ul>
+      <li><code>createOnMounted</code>의 기본값은 <code>true</code>입니다. 자동 생성 시에는 <code>:pivotProps="pivotProps"</code>를 전달하고,
+        부모의 <code>onMounted</code>에서 필드와 데이터를 설정합니다. 이 경우 <code>create()</code>를 다시 호출하지 않습니다.</li>
+      <li>컴포넌트가 해제되면 피벗과 크기 감지 작업도 정리됩니다. 예제는 <code>onBeforeUnmount</code>에서 요청 결과의 적용도 중지합니다.</li>
+      <li>Vue의 반응형 <code>pivotProps</code>를 바꾸는 것만으로 생성된 피벗이 갱신되지는 않습니다.
+        <a href="../Pivot/Methods.html#setProp">setProp()</a>와 <a href="../Pivot/Methods.html#refresh">refresh()</a> 등 해당 API를 사용합니다.</li>
+    </ul>
+    <p><code>KeepAlive</code>와 <code>resizeMode="container"</code>를 함께 쓰면 비활성화 중에는 크기 관찰을 멈추고,
+      다시 활성화될 때 관찰을 재개합니다. 피벗과 기존 데이터는 유지됩니다.
+      <code>window</code> 모드에서는 창 크기가 바뀌지 않은 탭 전환을 자동 감지하지 않으므로 표시 후 <code>resize()</code>를 호출하십시오.</p>
+    <p><code>v-if</code>로 만든 영역은 <code>nextTick()</code> 이후 실제 DOM이 연결되어 있는지 확인합니다.
+      전환 효과가 있다면 표시 전환이 끝난 시점에 <code>resize()</code>를 호출하십시오.
+      <code>nextTick()</code>만으로 애니메이션 완료가 보장되지는 않습니다.</p>
+    <p>Vue 컴포넌트에는 <code>waitPortalRendering</code> 속성이 없습니다.
+      서버 렌더링 환경에서는 엔진과 컴포넌트를 클라이언트에서만 불러오고, DOM이 준비된 뒤 생성하십시오.
+      자세한 크기 설정은 <a href="component-props.html#size">크기 감지와 표시 시점</a>을 참고하십시오.</p>
+    <p><a href="../index.html">문서 홈으로 돌아가기</a></p>
+  </main>
+<footer class="docs-footer"><div><a href="../index.html">AUIPivot 문서</a><a href="https://www.auisoft.net/">AUISoft 홈페이지</a></div><span>Copyright(c) 2026 AUISoft Co., Ltd. All Right Reserved</span></footer></body>
+</html>

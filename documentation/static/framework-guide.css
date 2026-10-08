@@ -1,0 +1,26 @@
+/* 네 열의 속성 이름과 타입은 읽을 수 있는 폭을 유지하고 표 내부에서만 가로로 스크롤합니다. */
+.framework-props-scroll {
+    overflow-x: auto;
+    margin: 16px 0;
+}
+.framework-props-scroll:focus-visible {
+    outline: 2px solid #337ab7;
+    outline-offset: 2px;
+}
+.framework-props-scroll .framework-props-table {
+    min-width: 720px;
+    margin: 0;
+    border: 1px solid var(--docs-line);
+}
+/* 스크롤 영역 안에서도 공통 문서 표의 테두리와 제목 배경을 유지합니다. */
+.framework-props-table :is(th, td) {
+    padding: 12px;
+    border: 1px solid var(--docs-line);
+}
+.framework-props-table th {
+    background: var(--docs-surface);
+    color: var(--docs-muted);
+}
+.framework-props-table :is(th, td):first-child {
+    white-space: nowrap;
+}
