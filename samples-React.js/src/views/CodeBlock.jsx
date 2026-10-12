@@ -7,6 +7,7 @@ import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-markup';
 
+// 예제 코드에 구문 강조를 적용하고 원문 그대로 복사할 수 있게 표시합니다.
 const CodeBlock = ({ language = 'javascript', children }) => {
 	const codeBlockRef = useRef(null);
 	const [copyLabel, setCopyLabel] = useState('복사');

@@ -1,6 +1,6 @@
 /**
- * AUIPivotReact.tsx v1.2.20261008
- * Based on AUIPivot v2.7.0
+ * AUIPivotReact.tsx v1.2.20261012
+ * Based on AUIPivot v2.8.0
  * Copyright © AUISoft Co., Ltd.
  * www.auisoft.net
  */
@@ -219,8 +219,10 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<AUI
 	createPivotPanel(props?: IPivot.PanelProps): void {
 		return this.__api.createPivotPanel(this.pid, props);
 	}
-	createSlicer(container: string, options: IPivot.SlicerOptions): string | undefined {
-		return this.__api.createSlicer(this.pid, container, options);
+	createSlicer(...args: [] | [container: string, options: IPivot.SlicerOptions]): string | undefined {
+		// 2.8의 삽입 창 호출과 기존 수동 생성의 반환값을 함께 보존합니다.
+		const create = this.__api.createSlicer as (pid: string, ...args: [] | [string, IPivot.SlicerOptions]) => string | undefined;
+		return create.call(this.__api, this.pid, ...args);
 	}
 	destroy(includePanelParent?: boolean): void {
 		// 수동 제거에서도 관찰과 예약을 해제하고 create()에서 다시 연결합니다.
@@ -343,7 +345,7 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<AUI
 	getProperty<K extends keyof IPivot.Props>(name: K): IPivot.Props[K] {
 		return this.__api.getProperty(this.pid, name);
 	}
-	getReportDefinition(): IPivot.PivotReportDefinitionV3 | null {
+	getReportDefinition(): IPivot.PivotReportDefinitionV3 | IPivot.PivotReportDefinitionV4 | null {
 		return this.__api.getReportDefinition(this.pid);
 	}
 	getRowCount(): number {
@@ -447,6 +449,13 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<AUI
 	}
 	setDateTypeField(field: string | null): void {
 		return this.__api.setDateTypeField(this.pid, field);
+	}
+	// 집계 후 수식 정의와 값 영역 배치를 독립적으로 관리합니다.
+	setFormulaFields(fields: IPivot.FormulaField[]): void {
+		return this.__api.setFormulaFields(this.pid, fields);
+	}
+	getFormulaFields(): IPivot.FormulaField[] | null {
+		return this.__api.getFormulaFields(this.pid);
 	}
 	setDerivedFields(fields: IPivot.DerivedField[]): void {
 		return this.__api.setDerivedFields(this.pid, fields);

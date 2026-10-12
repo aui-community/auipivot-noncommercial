@@ -4,8 +4,9 @@ import AUIPivot from '@/static/AUIPivot-React/AUIPivotReact';
 // 엑셀과 PDF 다운로드를 브라우저에서 처리하기 위한 file-saver
 import 'file-saver';
 
+// 행 필드를 각각의 칼럼에 표시하고 필드 패널과 엑셀 내보내기를 제공하는 예제입니다.
 const TableLayout = () => {
-	// 그리드 객체
+	// 컴포넌트의 피벗 인스턴스에 접근할 참조를 보관합니다.
 	const myPivot = useRef();
 
 	// 피벗 속성 정의
@@ -41,7 +42,7 @@ const TableLayout = () => {
 		};
 	}, []);
 
-	// 피벗 그리드 이벤트 세팅
+	// 집계 시작과 완료 이벤트를 연결해 처리 상태와 소요 시간을 확인합니다.
 	const setupGridEvents = () => {
 		const pivot = myPivot.current;
 		// 피벗 그리드 이벤트 바인딩
@@ -58,23 +59,23 @@ const TableLayout = () => {
 		});
 	};
 
-	//피벗 그리드 해당 데이터로 초기화 및 피벗팅 시작
+	// 행과 열의 분류와 값 집계를 설정한 뒤 원본을 입력해 보고서를 만듭니다.
 	const initPivotData = (data) => {
 		const pivot = myPivot.current;
 
-		// 행 필드
+		// 세로로 묶어 표시할 행 필드를 상위 항목부터 순서대로 지정합니다.
 		pivot.setRowFields(['REGION', 'NAME', 'MODEL']);
 
-		// 열 필드
+		// 가로로 나눌 열 필드를 바깥 분류부터 순서대로 지정합니다.
 		pivot.setColumnFields(['DATE_QTR', 'DATE_MONTH']);
 
-		// 값 필드
+		// 집계할 원본 필드, 연산과 숫자 표시 형식을 지정합니다.
 		pivot.setValueFields([
 			{ dataField: 'TOTAL', operation: 'SUM', formatString: '#,##0' },
 			{ dataField: 'COUNT', operation: 'SUM', formatString: '#,##0' }
 		]);
 
-		// 필터 필드
+		// 행과 열 배치를 바꾸지 않고 조회 범위를 좁힐 필터 필드를 지정합니다.
 		pivot.setFilterFields(['COLOR']);
 
 		// 데이터 중 날짜 필드를 명시하여 연, 반기, 분기 등으로 나눠 표시하도록 지시
@@ -98,10 +99,11 @@ const TableLayout = () => {
 			DATE_MONTH: '월'
 		});
 
-		// 피봇그리드에 데이터 삽입
+		// 준비한 필드 설정에 원본 데이터를 입력해 피벗 집계를 시작합니다.
 		pivot.setGridData(data);
 	};
 
+	// 이미 만든 필드 패널은 다시 표시하고, 아직 없으면 이 예제의 위치와 옵션으로 생성합니다.
 	const openPivotPanel = () => {
 		const pivot = myPivot.current;
 
@@ -131,6 +133,7 @@ const TableLayout = () => {
 		}
 	};
 
+	// 현재 피벗 결과를 엑셀 파일로 내보내고 다운로드 진행 상태를 표시합니다.
 	const exportClick = () => {
 		const pivot = myPivot.current;
 		// 내보내기 속성

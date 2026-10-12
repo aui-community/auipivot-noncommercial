@@ -48,3 +48,10 @@ const resizeOptions: AUIPivotWrapperProps = { resizeMode: 'container', resizeDel
 // @ts-expect-error 지원하지 않는 감지 방식입니다.
 const wrongResize: AUIPivotWrapperProps = { resizeMode: 'parent' };
 void resizeOptions; void wrongResize;
+
+// 삽입 창의 인수 생략과 수동 생성의 필수 인수 쌍을 확인합니다.
+pivot.createSlicer();
+const slicerID: string | undefined = pivot.createSlicer('#slicer', {dataField:'REGION'});
+void slicerID;
+// @ts-expect-error 영역만 지정한 불완전한 수동 호출은 허용하지 않습니다.
+pivot.createSlicer('#slicer');

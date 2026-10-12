@@ -26,6 +26,7 @@
 			const nextHref = new URL(filename, link.href).href;
 			if (link.href === nextHref) return;
 			return new Promise((resolve, reject) => {
+				// 테마 CSS의 로드 결과를 알리고 일회성 이벤트 연결을 정리합니다.
 				function finish(event) {
 					link.removeEventListener('load', finish);
 					link.removeEventListener('error', finish);
@@ -86,6 +87,7 @@
 			/* 저장하지 못하면 시스템 설정을 사용합니다. */
 		}
 		toggle.checked = saved === 'dark' || (saved !== 'light' && !!window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+		// Nova 테마의 밝게, 어둡게 선택을 문서의 테마 속성에 반영합니다.
 		function applyMode() {
 			if (toggle.checked) document.documentElement.setAttribute('data-aui-theme', 'dark');
 			else document.documentElement.removeAttribute('data-aui-theme');

@@ -1,184 +1,164 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>버튼으로 지점, 차종, 분기 선택하기 | AUIPivot</title>
-        <!-- This project uses Prism.js (https://prismjs.com/) Licensed under the MIT License (https://opensource.org/licenses/MIT) -->
-        <link rel="stylesheet" href="./prism.css" />
-        <!-- 동적 예제와 소스 창도 같은 시점에 강조하도록 자동 실행 대신 직접 적용합니다. -->
-        <script src="./prism.js" data-manual></script>
-        <!-- 기존 정식 데모의 글꼴과 본문, 버튼 스타일을 사용합니다. -->
-        <link rel="stylesheet" href="./standalone-demo.css" />
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+<title>AUIPivot v2.8 Samples</title>
 
-        <!-- AUIPivot CSS 파일 -->
+<!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+<!-- 공통 시작부에서 홈페이지 헤더, 코드 보기와 데모 초기화 자원을 함께 준비합니다. -->
+<!-- 본 데모를 위한 CSS 파일 -->
+<link href="./demo.css" rel="stylesheet" />
+
+<!-- AUIPivot CSS 파일 -->
 <link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
 
-        <style>
-            /* 슬라이서 세 개와 피벗을 기존 데모의 본문 폭 안에 배치합니다. */
-            #slicers {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 14px;
-                width: 1000px;
-                max-width: 100%;
-                margin: 0 0 16px;
-            }
-            #pivot {
-                width: 1000px;
-                max-width: 100%;
-                height: 480px;
-            }
-            #status {
-                min-height: 18px;
-            }
-            @media (max-width: 700px) {
-                #slicers {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
+<style>
+    /* 삽입한 슬라이서는 별도 창으로 표시하고 본문에는 월별 보고서만 배치합니다. */
+    #pivot {
+        width: 1000px;
+        max-width: 100%;
+        height: 480px;
+    }
+    #status {
+        min-height: 18px;
+    }
+</style>
 
-        <!-- 피벗 한국어 메시지 -->
-        <script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+<!-- 피벗 한국어 메시지 -->
+<script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
 
-        <!-- AUIPivot 라이선스 파일 -->
+<!-- AUIPivot 라이선스 파일 -->
 <script src="../AUIPivot/AUIPivotLicense.js"></script>
 
-        <!-- AUIPivot 컴포넌트 JS 파일 -->
+<!-- AUIPivot 컴포넌트 JS 파일 -->
 <script src="../AUIPivot/AUIPivot.js"></script>
 
-        <!-- 코드 복사 도구는 피벗 초기화 전에 준비합니다. -->
-        <script src="./demo-page.js"></script>
-        <!-- 본 데모를 위한 JS 파일 -->
-<script src="./demo.js"></script>
-        <script>
-            // AUIPivot 생성 후 반환 ID와 원본 판매 자료입니다.
-            let myPivotID;
-            let sourceData;
+<script>
+    // AUIPivot 생성 후 반환 ID와 원본 판매 자료입니다.
+    let myPivotID;
+    let sourceData;
 
-            // 시작점: 피벗을 만든 뒤 정적 자동차 판매 자료를 요청합니다.
-            function init() {
-                createPivotGrid();
-                requestData("./data/car_sales.json");
+    // 시작점: 피벗을 만든 뒤 정적 자동차 판매 자료를 요청합니다.
+    function init() {
+        createPivotGrid();
+        requestData("./data/car_sales.json");
+    }
+
+    // 피벗을 표시할 영역과 기본 표시 속성을 지정합니다.
+    function createPivotGrid() {
+        const pivotProps = {
+            showAutoProcessLoader: false,
+            displayTreeOpen: true,
+            // 삽입 창에서 새로 만드는 슬라이서의 초기 너비와 높이(px)입니다.
+            slicerWidth: 320,
+            slicerHeight: 360,
+            defaultFormatString: "#,##0"
+        };
+        myPivotID = AUIPivot.create("#pivot", pivotProps);
+    }
+
+    // 자료를 읽은 뒤 행, 열, 값, 필터와 슬라이서를 연결합니다.
+    function requestData(url) {
+        return fetch(url)
+            .then(function (response) {
+                if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                return response.json();
+            })
+            .then(function (data) {
+                sourceData = data;
+                initPivotData();
+            })
+            .catch(function (error) {
+                document.getElementById("status").textContent = error.message;
+            });
+    }
+
+    // 슬라이서 삽입과 필터 해제를 같은 월별 피벗 보고서에 연결합니다.
+    function initPivotData() {
+        // 차종만 행에 배치합니다. 지점과 분기는 보고서에 배치하지 않고 슬라이서로 사용합니다.
+        AUIPivot.setRowFields(myPivotID, ["NAME"]);
+        // 날짜가 들어 있는 원본 항목을 알려 줍니다. 이를 바탕으로 연, 반기, 분기, 월 항목을 사용할 수 있습니다.
+        AUIPivot.setDateTypeField(myPivotID, "DATE");
+        // 날짜에서 파생한 월을 열에 배치해 슬라이서 선택에 따른 월별 매출과 판매 대수를 비교합니다.
+        AUIPivot.setColumnFields(myPivotID, ["DATE_MONTH"]);
+        // 필터 영역을 비워도 슬라이서가 선택한 조건은 적용됩니다.
+        AUIPivot.setFilterFields(myPivotID, []);
+        // 계산할 항목(dataField)과 계산 방법(operation)을 정합니다. SUM은 합계, AVG는 평균입니다.
+        AUIPivot.setValueFields(myPivotID, [
+            {
+                dataField: "TOTAL",
+                operation: "SUM"
+            },
+            {
+                dataField: "COUNT",
+                operation: "SUM"
             }
+        ]);
+        // 원본 필드명 대신 화면에 보여 줄 이름을 지정합니다.
+        AUIPivot.setFieldAlias(myPivotID, {
+            REGION: "판매 지점",
+            NAME: "차종",
+            MODEL: "모델",
+            COLOR: "색상",
+            PRICE: "가격",
+            DATE: "판매일",
+            DATE_YEAR: "년",
+            DATE_HALF: "반기",
+            DATE_MONTH: "월",
+            DATE_QTR: "분기",
+            TOTAL: "매출액",
+            COUNT: "판매 대수"
+        });
+        AUIPivot.bind(myPivotID, "pivotComplete", updateStatus);
+        // 인수 생략은 필드 선택 창을 열고 확인한 필드의 슬라이서를 자동 배치합니다.
+        document.getElementById("insert-slicer").onclick = function () {
+            // 피벗의 필터와 연동되는 슬라이서를 생성합니다.
+            AUIPivot.createSlicer(myPivotID);
+        };
+        document.getElementById("clear").onclick = function () {
+            AUIPivot.clearFilterAll(myPivotID);
+        };
+        // 이 자료로 표를 계산합니다. 행, 열, 값 설정을 먼저 지정한 다음 데이터를 넣습니다.
+        AUIPivot.setGridData(myPivotID, sourceData);
+    }
 
-            // 피벗을 표시할 영역과 기본 표시 속성을 지정합니다.
-            function createPivotGrid() {
-                const pivotProps = {
-                    showAutoProcessLoader: false,
-                    displayTreeOpen: true,
-                    defaultFormatString: "#,##0"
-                };
-                myPivotID = AUIPivot.create("#pivot", pivotProps);
-            }
-
-            // 자료를 읽은 뒤 행, 값, 필터와 슬라이서를 연결합니다.
-            function requestData(url) {
-                return fetch(url)
-                    .then(function (response) {
-                        if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
-                        return response.json();
-                    })
-                    .then(function (data) {
-                        sourceData = data;
-                        initPivotData();
-                    })
-                    .catch(function (error) {
-                        document.getElementById("status").textContent = error.message;
-                    });
-            }
-
-            // 슬라이서와 필터 해제, 행 배치 조작은 같은 피벗에 적용합니다.
-            function initPivotData() {
-                // 세로로 묶을 항목입니다. 배열의 앞 항목이 바깥 그룹, 뒤 항목이 그 안의 세부 그룹이 됩니다.
-                AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);
-                // 날짜가 들어 있는 원본 항목을 알려 줍니다. 이를 바탕으로 연, 반기, 분기, 월 항목을 사용할 수 있습니다.
-                AUIPivot.setDateTypeField(myPivotID, "DATE");
-                // 자료를 골라 볼 조건을 필터 영역에 놓습니다. 실제 선택값은 필터 메뉴에서 정합니다.
-                AUIPivot.setFilterFields(myPivotID, ["DATE_QTR"]);
-                // 계산할 항목(dataField)과 계산 방법(operation)을 정합니다. SUM은 합계, AVG는 평균입니다.
-                AUIPivot.setValueFields(myPivotID, [
-                    {
-                        dataField: "TOTAL",
-                        operation: "SUM"
-                    },
-                    {
-                        dataField: "COUNT",
-                        operation: "SUM"
-                    }
-                ]);
-                AUIPivot.setFieldAlias(myPivotID, {
-                    REGION: "판매 지점",
-                    NAME: "차종",
-                    DATE_QTR: "분기",
-                    TOTAL: "매출액",
-                    COUNT: "판매 대수"
+    // 전체 매출과 현재 필터를 읽어 상단 안내를 갱신합니다. 필터 자체를 변경하지는 않습니다.
+    function updateStatus() {
+        const cols = AUIPivot.getColumnInfoList(myPivotID),
+            col = cols.find(function (c) {
+                // 첫 월의 값 대신 모든 월을 합한 전체 매출 칼럼의 푸터를 표시합니다.
+                return c.opDataField === "TOTAL::SUM" && c.summaryColumn;
+            });
+        const footer = AUIPivot.getFooterData(myPivotID),
+            value =
+                col &&
+                footer.find(function (f) {
+                    return f.index === col.columnIndex;
                 });
-                AUIPivot.bind(myPivotID, "pivotComplete", updateStatus);
-                // sourceData 입력 전에도 생성할 수 있으며 계산 완료 시 후보가 채워집니다.
-                // 같은 피벗의 필터를 버튼으로 고르는 상자를 만듭니다. 상자를 놓을 요소와 대상 항목을 지정합니다.
-                AUIPivot.createSlicer(myPivotID, "#region-slicer", {
-                    dataField: "REGION",
-                    columnCount: 2
-                });
-                AUIPivot.createSlicer(myPivotID, "#name-slicer", {
-                    dataField: "NAME",
-                    columnCount: 2
-                });
-                AUIPivot.createSlicer(myPivotID, "#quarter-slicer", {
-                    dataField: "DATE_QTR",
-                    columnCount: 2,
-                    showSearch: false
-                });
-                document.getElementById("clear").onclick = function () {
-                    AUIPivot.clearFilterAll(myPivotID);
-                };
-                document.getElementById("layout").onchange = function (event) {
-                    AUIPivot.setProp(myPivotID, "layoutType", event.target.value);
-                    // setProp으로 바꾼 표시 속성을 현재 자료와 보고서 설정에 반영합니다.
-                    AUIPivot.refresh(myPivotID);
-                    updateStatus();
-                };
-                // 이 자료로 표를 계산합니다. 행, 열, 값 설정을 먼저 지정한 다음 데이터를 넣습니다.
-                AUIPivot.setGridData(myPivotID, sourceData);
-            }
-
-            // 전체 매출과 현재 필터를 읽어 상단 안내를 갱신합니다. 필터 자체를 변경하지는 않습니다.
-            function updateStatus() {
-                // 선택 상자에 현재 행 배치를 표시합니다.
-                document.getElementById("layout").value = AUIPivot.getProp(myPivotID, "layoutType");
-                var cols = AUIPivot.getColumnInfoList(myPivotID),
-                    col = cols.find(function (c) {
-                        return c.opDataField === "TOTAL::SUM";
-                    });
-                var footer = AUIPivot.getFooterData(myPivotID),
-                    value =
-                        col &&
-                        footer.find(function (f) {
-                            return f.index === col.columnIndex;
-                        });
-                document.getElementById("status").textContent =
-                    "원본 " +
-                    sourceData.length.toLocaleString() +
-                    "건, 현재 매출 합계 " +
-                    (value && typeof value.value === "number" ? value.value.toLocaleString() : "0") +
-                    "원, 필터 " +
-                    JSON.stringify(AUIPivot.getFilterCache(myPivotID));
-            }
-        </script>
-    </head>
-    <body class="standalone-demo">
-        <!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+        document.getElementById("status").textContent =
+            "원본 " +
+            sourceData.length.toLocaleString() +
+            "건, 현재 매출 합계 " +
+            (value && typeof value.value === "number" ? value.value.toLocaleString() : "0") +
+            "원, 필터 " +
+            JSON.stringify(AUIPivot.getFilterCache(myPivotID));
+    }
+</script>
+</head>
+<body class="standalone-demo">
+<!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
 <a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
 
 <header class="standalone-site-header">
     <div class="standalone-header-inner">
         <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
         <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
-            ><img class="standalone-brand-mark" src="./auipivot-mark.svg" width="40" height="40" alt="" /><span
-                class="demo-brand-copy"
-                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.7</span> DEMO</span></span
+            ><span class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.8</span> Samples</span></span
             ></a
         >
         <nav class="standalone-site-nav" aria-label="제품 탐색">
@@ -190,80 +170,65 @@
     </div>
 </header>
 
-        <div class="wrap">
-            <!-- 설명과 설정 코드는 이 HTML에 두며 전체 소스도 바로 확인할 수 있습니다. -->
-            <nav class="demo-navigation" aria-label="데모 안내">
-                <a href="./index.html#sample-menu">데모 목록</a>
-                <a href="./data/car_sales.json">원본 JSON</a>
-            </nav>
-            <script src="./demo-theme.js"></script>
-            <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
-            <header class="demo-page-intro">
-                <div class="demo-title-line">
-                    <h1>슬라이서로 좁혀 보는 데이터</h1>
-                    <code class="demo-api-label">createSlicer</code>
-                </div>
-                <button type="button" id="demo-open-source" class="demo-source-button">
-                    <span aria-hidden="true">&lt;/&gt;</span>소스 보기
-                </button>
-            </header>
-            <div id="main">
-                <div class="desc">
-                    <p>판매 지점, 차종, 분기를 버튼으로 선택하여 필터링하는 슬라이서 예제입니다.</p>
-                    <p>
-                        createSlicer 메소드에 슬라이서를 놓을 영역과 dataField를 지정하십시오. 반환한 ID로 선택값을
-                        설정하거나 해당 필터를 해제할 수 있습니다.
-                    </p>
-                    <p>
-                        여러 항목은 복수 선택 버튼 또는 Ctrl(Cmd) 키로 선택합니다. 같은 슬라이서의 선택은 함께 포함하고,
-                        서로 다른 슬라이서의 조건은 모두 만족해야 합니다.
-                    </p>
-                    <p>
-                        검색은 버튼 목록만 좁히며 흐린 항목은 다른 필터 조건에서 자료가 없는 항목입니다. 제목을 끌어
-                        이동하고 오른쪽 아래 손잡이로 크기를 조절할 수 있습니다.
-                    </p>
-                    <!-- 슬라이서 생성과 선택에 필요한 설정 예제입니다. -->
-                    <pre class="demo-code" tabindex="0" aria-label="HTML 설정 예제">
-&lt;div id="region-slicer" style="width:320px; height:280px"&gt;&lt;/div&gt;
-</pre>
-                    <pre class="demo-code" tabindex="0" aria-label="JavaScript 설정 예제">
-// 판매 지점을 두 열의 버튼으로 표시합니다.
-const regionSlicerID = AUIPivot.createSlicer(myPivotID, "#region-slicer", {
-    dataField: "REGION",
-    columnCount: 2
-});
-
-// 서울 지점 선택하기
-AUIPivot.setSlicerSelection(myPivotID, regionSlicerID, ["서울 지점"]);
-
-// 이 슬라이서의 필터 해제하기
-AUIPivot.setSlicerSelection(myPivotID, regionSlicerID, null);
-</pre>
-                    <div id="tools">
-                        <button id="clear" class="btn">모든 필터 해제</button
-                        ><label
-                            >행 배치
-                            <select id="layout">
-                                <option>tree</option>
-                                <option>table</option>
-                                <option>tableCellMerge</option>
-                            </select></label
-                        >
-                    </div>
-                    <p id="status" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
-                </div>
-                <div id="slicers">
-                    <div id="region-slicer"></div>
-                    <div id="name-slicer"></div>
-                    <div id="quarter-slicer"></div>
-                </div>
-                <div id="pivot"></div>
-            </div>
-            <footer id="footer" class="demo-footer">
-                <div class="copyright">
-                    <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
-                </div>
-            </footer>
+<div class="wrap">
+    <!-- 설명과 실행 코드는 이 HTML 파일에서 확인할 수 있습니다. -->
+    <nav class="demo-navigation" aria-label="데모 안내">
+        <a href="./index.html#sample-menu">데모 목록</a>
+        <a href="./data/car_sales.json">원본 JSON</a>
+    </nav>
+    <script src="./demo-theme.js"></script>
+    <!-- 탐색과 테마는 위에, 제목과 핵심 API는 같은 줄에 표시합니다. -->
+    <header class="demo-page-intro">
+        <div class="demo-title-line">
+            <h1>슬라이서로 좁혀 보는 데이터</h1>
+            <code class="demo-api-label">createSlicer</code>
         </div>
-    </body>
+    </header>
+    <div id="main">
+        <div class="desc">
+            <p>슬라이서 삽입 버튼을 누르고 원하는 필드를 선택하면 슬라이서가 만들어집니다.</p>
+            <p>
+                행에는 차종, 열에는 월을 배치했습니다. 판매 지점과 분기는 어느 영역에도 배치하지 않고 슬라이서로
+                사용합니다. 이 기능은 2.8.0부터 지원합니다.
+            </p>
+            <p>
+                AUIPivot.createSlicer(myPivotID)는 필드 선택 창을 엽니다. 확인한 필드마다 이동과 크기 조절이 가능한
+                슬라이서가 생성됩니다. 닫기 버튼은 해당 필드의 필터를 해제한 뒤 창을 닫습니다. 다른 필드의 필터는
+                유지합니다.
+            </p>
+            <p>
+                여러 항목은 복수 선택 버튼 또는 Ctrl(Cmd) 키로 선택합니다. 같은 슬라이서의 선택은 함께 포함하고, 서로
+                다른 슬라이서의 조건은 모두 만족해야 합니다.
+            </p>
+            <p>
+                검색은 버튼 목록만 좁히며 흐린 항목은 다른 필터 조건에서 자료가 없는 항목입니다. 제목을 끌어 이동하고
+                오른쪽 아래 손잡이로 크기를 조절할 수 있습니다.
+            </p>
+            <!-- 필드 선택 창은 영역이나 옵션 없이 호출합니다. -->
+            <pre class="demo-code" tabindex="0" aria-label="슬라이서 삽입 예제">
+// 피벗 생성 속성으로 새 슬라이서의 기본 크기를 지정할 수 있습니다.
+const pivotProps = { slicerWidth: 320, slicerHeight: 360 };
+// 사용할 필드를 선택한 뒤 확인을 누르면 자동으로 슬라이서를 만듭니다.
+AUIPivot.createSlicer(myPivotID);
+</pre>
+            <p>
+                삽입 슬라이서의 기본 크기는 300×280px입니다. 이 예제는 slicerWidth와 slicerHeight로 320×360px을
+                지정했습니다.
+            </p>
+            <!-- 삽입과 전체 해제만 제공하여 선택한 필드로 월별 보고서를 비교합니다. -->
+            <div id="tools">
+                <button id="insert-slicer" class="btn" type="button">슬라이서 삽입</button>
+                <button id="clear" class="btn" type="button">모든 필터 해제</button>
+            </div>
+            <p id="status" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
+        </div>
+        <div id="pivot"></div>
+    </div>
+    <footer id="footer" class="demo-footer">
+        <div class="copyright">
+            <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+        </div>
+    </footer>
+</div>
+</body>
 </html>

@@ -1,3 +1,14 @@
+// 상단 원본 링크는 기존 기본 데모의 데이터 구조 보기처럼 별도 창으로 엽니다.
+// 링크 자체의 주소를 사용하므로 정식 데모, 하위 샘플과 배포 패키지의 상대 경로를 유지합니다.
+document.addEventListener("click", function (event) {
+    // Ctrl/Command/Shift 클릭 등 브라우저의 기본 새 탭 동작은 그대로 사용할 수 있습니다.
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest && event.target.closest("nav a[href]");
+    if (!link || !link.textContent.includes("원본 JSON")) return;
+    event.preventDefault();
+    window.open(link.href, "_blank", "width=1024,height=768,scrollbars=yes,resizable=yes,noopener");
+});
+
 // 문서와 선택한 테마가 준비된 뒤 각 데모의 init 함수를 한 번 호출합니다.
 document.addEventListener("DOMContentLoaded", async function () {
     try {

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+<title>AUIPivot v2.8 Samples</title>
+
+<!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+<!-- 본 데모를 위한 CSS 파일 -->
+<link href="./demo.css" rel="stylesheet" />
+<!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+<!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+<!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+<script src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+<style>
+    /* 데모 조작부와 배치만 꾸미며 피벗 내부는 선택한 제품 테마를 사용합니다. */
+    .demo28-controls {
+        border: 0;
+        padding: 0;
+        margin: 10px 0;
+        min-width: 0;
+    }
+    .demo28-controls label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: 12px;
+    }
+    .demo28-report {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 16px;
+    }
+    #pivot_wrap,
+    #pivot_panel {
+        min-width: 0;
+        height: 540px;
+    }
+    .demo28-guide {
+        margin: 8px 0;
+        padding-left: 12px;
+        border-left: 3px solid #337ab7;
+    }
+    .demo28-guide a {
+        display: inline-block;
+        margin-top: 5px;
+    }
+    .demo28-controls .btn[aria-pressed="true"] {
+        outline: 2px solid #1f405b;
+        outline-offset: 2px;
+    }
+    .demo28-status {
+        min-height: 21px;
+    }
+    @media (max-width: 800px) {
+        .demo28-report {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        #pivot_panel {
+            height: 500px;
+        }
+    }
+</style>
+<script>
+    // 현재 보고서와 초기 구성을 분리해 편집한 뒤 처음 상태로 되돌릴 수 있습니다.
+    let myPivotID;
+    let sourceRows = [];
+    let initialReport;
+    // 피벗을 먼저 준비한 뒤 원본 자료를 요청해 이 예제의 초기 보고서를 표시합니다.
+    function init() {
+        createPivotGrid();
+        requestData("./data/car_sales.json");
+        window.addEventListener("resize", function () {
+            AUIPivot.resize(myPivotID);
+        });
+    }
+    // 피벗을 생성하고 이 예제에 필요한 표시 옵션, 필드와 이벤트를 준비합니다.
+    function createPivotGrid() {
+        const pivotProps = {
+            layoutType: "tableCellMerge",
+            autoGridHeight: false,
+            showAutoProcessLoader: false,
+            enableFieldSubtotalMenu: true
+        };
+        myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+        // 원본 필드명 대신 화면에 보여 줄 이름을 지정합니다.
+        AUIPivot.setFieldAlias(myPivotID, {
+            REGION: "판매 지점",
+            NAME: "차종",
+            MODEL: "모델",
+            COLOR: "색상",
+            PRICE: "가격",
+            COUNT: "판매 대수",
+            TOTAL: "매출액",
+            DATE: "판매일",
+            COST: "원가"
+        });
+        // 행 필드를 위에서 아래로 묶을 순서대로 배치합니다.
+        AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
+        // 열 필드를 바깥 분류부터 안쪽 분류 순서로 배치합니다.
+        AUIPivot.setColumnFields(myPivotID, ["COLOR"]);
+        // 값 필드별로 집계 연산과 표시 형식을 정합니다.
+        AUIPivot.setValueFields(myPivotID, [{ dataField: "TOTAL", operation: "SUM", formatString: "#,##0" }]);
+        AUIPivot.bind(myPivotID, "pivotComplete", function () {
+            if (!initialReport) initialReport = AUIPivot.getReportDefinition(myPivotID);
+            document.getElementById("demo28-controls").disabled = false;
+            showStatus();
+        });
+        // 행, 열, 값과 필터를 사용자가 편집할 필드 패널을 생성합니다.
+        AUIPivot.createPivotPanel(myPivotID, {
+            pivotPanelId: "#pivot_panel",
+            movableFieldPanel: false,
+            resizableFieldPanel: false
+        });
+    }
+    // 자동차 판매 자료를 읽고 예제에 필요한 설정으로 집계합니다.
+    function requestData(url) {
+        return fetch(url)
+            .then(function (response) {
+                if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                return response.json();
+            })
+            .then(function (data) {
+                sourceRows = data;
+                // 준비한 원본을 현재 필드 설정으로 집계해 화면에 표시합니다.
+                AUIPivot.setGridData(myPivotID, sourceRows);
+            })
+            .catch(function (error) {
+                document.getElementById("demo28-status").textContent = error.message;
+            });
+    }
+    // 원본 건수와 현재 집계 결과를 안내 영역에 표시합니다.
+    function showStatus() {
+        document.getElementById("demo28-status").textContent =
+            "원본 " +
+            sourceRows.length.toLocaleString() +
+            "건, 현재 보고서 " +
+            AUIPivot.getRowCount(myPivotID).toLocaleString() +
+            "행";
+    }
+    // 저장 가능한 보고서 설정을 복원하고 별도 표시 속성도 예제의 기본값으로 되돌립니다.
+    function resetReport() {
+        if (!initialReport) return;
+        AUIPivot.setProp(myPivotID, { layoutType: "tableCellMerge", showTreeIcon: true });
+        AUIPivot.setReportDefinition(myPivotID, initialReport);
+    }
+</script>
+</head>
+<body class="standalone-demo">
+<!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><span class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.8</span> Samples</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#sample-menu">데모 메뉴로 돌아가기</a
+            ><a href="../documentation/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+<div class="wrap">
+    <nav class="demo-navigation" aria-label="데모 안내">
+        <a href="./index.html#sample-menu">데모 목록</a> <a href="./data/car_sales.json">원본 JSON</a>
+    </nav>
+    <script src="./demo-theme.js"></script>
+    <header class="demo-page-intro">
+        <div class="demo-title-line">
+            <h1>필드별 부분합 표시하기</h1>
+            <code class="demo-api-label">enableFieldSubtotalMenu</code>
+        </div>
+    </header>
+    <div id="main">
+        <div class="desc">
+            <p>
+                오른쪽 패널의 <strong>행</strong> 영역에서 <strong>판매 지점</strong>을 누른 뒤
+                <strong>부분합 설정</strong>을 여세요. 부분합 표시를 해제하고 적용하면 지점 부분합만 사라집니다. 차종도
+                별도로 설정할 수 있습니다.
+            </p>
+            <p>
+                테이블과 셀병합에서 사용할 수 있으며 마지막 행 필드는 대상에서 제외됩니다. 부분합을 숨기면 접기와 펼치기
+                아이콘도 숨겨집니다.
+            </p>
+            <pre class="demo-code" aria-label="핵심 설정 예제">
+// AUIPivot 2.8부터 사용할 수 있습니다.
+const pivotProps = {
+    layoutType: &quot;tableCellMerge&quot;,
+    enableFieldSubtotalMenu: true
+};</pre>
+            <fieldset class="demo28-controls" id="demo28-controls" disabled aria-label="보고서 체험">
+                <button type="button" class="btn" onclick="resetReport()">처음 보고서로</button>
+            </fieldset>
+            <p class="demo28-status" id="demo28-status" role="status">자동차 판매 자료를 불러오는 중입니다.</p>
+        </div>
+        <div class="demo28-report">
+            <div id="pivot_wrap"></div>
+            <div id="pivot_panel"></div>
+        </div>
+    </div>
+    <footer id="footer" class="demo-footer">
+        <div class="copyright">
+            <p>Copyright © AUISoft Co., Ltd. <a href="https://www.auisoft.net">https://www.auisoft.net</a></p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

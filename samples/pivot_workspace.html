@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="AUIPivot 실행 예제와 바로 적용할 수 있는 JavaScript 설정 코드" />
+<title>AUIPivot v2.8 Samples</title>
+
+<!-- 본 데모를 위한 JS 파일 -->
+<script src="./demo.js"></script>
+
+<!-- 본 데모를 위한 CSS 파일 -->
+<link href="./demo.css" rel="stylesheet" />
+
+<!-- AUIPivot CSS 파일 -->
+<link href="../AUIPivot/AUIPivot_style.css" rel="stylesheet" />
+<!-- AUIPivot 라이선스 파일 -->
+<script src="../AUIPivot/AUIPivotLicense.js"></script>
+<!-- AUIPivot 컴포넌트 JS 파일 -->
+<script src="../AUIPivot/AUIPivot.js"></script>
+<script id="ws-message-script" src="../AUIPivot/messages/AUIPivot.messages.kr.js"></script>
+<script src="./car_sales_extensions.js"></script>
+<script src="../pdfkit/AUIPivot.pdfkit.js"></script>
+<script src="../export_server_samples/FileSaver.min.js"></script>
+<!-- 기존 Apache ECharts 연동 데모와 같은 고정 버전의 차트 라이브러리를 사용합니다. -->
+<script src="https://fastly.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js" defer></script>
+<style>
+    /* 워크스페이스의 조작부만 꾸미며 피벗 셀과 필드 패널에는 제품 테마를 유지합니다. */
+    /* 상단 헤더, 탐색 줄과 제목은 일반 데모와 같은 공통 스타일을 사용합니다. */
+    /* 메시지 선택과 소스 보기를 같은 줄에 두고 좁은 화면에서는 함께 줄바꿈합니다. */
+    .ws-header-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .ws-message-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        font: 14px/1.5 var(--demo-font);
+        color: #343c46;
+    }
+    #ws-message-language {
+        box-sizing: border-box;
+        height: 44px;
+        margin: 0;
+        padding: 8px 10px;
+        border: 1px solid #d5dae0;
+        border-radius: 4px;
+        background: #fff;
+        color: #343c46;
+        font: inherit;
+    }
+    .ws-shell {
+        border: 1px solid #d8e3ed;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .ws-note {
+        color: #617386;
+    }
+    .ws-tabs {
+        display: flex;
+        overflow-x: auto;
+        gap: 4px;
+        padding: 0 16px;
+        border-block: 1px solid #d8e3ed;
+        background: #f8fbfd;
+    }
+    .ws-tabs button {
+        flex-shrink: 0;
+        padding: 12px 20px;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        background: transparent;
+        color: #50677c;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .ws-tabs button[aria-selected="true"] {
+        background: #eaf3fb;
+        color: #245b88;
+        border-bottom-color: #337ab7;
+    }
+    /* 빈 보고서에서는 보고서 탭만 사용하고 오른쪽 필드 패널에서 배치를 시작합니다. */
+    .ws-tabs button:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+    .ws-controls {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        min-width: 0;
+    }
+    .ws-ribbon {
+        padding: 14px 20px;
+        background: #f4f8fc;
+        border-bottom: 1px solid #d8e3ed;
+    }
+    .ws-ribbon > div {
+        display: flex;
+        align-items: center;
+        gap: 10px 16px;
+        flex-wrap: wrap;
+    }
+    .ws-ribbon label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+    .ws-ribbon p {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: #526a80;
+    }
+    .pivot-workspace .ws-action {
+        font: inherit;
+        border: 1px solid #337ab7;
+        border-radius: 5px;
+        padding: 7px 12px;
+        cursor: pointer;
+        background: #337ab7;
+        color: #fff;
+    }
+    .pivot-workspace .ws-action:hover {
+        background: #286090;
+    }
+    .pivot-workspace .ws-action:disabled {
+        opacity: 0.45;
+        cursor: default;
+    }
+    .pivot-workspace .ws-ribbon :is(input:not([type="checkbox"]), select) {
+        font: inherit;
+        color: #263b4d;
+        padding: 7px 9px;
+        border: 1px solid #bfcedb;
+        border-radius: 5px;
+        background: #fff;
+        max-width: 100%;
+    }
+    .ws-tabs button:focus-visible,
+    .ws-action:focus-visible {
+        outline: 2px solid #173e62;
+        outline-offset: -2px;
+    }
+    .ws-status {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 9px 20px;
+        font-size: 13px;
+        border-bottom: 1px solid #e1e9f1;
+    }
+    #ws-status {
+        color: #27587d;
+    }
+    #ws-status[data-error="true"] {
+        color: #b3261e;
+    }
+    .ws-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 12px;
+        padding: 12px;
+    }
+    .ws-body.panel-hidden {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    #pivot_wrap {
+        width: 100%;
+        min-width: 0;
+        height: 560px;
+    }
+    /* 이동 창으로 분리한 뒤에도 최초 패널 자리의 높이를 유지합니다. */
+    .ws-panel-slot,
+    #pivot_panel {
+        width: 100%;
+        min-width: 0;
+        height: 560px;
+    }
+    .ws-body.panel-hidden .ws-panel-slot {
+        display: none;
+    }
+    .ws-selection {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 10px 20px;
+        border-top: 1px solid #d8e3ed;
+        background: #f8fbfd;
+    }
+    #ws-selection {
+        flex: 1;
+        min-width: 180px;
+        color: #526a80;
+    }
+    .ws-chart {
+        padding: 16px 20px;
+        border-top: 1px solid #d8e3ed;
+    }
+    .ws-chart h2 {
+        font-size: 18px;
+        margin: 0 0 4px;
+    }
+    /* 차트 너비는 현재 영역에 맞추고 축과 라벨의 간격은 실제 너비에 따라 계산합니다. */
+    .ws-chart-canvas {
+        width: 100%;
+        min-width: 0;
+        /* 선택 행 차트의 표시 높이를 기존보다 40px 줄입니다. */
+        height: 300px;
+    }
+    .ws-chart-credit {
+        margin: 8px 0 12px;
+        color: #526a80;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .ws-chart-credit a {
+        color: #337ab7;
+        text-decoration: underline;
+    }
+    .ws-help {
+        margin: 16px 0;
+        color: #526a80;
+    }
+    .ws-help summary {
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .ws-help ul {
+        padding-left: 20px;
+    }
+    .ws-dialog {
+        width: min(1000px, calc(100vw - 40px));
+        max-height: 80vh;
+        box-sizing: border-box;
+        padding: 20px;
+        border: 1px solid #c5d4e2;
+        border-radius: 10px;
+        color: #253b50;
+    }
+    .ws-dialog::backdrop {
+        background: #12263880;
+    }
+    .ws-dialog header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+    .ws-dialog h2 {
+        margin: 0;
+        font-size: 21px;
+    }
+    #ws-detail-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #ws-detail-table :is(th, td) {
+        border-bottom: 1px solid #d8e3ed;
+        padding: 7px 10px;
+        white-space: nowrap;
+        text-align: right;
+    }
+    #ws-detail-table th {
+        background: #f4f8fc;
+    }
+    .ws-dialog .ws-detail-scroll {
+        max-height: 50vh;
+        overflow: auto;
+        margin: 12px 0;
+    }
+    .pivot-workspace [hidden] {
+        display: none !important;
+    }
+    @media (max-width: 850px) {
+        .ws-body {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        .ws-panel-slot,
+        #pivot_panel {
+            height: 460px;
+        }
+        .ws-ribbon {
+            padding: 12px;
+        }
+        .ws-tabs {
+            padding: 0 4px;
+        }
+        .ws-tabs button {
+            padding: 10px 14px;
+        }
+    }
+</style>
+<script>
+    // 원본은 공통 자동차 자료이며, 저장 파일에는 원본 대신 보고서와 화면 설정만 담습니다.
+    let myPivotID;
+    let workspaceRows = [];
+    let baselineReport;
+    let workspaceReady = false;
+    // 메시지 파일의 언어만 전환하며 원본 거래명과 사용자가 지정한 필드 이름은 유지합니다.
+    let workspaceLanguage = "kr";
+    // 직접 옮기거나 크기를 바꾸기 전에는 원래 패널 자리를 따라 배치합니다.
+    let workspacePanelFloating = false;
+    let workspacePanelGeometry = null;
+    // 분석 예제나 저장본의 이름을 보관해 보고서 저장과 내보내기 파일명에 사용합니다.
+    let workspaceReportName = "지점별 매출";
+    let selectedCell = null;
+    // 셀을 선택할 때는 기존 차트를 갱신하고 숨김, 빈 보고서에서는 인스턴스를 해제합니다.
+    let workspaceChart = null;
+    let detailRows = [];
+    let detailPage = 0;
+    // 패키지는 기본 표를 사용하고, WebDemo의 상세 창 연결 부분에서 표시 방법만 바꿉니다.
+    const workspaceDetailView = {
+        render: renderDetails,
+        // 기본 상세 표는 닫을 때 해제할 제품 인스턴스가 없어 빈 동작을 사용합니다.
+        close: function () {}
+    };
+    const storageKey = "auipivot-sales-workspace-v1";
+    // 패널과 차트의 표시 상태를 저장하며 슬라이서는 삽입 버튼에서 개별 생성합니다.
+    // 처음 여는 보고서는 차트를 표시하며, 저장본 복원 시에는 저장한 표시 상태를 사용합니다.
+    const workspaceOptions = { panelVisible: true, chartVisible: true };
+    // 워크스페이스 입력 요소의 현재 값을 읽습니다.
+    const workspaceValue = (id) => document.getElementById(id).value;
+    // JSON으로 저장 가능한 보고서 설정을 복사해 원래 설정과 따로 편집합니다.
+    const copy = (data) => JSON.parse(JSON.stringify(data));
+    // 제품 메시지와 별개인 데모의 기본 가격대 이름도 선택 언어에 맞춥니다.
+    const workspaceRangeLabels = {
+        en: {
+            under2m: "Under 2,000,000",
+            from2m: "2,000,000 to under 3,000,000",
+            from3m: "3,000,000 to under 4,000,000",
+            from4m: "4,000,000 and above",
+            other: "Other"
+        },
+        // 이전 일본어 저장본의 기본 구간 이름을 한국어/영어로 복원할 때만 사용합니다.
+        jp: {
+            under2m: "2,000,000未満",
+            from2m: "2,000,000以上3,000,000未満",
+            from3m: "3,000,000以上4,000,000未満",
+            from4m: "4,000,000以上",
+            other: "その他"
+        }
+    };
+    const presets = {
+        sales: {
+            title: "지점별 매출",
+            rows: ["REGION", "NAME"],
+            columns: ["DATE_QTR"],
+            values: [measure("TOTAL"), measure("COUNT")],
+            visual: "none"
+        },
+        profit: {
+            title: "수익성 분석",
+            rows: ["REGION", "NAME"],
+            columns: ["DATE_HALF"],
+            values: [
+                measure("TOTAL"),
+                measure("COST"),
+                measure("PROFIT"),
+                {
+                    dataField: "MARGIN",
+                    calculation: { kind: "formula" },
+                    formatString: "0.00",
+                    customLabelText: "이익률 (%)"
+                }
+            ],
+            visual: "heatmap"
+        },
+        models: {
+            title: "차종별 비교",
+            rows: ["NAME", "MODEL"],
+            columns: ["REGION"],
+            values: [
+                measure("TOTAL"),
+                { dataField: "TOTAL", operation: "RATIO", formatString: "0.00%", customLabelText: "매출 비중" }
+            ],
+            visual: "dataBar"
+        },
+        prices: {
+            title: "가격대별 판매",
+            rows: ["PRICE_RANGE", "NAME"],
+            columns: ["DATE_QTR"],
+            values: [
+                measure("COUNT"),
+                measure("PRICE", "AVG"),
+                {
+                    dataField: "PRICE",
+                    operation: "WS_WEIGHTED_PRICE",
+                    aggregatorOptions: { weightField: "COUNT" },
+                    formatString: "#,##0",
+                    customLabelText: "가중 평균 가격"
+                }
+            ],
+            visual: "none"
+        },
+        trend: {
+            title: "기간별 추이",
+            rows: ["REGION"],
+            columns: ["DATE_MONTH"],
+            values: [measure("TOTAL")],
+            visual: "heatmap"
+        }
+    };
+    // 분석 예제에서 사용할 값 필드, 집계 연산과 숫자 표시 형식을 만듭니다.
+    function measure(field, operation) {
+        return { dataField: field, operation: operation || "SUM", formatString: "#,##0" };
+    }
+
+    // 정식 데모와 동일하게 init, createPivotGrid, requestData 순서로 시작합니다.
+    function init() {
+        document.title = "AUIPivot v2.8 Samples";
+        setupWorkspaceControls();
+        createPivotGrid();
+        requestData("./data/car_sales.json");
+        const observer = new ResizeObserver(function () {
+            AUIPivot.resize(myPivotID);
+        });
+        observer.observe(document.getElementById("pivot_wrap"));
+        // 탭 높이와 반응형 배치가 바뀌어도 아직 이동하지 않은 패널은 제자리를 따릅니다.
+        const panelObserver = new ResizeObserver(fitWorkspacePanel);
+        ["ws-controls", "ws-body", "ws-status"].forEach(function (id) {
+            panelObserver.observe(document.getElementById(id));
+        });
+        // 창 크기뿐 아니라 실제 차트 영역의 너비 변경에도 그림 크기를 맞춥니다.
+        const chartObserver = new ResizeObserver(function () {
+            const output = document.getElementById("ws-chart-content");
+            if (
+                workspaceChart &&
+                workspaceOptions.chartVisible &&
+                (workspaceChart.getWidth() !== output.clientWidth || workspaceChart.getHeight() !== output.clientHeight)
+            ) {
+                // 긴 항목명의 표시 폭도 새 차트 너비에 맞춰 다시 정합니다.
+                renderWorkspaceChart();
+            }
+        });
+        chartObserver.observe(document.getElementById("ws-chart-content"));
+        // 뒤로 가기 캐시에서도 사라진 차트 인스턴스를 다시 생성할 수 있게 수명을 관리합니다.
+        window.addEventListener("pagehide", disposeWorkspaceChart);
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted) renderWorkspaceChart();
+        });
+        window.addEventListener("resize", function () {
+            fitWorkspacePanel();
+        });
+    }
+    // 피벗을 생성하고 이 예제에 필요한 표시 옵션, 필드와 이벤트를 준비합니다.
+    function createPivotGrid() {
+        const pivotProps = {
+            layoutType: "tableCellMerge",
+            autoGridHeight: false,
+            defaultFormatString: "#,##0",
+            showAutoProcessLoader: false,
+            enableGridFieldDrop: true,
+            enableItemReorder: true,
+            enableCalculatedFieldEditor: true,
+            enableFieldSubtotalMenu: true,
+            fixedRowFieldCount: 2
+        };
+        myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
+        registerWorkspaceAggregator(myPivotID);
+        // 원본 필드명 대신 화면에 보여 줄 이름을 지정합니다.
+        AUIPivot.setFieldAlias(
+            myPivotID,
+            Object.assign(createCarSalesAliases(), { COST: "원가", MARGIN: "이익률 (%)" })
+        );
+        // 날짜 원본을 지정해 연, 반기, 분기와 월 구간을 사용할 수 있게 합니다.
+        AUIPivot.setDateTypeField(myPivotID, "DATE");
+        // 원본의 계산식이나 구간에서 파생되는 필드를 등록합니다.
+        AUIPivot.setDerivedFields(myPivotID, createCarSalesDerivedFields(["PROFIT", "PRICE_RANGE"]));
+        // 집계 결과의 필드를 참조하는 수식을 등록합니다.
+        AUIPivot.setFormulaFields(myPivotID, [
+            { dataField: "MARGIN", labelText: "이익률 (%)", expression: "([TOTAL] - [COST]) / [TOTAL] * 100" }
+        ]);
+        // 행 필드를 위에서 아래로 묶을 순서대로 배치합니다.
+        AUIPivot.setRowFields(myPivotID, presets.sales.rows);
+        // 열 필드를 바깥 분류부터 안쪽 분류 순서로 배치합니다.
+        AUIPivot.setColumnFields(myPivotID, presets.sales.columns);
+        // 값 필드별로 집계 연산과 표시 형식을 정합니다.
+        AUIPivot.setValueFields(myPivotID, presets.sales.values);
+        // 보고서에 적용할 필터 필드를 지정합니다.
+        AUIPivot.setFilterFields(myPivotID, ["REGION", "NAME", "COLOR"]);
+        AUIPivot.bind(myPivotID, "pivotComplete", onWorkspaceComplete);
+        AUIPivot.bind(myPivotID, "cellClick", selectWorkspaceCell);
+        AUIPivot.bind(myPivotID, "cellDoubleClick", function (event) {
+            selectWorkspaceCell(event);
+            showDetails();
+        });
+        // 행 접힘이나 정렬, 열 이동 후에는 이전 위치의 다른 거래를 상세로 열지 않습니다.
+        ["treeOpenChange", "sorting", "columnStateChange"].forEach(function (name) {
+            AUIPivot.bind(myPivotID, name, clearWorkspaceSelection);
+        });
+        AUIPivot.bind(myPivotID, "pivotPanelHide", function () {
+            setPanelVisible(false);
+        });
+        // 이동 창으로 분리되기 전의 크기를 읽어 PC/작은 화면의 초기 배치를 유지합니다.
+        const panelHost = document.getElementById("pivot_panel");
+        const panelWidth = panelHost.clientWidth;
+        const panelHeight = panelHost.clientHeight;
+        // 제목을 끌어 이동하고 오른쪽 아래 모서리로 크기를 조절할 수 있습니다.
+        AUIPivot.createPivotPanel(myPivotID, {
+            pivotPanelId: "#pivot_panel",
+            movableFieldPanel: true,
+            resizableFieldPanel: true,
+            panelWidth: panelWidth,
+            panelHeight: panelHeight
+        });
+    }
+    // 보고서에 저장된 기본 안내 문구만 새 메시지로 교체합니다. 사용자 지정 이름은 보존합니다.
+    function localizeWorkspaceReport(report, previous, next, language) {
+        const localized = copy(report);
+        Object.keys(localized.options).forEach(function (key) {
+            const messageKey = key === "emptyValueText" ? "emptyValue" : key;
+            if (typeof next[messageKey] === "string" && localized.options[key] === previous[messageKey])
+                localized.options[key] = next[messageKey];
+        });
+        Object.keys(localized.operationLabels || {}).forEach(function (operation) {
+            if (localized.operationLabels[operation] === previous.opLabelTexts[operation])
+                localized.operationLabels[operation] = next.opLabelTexts[operation];
+        });
+        localized.derivedFields = localizeWorkspaceRanges(localized.derivedFields, language);
+        // 날짜 구간 이름은 필터와 수동 순서의 실제 키이므로 현재 보고서에서 그대로 유지합니다.
+        return localized;
+    }
+    // 표시명만 바꾸고 집계, 필터와 수동 순서에 사용하는 구간 ID와 경계값은 유지합니다.
+    function localizeWorkspaceRanges(definitions, language) {
+        const localized = copy(definitions || []);
+        const original = createCarSalesDerivedFields(["PRICE_RANGE"])[0];
+        const standards = original.ranges.concat(original.fallback);
+        localized.forEach(function (definition) {
+            if (definition.dataField !== original.dataField || definition.sourceField !== original.sourceField) return;
+            // 같은 ID라도 경계나 이름을 편집한 구간은 사용자 설정으로 보고 그대로 둡니다.
+            (definition.ranges || []).concat(definition.fallback || []).forEach(function (range) {
+                const standard = standards.find(function (item) {
+                    return item.id === range.id && item.min === range.min && item.max === range.max;
+                });
+                if (!standard) return;
+                const defaults = [
+                    standard.labelText,
+                    workspaceRangeLabels.en[range.id],
+                    workspaceRangeLabels.jp[range.id]
+                ];
+                if (defaults.includes(range.labelText))
+                    range.labelText = language === "kr" ? standard.labelText : workspaceRangeLabels[language][range.id];
+            });
+        });
+        return localized;
+    }
+    // 선택한 메시지 파일이 준비된 뒤 현재 보고서를 새 언어의 피벗에 다시 연결합니다.
+    // 메시지는 생성 시 읽으므로 단순히 script만 바꾸지 않고 메뉴와 필드 패널도 함께 갱신합니다.
+    function changeWorkspaceLanguage(language) {
+        const select = document.getElementById("ws-message-language");
+        // 워크스페이스의 메시지 선택은 한국어와 영어만 제공합니다.
+        if (!workspaceReady || !["kr", "en"].includes(language) || language === workspaceLanguage) return;
+        const previousMessages = window.AUIPivotMessages;
+        const script = document.createElement("script");
+        const current = document.getElementById("ws-message-script");
+        select.disabled = true;
+        script.onload = function () {
+            const state = captureWorkspace();
+            const messages = window.AUIPivotMessages;
+            const panel = document.getElementById("pivot_panel");
+            const panelStyle = panel.style.cssText;
+            // 원본을 다시 입력하기 전에 보고서를 복원해야 현재 필터 선택이 초기화되지 않습니다.
+            state.report = localizeWorkspaceReport(state.report, previousMessages, messages, language);
+            baselineReport = localizeWorkspaceReport(baselineReport, previousMessages, messages, language);
+            AUIPivot.destroy(myPivotID);
+            createPivotGrid();
+            AUIPivot.setProp(myPivotID, "fixedRowFieldCount", state.view.fixedRowFieldCount);
+            AUIPivot.setReportDefinition(myPivotID, state.report);
+            AUIPivot.setVisualAnalytics(myPivotID, state.visual);
+            AUIPivot.setGridData(myPivotID, workspaceRows);
+            panel.style.cssText = panelStyle;
+            workspacePanelGeometry = null;
+            setPanelVisible(state.view.panelVisible);
+            workspaceLanguage = language;
+            current.remove();
+            script.id = "ws-message-script";
+            select.disabled = false;
+            showWorkspaceStatus("선택한 언어의 메시지를 적용했습니다. 현재 보고서 구성과 필터는 유지됩니다.");
+        };
+        script.onerror = function () {
+            // 로드 실패 시 기존 피벗과 언어를 그대로 유지하고 다시 선택할 수 있게 합니다.
+            script.remove();
+            window.AUIPivotMessages = previousMessages;
+            select.value = workspaceLanguage;
+            select.disabled = false;
+            showWorkspaceStatus("메시지 파일을 불러오지 못했습니다. 다시 선택해 주세요.", true);
+        };
+        // 현재 연결한 자원을 기준으로 경로를 정해 WebDemo와 고객 패키지에서 같은 코드를 사용합니다.
+        script.src = current.src.replace(
+            /AUIPivot\.messages\.(kr|en|jp)\.js$/,
+            "AUIPivot.messages." + language + ".js"
+        );
+        document.head.appendChild(script);
+    }
+    // 정적 JSON을 읽어 피벗에 전달하며, 요청 실패는 화면에서 확인할 수 있도록 처리합니다.
+    function requestData(url) {
+        return fetch(url)
+            .then(function (response) {
+                if (!response.ok) throw new Error("자동차 판매 자료를 불러오지 못했습니다.");
+                return response.json();
+            })
+            .then(function (rows) {
+                // 원가는 기존 예제와 같은 결정적 규칙으로만 보강하며 매출 원본은 유지합니다.
+                workspaceRows = extendCarSalesData(rows, ["COST"]);
+                // 준비한 원본을 현재 필드 설정으로 집계해 화면에 표시합니다.
+                AUIPivot.setGridData(myPivotID, workspaceRows);
+            })
+            .catch(function (error) {
+                showWorkspaceStatus(error.message, true);
+            });
+    }
+
+    // 평균을 다시 평균내지 않고 각 거래의 가격과 판매 대수로 가중 평균을 계산합니다.
+    function registerWorkspaceAggregator(pid) {
+        // 사용자 집계의 상태 생성, 누적, 병합과 최종 계산 규칙을 등록합니다.
+        AUIPivot.registerCustomAggregator(pid, {
+            id: "WS_WEIGHTED_PRICE",
+            version: 1,
+            labelText: "가중 평균 가격",
+            // 가중치로 지정한 필드가 원본에 있는지 집계 전에 확인합니다.
+            validateOptions: function (options, context) {
+                context.requireField(options.weightField);
+            },
+            // 각 집계 영역의 가격 곱 합계와 판매 대수 합계를 별도 상태로 준비합니다.
+            create: function () {
+                return { amount: 0, count: 0 };
+            },
+            // 유효한 가격과 양수 판매 대수만 가격 곱 합계와 가중치 합계에 누적합니다.
+            accumulate: function (state, price, context) {
+                const count = context.getValue(context.options.weightField);
+                if (!Number.isFinite(price) || !Number.isFinite(count) || count <= 0) return;
+                state.amount += price * count;
+                state.count += count;
+            },
+            // 소계와 총계에서 하위 영역의 두 합계를 합쳐 가중 평균을 계산할 준비를 합니다.
+            merge: function (target, source) {
+                target.amount += source.amount;
+                target.count += source.count;
+            },
+            // 누적한 가격 곱 합계를 전체 판매 대수로 나눕니다. 판매 대수가 없으면 빈 값입니다.
+            finalize: function (state) {
+                return state.count ? state.amount / state.count : null;
+            }
+        });
+    }
+
+    // 재집계 후에는 더 이상 같은 셀을 뜻하지 않는 이전 상세 선택을 비웁니다.
+    function onWorkspaceComplete() {
+        const firstComplete = !baselineReport;
+        if (firstComplete) {
+            baselineReport = AUIPivot.getReportDefinition(myPivotID);
+            workspaceReady = true;
+            document.getElementById("ws-controls").disabled = false;
+            document.getElementById("ws-message-language").disabled = false;
+            showWorkspaceStatus("지점별 매출을 열었습니다. 필드를 옮기거나 다른 분석 예제를 선택해 보세요.");
+        }
+        clearWorkspaceSelection();
+        document.getElementById("ws-count").textContent =
+            "원본 " +
+            workspaceRows.length.toLocaleString() +
+            "건 / 보고서 " +
+            AUIPivot.getRowCount(myPivotID).toLocaleString() +
+            "행";
+        syncWorkspaceControls();
+        // 원본 데이터와 기본 보고서가 준비된 최초 완료 시에만 저장본을 복원합니다.
+        // 복원으로 발생하는 후속 완료 이벤트에서는 다시 불러오지 않습니다.
+        if (firstComplete) restoreWorkspaceBrowser();
+    }
+    // 작업 결과나 오류를 공통 안내 영역에 표시하고 오류 표시 상태를 맞춥니다.
+    function showWorkspaceStatus(text, error) {
+        const el = document.getElementById("ws-status");
+        el.textContent = text;
+        el.dataset.error = String(!!error);
+    }
+    // 사용자의 직접 조작도 같은 오류 안내 영역을 이용해 기존 보고서를 계속 볼 수 있게 합니다.
+    function act(callback) {
+        if (!workspaceReady) return;
+        try {
+            callback();
+        } catch (error) {
+            showWorkspaceStatus(error.message, true);
+        }
+    }
+    // 선택한 도구 탭만 표시하고 키보드 초점 및 접근성 선택 상태를 함께 갱신합니다.
+    function switchTab(name, focus) {
+        const target = document.querySelector('[data-ws-tab="' + name + '"]');
+        if (!target || target.disabled) return;
+        document.querySelectorAll("[data-ws-tab]").forEach(function (tab) {
+            const selected = tab.dataset.wsTab === name;
+            tab.setAttribute("aria-selected", String(selected));
+            tab.tabIndex = selected ? 0 : -1;
+            if (selected && focus) tab.focus();
+        });
+        document.querySelectorAll("[data-ws-panel]").forEach(function (panel) {
+            panel.hidden = panel.dataset.wsPanel !== name;
+        });
+    }
+    // 도구 탭의 입력, 보고서 파일 선택과 상세 창 닫기 동작을 연결합니다.
+    function setupWorkspaceControls() {
+        // 탭은 마우스뿐 아니라 좌우 화살표와 Home/End로도 이동할 수 있습니다.
+        const tabs = Array.from(document.querySelectorAll("[data-ws-tab]"));
+        tabs.forEach(function (tab) {
+            tab.addEventListener("click", function () {
+                switchTab(tab.dataset.wsTab);
+            });
+            tab.addEventListener("keydown", function (event) {
+                const offset = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+                if (!offset && !["Home", "End"].includes(event.key)) return;
+                event.preventDefault();
+                // 비활성 탭은 키보드 순회에서도 제외해 빈 보고서의 도구를 열지 않습니다.
+                const available = tabs.filter(function (item) {
+                    return !item.disabled;
+                });
+                const index = available.indexOf(tab);
+                const next =
+                    event.key === "Home"
+                        ? 0
+                        : event.key === "End"
+                          ? available.length - 1
+                          : (index + offset + available.length) % available.length;
+                switchTab(available[next].dataset.wsTab, true);
+            });
+        });
+        document.getElementById("ws-file").addEventListener("change", readWorkspaceFile);
+        document.getElementById("ws-message-language").addEventListener("change", function (event) {
+            changeWorkspaceLanguage(event.target.value);
+        });
+        document.getElementById("ws-detail-dialog").addEventListener("close", function () {
+            workspaceDetailView.close();
+            detailRows = [];
+        });
+    }
+
+    // 확인한 경우에만 현재 배치와 필터를 비웁니다. 취소하면 편집 중인 보고서를 그대로 유지합니다.
+    function newWorkspaceReport() {
+        if (
+            !confirm(
+                "현재 보고서의 필드와 모든 필터를 초기화하고 새 보고서를 만드시겠습니까? 저장하지 않은 변경 사항은 사라집니다."
+            )
+        )
+            return;
+        loadWorkspacePreset("");
+        setPanelVisible(true);
+        switchTab("report");
+    }
+    // 필터만 지정한 상태는 보고서 결과가 없으므로 행·열·값 중 하나가 배치된 뒤 도구를 활성화합니다.
+    // 보고서 탭은 유지하며 필드 구성은 오른쪽 필드 패널에서 시작합니다.
+    function syncWorkspaceTabs() {
+        const configured =
+            AUIPivot.getRowFields(myPivotID).length > 0 ||
+            AUIPivot.getColumnFields(myPivotID).some(function (field) {
+                return field !== "_$valueFields";
+            }) ||
+            AUIPivot.getValueFields(myPivotID).length > 0;
+        let selectedDisabled = false;
+        document.querySelectorAll("[data-ws-tab]").forEach(function (tab) {
+            tab.disabled = !configured && tab.dataset.wsTab !== "report";
+            tab.setAttribute("aria-disabled", String(tab.disabled));
+            if (tab.disabled) {
+                tab.tabIndex = -1;
+                if (tab.getAttribute("aria-selected") === "true") selectedDisabled = true;
+            }
+        });
+        if (selectedDisabled) switchTab("report", true);
+    }
+    // 분석 예제는 같은 원본과 기준 설정에서 다시 구성해 이전 보고서의 필터가 섞이지 않게 합니다.
+    function loadWorkspacePreset(key) {
+        const preset = presets[key];
+        const report = copy(baselineReport);
+        report.rows = preset ? preset.rows.slice() : [];
+        report.columns = preset ? preset.columns.slice() : [];
+        report.values = preset ? copy(preset.values) : [];
+        report.filters = preset ? ["REGION", "NAME", "COLOR"] : [];
+        // 배치된 필터와 독립 슬라이서의 선택 조건을 함께 비워 이전 보고서 조건이 남지 않게 합니다.
+        report.filterSelections = {};
+        // 사용자 집계는 공개 보고서 계약에 등록 ID와 버전도 함께 지정합니다.
+        report.aggregatorDependencies = key === "prices" ? [{ id: "WS_WEIGHTED_PRICE", version: 1 }] : [];
+        AUIPivot.setVisualAnalytics(myPivotID, []);
+        AUIPivot.setProp(myPivotID, { fixedRowFieldCount: 2, useFixedColumns: true });
+        AUIPivot.setReportDefinition(myPivotID, report);
+        workspaceReportName = preset ? preset.title : "새 보고서";
+        document.getElementById("ws-preset").value = preset ? key : "";
+        document.getElementById("ws-visual-mode").value = preset ? preset.visual : "none";
+        document.getElementById("ws-visual-scope").value = "GLOBAL";
+        // 분석 예제와 새 보고서는 부분합/총합계와 차트를 기본 표시합니다.
+        document.getElementById("ws-visual-summary").checked = true;
+        toggleWorkspaceChart(true);
+        applyWorkspaceVisual();
+        syncWorkspaceTabs();
+        showWorkspaceStatus(
+            (preset ? preset.title : "새 보고서") + "를 열었습니다. 현재 작업은 보고서 메뉴에서 저장할 수 있습니다."
+        );
+    }
+    // 피벗의 실제 설정을 읽어 고정 개수, 합계 표시, 값 항목과 기간 선택을 화면에 반영합니다.
+    function syncWorkspaceControls() {
+        syncWorkspaceTabs();
+        document.getElementById("ws-layout").value = AUIPivot.getProp(myPivotID, "layoutType");
+        const fixed = AUIPivot.getProp(myPivotID, "fixedRowFieldCount");
+        const fixedSelect = document.getElementById("ws-fixed");
+        fixedSelect.replaceChildren();
+        fixedSelect.add(new Option("모든 행 필드", "auto"));
+        const maximum = Math.max(AUIPivot.getRowFields(myPivotID).length, fixed || 0, 3);
+        for (let i = 0; i <= maximum; i++) fixedSelect.add(new Option(i + "개", String(i)));
+        fixedSelect.value = fixed == null ? "auto" : String(fixed);
+        ["showSummaryRow", "showSummaryColumn", "showGrandTotalColumn", "showFooter", "showTreeIcon"].forEach(
+            function (prop) {
+                document.querySelector('[data-ws-prop="' + prop + '"]').checked = AUIPivot.getProp(myPivotID, prop);
+            }
+        );
+        document.querySelector('[data-ws-prop="showSummaryRow"]').disabled =
+            AUIPivot.getProp(myPivotID, "layoutType") === "tree";
+        const values = AUIPivot.getValueFields(myPivotID);
+        const select = document.getElementById("ws-value-field");
+        const old = select.value;
+        select.replaceChildren();
+        values.forEach(function (field, index) {
+            select.add(
+                new Option(
+                    field.customLabelText ||
+                        AUIPivot.getAliasByDataField(myPivotID, field.dataField) +
+                            " / " +
+                            (field.calculation ? "수식" : field.operation),
+                    String(index)
+                )
+            );
+        });
+        select.value = values.length ? (old !== "" && Number(old) < values.length ? old : "0") : "";
+        syncValueEditor();
+        document.getElementById("ws-period").value =
+            AUIPivot.getColumnFields(myPivotID).find(function (f) {
+                return ["DATE_MONTH", "DATE_QTR", "DATE_HALF", "DATE_YEAR"].includes(f);
+            }) || "";
+    }
+    // 엔진이 기본적으로 백분율로 표시하는 집계만 구분합니다. 자유 수식의 숫자 서식은 그대로 둡니다.
+    function isWorkspacePercentageField(field) {
+        return (
+            !!field &&
+            !field.calculation &&
+            ["RATIO", "ROW_RATIO", "GRAND_TOTAL_RATIO", "GRAND_TOTAL_COUNT_RATIO"].includes(field.operation)
+        );
+    }
+    // 값 필드 설정 창처럼 다섯 항목만 표시하며 비율 집계는 백분율 서식으로 전환합니다.
+    function syncWorkspaceFormats(field) {
+        const select = document.getElementById("ws-format");
+        const percentage = isWorkspacePercentageField(field);
+        const unformatted = "###0.#####";
+        let format = field && field.formatString != null ? field.formatString : unformatted;
+        if (percentage && format !== unformatted && !format.endsWith("%"))
+            format = AUIPivot.getProp(myPivotID, "defaultPercentageFormat");
+        const masks = percentage ? ["0%", "0.0%", "0.00%", "0.000%"] : ["#,##0", "#,##0.0", "#,##0.00", "#,##0.000"];
+        select.replaceChildren();
+        masks.forEach(function (mask, digits) {
+            const label = digits ? "소수점 " + digits + "자리" : "정수";
+            select.add(new Option(label + "(" + mask + ")", mask));
+        });
+        select.add(new Option("표시 유형 지정 안함", unformatted));
+        // 목록 밖의 저장 서식은 임의로 바꾸지 않고 선택을 비웁니다. 추가 메뉴 없이 제목으로만 확인합니다.
+        select.value = format;
+        select.title = select.selectedIndex < 0 ? "현재 서식: " + (format || "일반") : "";
+        select.disabled = !field;
+    }
+    // 선택한 값 필드의 연산과 숫자 형식을 편집기에 표시합니다. 수식 항목의 연산 선택은 막습니다.
+    function syncValueEditor() {
+        const field = AUIPivot.getValueFields(myPivotID)[Number(workspaceValue("ws-value-field"))];
+        const operation = document.getElementById("ws-operation");
+        operation.disabled = !field || !!field.calculation;
+        syncWorkspaceFormats(field);
+        // 패널에서 설정한 특수 연산도 표시하되 추가 필수 옵션은 기존 값을 보존합니다.
+        Array.from(operation.options)
+            .filter(function (o) {
+                return o.dataset.dynamic;
+            })
+            .forEach(function (o) {
+                o.remove();
+            });
+        if (field) {
+            const name = field.calculation ? "FORMULA" : field.operation || "SUM";
+            if (
+                !Array.from(operation.options).some(function (o) {
+                    return o.value === name;
+                })
+            ) {
+                const option = new Option(field.calculation ? "집계 후 수식" : name, name);
+                option.dataset.dynamic = "true";
+                operation.add(option);
+            }
+            operation.value = name;
+        }
+    }
+    // 선택한 값의 연산과 숫자 형식을 바꾸고 현재 시각화 설정으로 재집계합니다.
+    function updateValueField() {
+        const fields = AUIPivot.getValueFields(myPivotID);
+        const target = fields[Number(workspaceValue("ws-value-field"))];
+        if (!target) return;
+        const previousOperation = target.operation;
+        const wasPercentage = isWorkspacePercentageField(target);
+        if (!target.calculation) {
+            target.operation = workspaceValue("ws-operation");
+            if (target.operation === "WS_WEIGHTED_PRICE") target.aggregatorOptions = { weightField: "COUNT" };
+            else delete target.aggregatorOptions;
+        }
+        // 목록 밖 서식이 있는 저장본도 집계만 바꿀 때 원래 서식을 이어 사용합니다.
+        const formatSelect = document.getElementById("ws-format");
+        let format = formatSelect.selectedIndex < 0 ? (target.formatString ?? "###0.#####") : formatSelect.value;
+        const operationChanged = previousOperation !== target.operation;
+        if (isWorkspacePercentageField(target)) {
+            // 비율로 처음 전환할 때는 기본 서식을 쓰고 이후 선택한 백분율 자릿수를 보존합니다.
+            // 지정 안함은 값 필드 설정 창과 같은 마스크를 저장하고 엔진의 기본 비율 표시를 사용합니다.
+            if (format !== "###0.#####") {
+                if (!format || (operationChanged && !wasPercentage && !format.endsWith("%")))
+                    format = AUIPivot.getProp(myPivotID, "defaultPercentageFormat");
+                else if (!format.endsWith("%")) format += "%";
+            }
+        } else if (operationChanged && wasPercentage && format.endsWith("%")) {
+            // 일반 집계로 돌아갈 때 백분율 표시 때문에 원래 숫자가 100배로 표시되는 것을 막습니다.
+            format = format.slice(0, -1);
+            // 표준 백분율의 자릿수는 유지하며 일반 집계 목록의 천 단위 서식으로 연결합니다.
+            if (/^0(?:\.0{1,3})?$/.test(format)) format = "#,##" + format;
+        }
+        target.formatString = format;
+        // 값 필드별로 집계 연산과 표시 형식을 정합니다.
+        AUIPivot.setValueFields(myPivotID, fields);
+        applyWorkspaceVisual();
+        showWorkspaceStatus("선택한 값의 계산 방법과 숫자 표시를 적용했습니다.");
+    }
+    // 값 필드용 가상 항목을 제외한 행과 열 배치를 서로 바꾸고 다시 집계합니다.
+    function swapWorkspaceAxes() {
+        const rows = AUIPivot.getRowFields(myPivotID);
+        const columns = AUIPivot.getColumnFields(myPivotID).filter(function (f) {
+            return f !== "_$valueFields";
+        });
+        // 행 필드를 위에서 아래로 묶을 순서대로 배치합니다.
+        AUIPivot.setRowFields(myPivotID, columns);
+        // 열 필드를 바깥 분류부터 안쪽 분류 순서로 배치합니다.
+        AUIPivot.setColumnFields(myPivotID, rows);
+        AUIPivot.updatePivot(myPivotID);
+    }
+    // 열의 날짜 구간만 선택한 기간으로 바꾸고 다른 열 필드 배치는 유지합니다.
+    function changeWorkspacePeriod(period) {
+        if (!period) return;
+        const fields = AUIPivot.getColumnFields(myPivotID).filter(function (f) {
+            return !["DATE_MONTH", "DATE_QTR", "DATE_HALF", "DATE_YEAR"].includes(f);
+        });
+        fields.unshift(period);
+        // 열 필드를 바깥 분류부터 안쪽 분류 순서로 배치합니다.
+        AUIPivot.setColumnFields(myPivotID, fields);
+        AUIPivot.updatePivot(myPivotID);
+    }
+    // 선택한 표시 속성을 저장한 뒤 refresh로 현재 피벗에 적용합니다.
+    function changeWorkspaceProp(prop, next) {
+        AUIPivot.setProp(myPivotID, prop, next);
+        AUIPivot.refresh(myPivotID);
+    }
+    // 행 레이블의 고정 개수를 변경합니다. 자동 선택은 모든 행 필드를 고정하는 기본 설정입니다.
+    function changeWorkspaceFixed(next) {
+        AUIPivot.setProp(myPivotID, {
+            useFixedColumns: true,
+            fixedRowFieldCount: next === "auto" ? null : Number(next)
+        });
+        AUIPivot.refresh(myPivotID);
+    }
+    // 창을 좁히거나 패널을 다시 열 때 가로 화면 밖으로 벗어난 부분만 보정합니다.
+    // 화면 안에서는 사용자가 옮기고 조절한 위치와 크기를 유지합니다.
+    function fitWorkspacePanel() {
+        if (!workspaceOptions.panelVisible) return;
+        const panel = document.getElementById("pivot_panel");
+        const geometry = [panel.style.left, panel.style.top, panel.style.width, panel.style.height].join("/");
+        if (workspacePanelGeometry !== null && workspacePanelGeometry !== geometry) workspacePanelFloating = true;
+        if (!workspacePanelFloating) {
+            const slot = document.querySelector(".ws-panel-slot").getBoundingClientRect();
+            panel.style.left = slot.left + window.scrollX + "px";
+            panel.style.top = slot.top + window.scrollY + "px";
+            panel.style.width = slot.width + "px";
+            panel.style.height = slot.height + "px";
+        }
+        const width = Math.min(panel.offsetWidth, Math.max(250, document.documentElement.clientWidth - 24));
+        panel.style.width = width + "px";
+        panel.style.left =
+            Math.max(0, Math.min(panel.offsetLeft, document.documentElement.clientWidth - width - 12)) + "px";
+        AUIPivot.resizePivotPanel(myPivotID);
+        workspacePanelGeometry = [panel.style.left, panel.style.top, panel.style.width, panel.style.height].join("/");
+    }
+    // 필드 패널 표시 상태에 맞게 작업 영역과 피벗 크기를 함께 조정합니다.
+    function setPanelVisible(show) {
+        workspaceOptions.panelVisible = show;
+        document.getElementById("ws-body").classList.toggle("panel-hidden", !show);
+        document.getElementById("ws-panel-toggle").checked = show;
+        if (show) {
+            AUIPivot.showPivotPanel(myPivotID);
+            fitWorkspacePanel();
+        } else if (AUIPivot.getPivotPanelState(myPivotID) === "shown") AUIPivot.hidePivotPanel(myPivotID);
+        AUIPivot.resize(myPivotID);
+    }
+    // 현재 값 항목마다 히트맵 또는 데이터바 규칙을 만들고 적용 범위에 맞춰 재집계합니다.
+    function applyWorkspaceVisual() {
+        const mode = workspaceValue("ws-visual-mode"),
+            scope = workspaceValue("ws-visual-scope"),
+            summary = document.getElementById("ws-visual-summary").checked;
+        const definitions =
+            mode === "none"
+                ? []
+                : AUIPivot.getValueFields(myPivotID).map(function (field) {
+                      const result = {
+                          dataField: field.dataField,
+                          summaryRows: summary,
+                          summaryColumns: summary,
+                          footer: summary
+                      };
+                      if (field.calculation) result.calculation = copy(field.calculation);
+                      else result.operation = field.operation || "SUM";
+                      if (mode === "heatmap") result.heatmap = { scope: scope, colors: ["#f4f8ff", "#337ab7"] };
+                      else result.dataBar = { scope: scope, color: "#337ab7", negativeColor: "#d86d62" };
+                      return result;
+                  });
+        AUIPivot.setVisualAnalytics(myPivotID, definitions);
+        AUIPivot.updatePivot(myPivotID);
+    }
+    // 차트 영역과 선택 상태를 맞춘 뒤 현재 피벗 결과로 차트를 갱신합니다.
+    function toggleWorkspaceChart(show) {
+        workspaceOptions.chartVisible = show;
+        document.getElementById("ws-chart").hidden = !show;
+        document.getElementById("ws-chart-toggle").checked = show;
+        if (show) renderWorkspaceChart();
+        else disposeWorkspaceChart();
+    }
+    // 기존 차트의 이벤트와 렌더링 자원을 해제하고 다음 표시에서 새 인스턴스를 사용합니다.
+    function disposeWorkspaceChart() {
+        if (workspaceChart) {
+            const output = workspaceChart.getDom();
+            workspaceChart.dispose();
+            workspaceChart = null;
+            // 빈 보고서에서도 이전 차트 설명이 보조 기술에 남지 않도록 정리합니다.
+            output.removeAttribute("aria-label");
+        }
+    }
+
+    // 선택한 행의 모든 값 항목을 차트에 전달합니다. 합계나 비율은 피벗 결과를 그대로 사용합니다.
+    function selectWorkspaceCell(event) {
+        const column = (AUIPivot.getColumnInfoList(myPivotID) || [])[event.columnIndex];
+        if (!column || !column.opDataField) {
+            clearWorkspaceSelection();
+            return;
+        }
+        selectedCell = { rowIndex: event.rowIndex, columnIndex: event.columnIndex };
+        document.getElementById("ws-detail-open").disabled = false;
+        // 이벤트 값은 셀의 표시 문자열입니다. 숫자로 다시 변환하지 않아 쉼표, 단위와 소수 자릿수를 유지합니다.
+        document.getElementById("ws-selection").textContent =
+            "선택한 셀: " +
+            event.headerText +
+            " / " +
+            (event.value == null || event.value === "" ? "빈 값" : String(event.value));
+        renderWorkspaceChart();
+    }
+    // 위치 기반 선택은 현재 보고서에만 유효합니다. 기본 차트는 변경된 첫 행으로 돌아갑니다.
+    function clearWorkspaceSelection() {
+        selectedCell = null;
+        document.getElementById("ws-detail-open").disabled = true;
+        document.getElementById("ws-selection").textContent = "값 셀을 선택하면 차트와 원본 거래를 확인할 수 있습니다.";
+        requestAnimationFrame(renderWorkspaceChart);
+    }
+    // 선택한 행의 집계 결과를 값 필드/연산별 시리즈로 구성합니다. 선택이 없으면 첫 행을 사용합니다.
+    function renderWorkspaceChart() {
+        if (!workspaceOptions.chartVisible) return;
+        const output = document.getElementById("ws-chart-content");
+        const description = document.getElementById("ws-chart-description");
+        const columns = AUIPivot.getColumnInfoList(myPivotID) || [];
+        const values = AUIPivot.getValueFields(myPivotID);
+        const column = selectedCell
+            ? columns[selectedCell.columnIndex]
+            : columns.find(function (c) {
+                  return c.opDataField && !c.summaryColumn;
+              }) ||
+              columns.find(function (c) {
+                  return c.opDataField;
+              });
+        const item = AUIPivot.getItemByRowIndex(myPivotID, selectedCell ? selectedCell.rowIndex : 0);
+        // 값이 없거나 라이브러리를 읽지 못하면 이전 차트를 비우고 상태만 안내합니다.
+        if (!values.length || !column || !item || typeof echarts === "undefined") {
+            disposeWorkspaceChart();
+            output.style.height = "60px";
+            output.textContent =
+                !values.length || !column || !item
+                    ? "값을 배치하고 보고서의 숫자 셀을 선택하세요."
+                    : "차트를 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 새로고침하세요.";
+            description.textContent = "";
+            return;
+        }
+        const columnPaths = new Map();
+        const measureLabels = new Map();
+        // 표시용 필드명으로 묶지 않고 열 경로의 원래 값으로 묶어, 같은 제목의 다른 항목을 분리합니다.
+        // ∑ 값이 열의 앞/중간으로 이동해도 값 이름은 범례에, 나머지 분류는 가로축에 놓습니다.
+        function collect(nodes, path, keys) {
+            nodes.forEach(function (node) {
+                const isMeasure = node.opDataField && node.value === null;
+                if (isMeasure) measureLabels.set(node.opDataField, node.headerText);
+                const isCategory = node.value != null && !node.summaryColumn && !node.isColumnLabelField;
+                const nextPath = isCategory ? path.concat(node.headerText) : path;
+                const nextKeys = isCategory ? keys.concat(node.value) : keys;
+                if (node.children) collect(node.children, nextPath, nextKeys);
+                else if (node.opDataField) {
+                    const label = node.summaryColumn
+                        ? nextPath.length
+                            ? nextPath.join(" / ") + " 요약"
+                            : "전체 합계"
+                        : nextPath.join(" / ") || "전체";
+                    columnPaths.set(node.dataField, {
+                        key: JSON.stringify([!!node.summaryColumn, nextKeys]),
+                        label: label,
+                        axisLabel: node.summaryColumn ? label : nextPath.join("\n") || "전체"
+                    });
+                }
+            });
+        }
+        collect(AUIPivot.getColumnLayout(myPivotID) || [], [], []);
+        const categories = new Map();
+        const measures = new Map();
+        // 일반 열과 부분합/총합계 열은 섞지 않고, 선택한 열과 같은 집계 범위의 모든 값 항목을 모읍니다.
+        columns.forEach(function (c) {
+            if (
+                !c.opDataField ||
+                !!c.summaryColumn !== !!column.summaryColumn ||
+                (c.summaryColumn && c.depth !== column.depth)
+            )
+                return;
+            const category = columnPaths.get(c.dataField);
+            if (!category) return;
+            categories.set(category.key, category);
+            if (!measures.has(c.opDataField)) {
+                // 값 이름이 별도 머리글로 나오지 않는 단일 값 보고서에서는 값 설정의 이름을 사용합니다.
+                const only = values[0];
+                const fallback =
+                    only.customLabelText ||
+                    AUIPivot.getAliasByDataField(myPivotID, only.dataField) +
+                        " / " +
+                        (only.calculation ? "수식" : only.operation || "SUM");
+                measures.set(c.opDataField, {
+                    id: c.opDataField,
+                    name: measureLabels.get(c.opDataField) || (values.length === 1 ? fallback : c.headerText),
+                    percentage: c.percentage === true,
+                    points: new Map()
+                });
+            }
+            const amount = item[c.dataField];
+            measures.get(c.opDataField).points.set(category.key, {
+                name: category.label,
+                value: typeof amount === "number" && Number.isFinite(amount) ? amount : null,
+                percentage: c.percentage === true,
+                label: { position: amount < 0 ? "bottom" : "top" }
+            });
+        });
+        const categoryList = Array.from(categories.values());
+        const measureList = Array.from(measures.values());
+        // 같은 사용자 지정 이름을 쓴 값도 범례 클릭이 서로 묶이지 않도록 연산 식별자로 구분합니다.
+        const names = new Map();
+        measureList.forEach(function (measure) {
+            names.set(measure.name, (names.get(measure.name) || 0) + 1);
+        });
+        measureList.forEach(function (measure) {
+            if (names.get(measure.name) > 1) measure.name += " (" + measure.id + ")";
+        });
+        const title = (selectedCell ? "선택한" : "첫 번째") + " 행의 값 항목 " + measureList.length + "개 비교";
+        description.textContent =
+            title + "입니다. 각 항목은 같은 색의 독립된 Y축을 사용합니다. 막대 높이는 해당 축의 눈금으로 확인하세요.";
+        // 빈 보고서 안내에서 차트로 돌아올 때도 동일한 300px 높이를 사용합니다.
+        output.style.height = "300px";
+        // 축을 좌우로 번갈아 놓되 전체 너비의 40% 이상은 막대 영역으로 남깁니다.
+        // 창을 줄여도 차트를 넓히지 않고 축 간격과 숫자 표시를 함께 줄여 오른쪽 축까지 보이게 합니다.
+        const axisGap = Math.max(
+            1,
+            Math.min(130, Math.floor(((output.clientWidth - 32) * 0.6) / Math.max(1, measureList.length)))
+        );
+        const gridLeft = Math.ceil(measureList.length / 2) * axisGap + 8;
+        const gridRight = Math.max(20, Math.floor(measureList.length / 2) * axisGap + 8);
+        const compactAxis = axisGap < 110;
+        const axisLabelWidth = Math.max(1, axisGap - 10);
+        const axisFontSize = axisGap < 60 ? 10 : compactAxis ? 11 : 13;
+        const colors = ["#337ab7", "#d68b2d", "#459b76", "#8264b2", "#ca666e", "#3697a6", "#806a50"];
+        if (!workspaceChart) {
+            output.replaceChildren();
+            workspaceChart = echarts.init(output, null, { renderer: "svg" });
+        }
+        // 원시 집계값은 유지하고 축 눈금, 툴팁과 라벨에만 숫자 또는 비율 표시를 적용합니다.
+        function formatAmount(point) {
+            return point && typeof point.value === "number" && Number.isFinite(point.value)
+                ? point.value.toLocaleString("ko-KR", {
+                      maximumFractionDigits: 2,
+                      style: point.percentage ? "percent" : "decimal"
+                  })
+                : "빈 값";
+        }
+        const previous = workspaceChart.getOption() || {};
+        const selected = (previous.legend && previous.legend[0].selected) || {};
+        const legendSelection = {};
+        measureList.forEach(function (measure) {
+            legendSelection[measure.name] = selected[measure.name] !== false;
+        });
+        workspaceChart.resize();
+        const categoryWidth = (output.clientWidth - gridLeft - gridRight) / Math.max(1, categoryList.length);
+        // 분류와 값은 모두 유지합니다. 좁을 때 눈금 이름만 띄엄띄엄 표시하고 정확한 값은 툴팁으로 제공합니다.
+        const categoryStep = Math.max(1, Math.ceil(60 / categoryWidth));
+        const labelWidth = Math.max(1, categoryWidth * categoryStep - 12);
+        const showValueLabels = categoryWidth / measureList.length >= 70;
+        workspaceChart.setOption(
+            {
+                animation: false,
+                color: colors,
+                textStyle: { fontFamily: '"Segoe UI", sans-serif', fontSize: 13 },
+                aria: { enabled: true, description: title },
+                legend: {
+                    type: "scroll",
+                    top: 0,
+                    left: 20,
+                    right: 20,
+                    data: measureList.map(function (m) {
+                        return m.name;
+                    }),
+                    selected: legendSelection
+                },
+                grid: { left: gridLeft, right: gridRight, top: 85, bottom: 75 },
+                // 리치 텍스트 툴팁으로 외부 문자열을 HTML로 실행하지 않고 같은 분류의 모든 시리즈를 표시합니다.
+                tooltip: {
+                    trigger: "axis",
+                    renderMode: "richText",
+                    confine: true,
+                    axisPointer: { type: "shadow" },
+                    formatter: function (params) {
+                        if (!params.length) return "";
+                        return (
+                            params[0].data.name +
+                            "\n" +
+                            params
+                                .map(function (param) {
+                                    return param.seriesName + ": " + formatAmount(param.data);
+                                })
+                                .join("\n")
+                        );
+                    }
+                },
+                xAxis: {
+                    type: "category",
+                    data: categoryList.map(function (c) {
+                        return c.axisLabel;
+                    }),
+                    axisTick: { show: false },
+                    axisLine: { onZero: false, lineStyle: { color: "#b9cbd9" } },
+                    axisLabel: {
+                        color: "#3e556b",
+                        interval: categoryStep - 1,
+                        hideOverlap: true,
+                        overflow: "truncate",
+                        width: labelWidth,
+                        lineHeight: 18
+                    }
+                },
+                // 값마다 별도 범위를 계산해 매출액/판매 대수/비율의 크기 차이가 막대를 가리지 않게 합니다.
+                yAxis: measureList.map(function (measure, index) {
+                    const color = colors[index % colors.length];
+                    const left = index % 2 === 0;
+                    return {
+                        id: measure.id,
+                        type: "value",
+                        name: measure.name,
+                        position: left ? "left" : "right",
+                        offset: Math.floor(index / 2) * axisGap,
+                        nameLocation: "end",
+                        nameGap: 18,
+                        // ECharts 축 이름은 일반 텍스트 너비와 별도로 생략 너비를 지정해야 합니다.
+                        nameTruncate: { maxWidth: axisLabelWidth },
+                        nameTextStyle: {
+                            color: color,
+                            align: left ? "right" : "left",
+                            fontSize: axisFontSize
+                        },
+                        axisLine: { show: true, onZero: false, lineStyle: { color: color } },
+                        axisTick: { show: true, lineStyle: { color: color } },
+                        axisLabel: {
+                            color: color,
+                            hideOverlap: true,
+                            fontSize: axisFontSize,
+                            margin: 6,
+                            width: axisLabelWidth,
+                            overflow: "truncate",
+                            formatter: function (value) {
+                                // 작은 영역의 큰 금액은 만/억 단위로 줄이고 원래 값과 비율은 툴팁에 보존합니다.
+                                if (compactAxis && !measure.percentage) {
+                                    // 여러 축을 배치한 휴대폰 화면에서는 긴 금액을 지수로 표시해 눈금 숫자가 잘리지 않게 합니다.
+                                    if (axisLabelWidth < 40 && Math.abs(value) >= 10000)
+                                        return value.toExponential(1).replace(".0e", "e").replace("e+", "e");
+                                    return value.toLocaleString("ko-KR", {
+                                        notation: "compact",
+                                        maximumFractionDigits: 1
+                                    });
+                                }
+                                return formatAmount({ value: value, percentage: measure.percentage });
+                            }
+                        },
+                        // 여러 축의 가로 안내선이 겹치지 않도록 첫 축의 선만 표시합니다.
+                        splitLine: { show: index === 0, lineStyle: { color: "#e5edf4" } }
+                    };
+                }),
+                series: measureList.map(function (measure, index) {
+                    return {
+                        id: measure.id,
+                        name: measure.name,
+                        type: "bar",
+                        yAxisIndex: index,
+                        itemStyle: { color: colors[index % colors.length] },
+                        barMaxWidth: 60,
+                        // 좁은 화면에서는 막대 간격과 숫자 라벨을 줄이며 모든 시리즈를 계속 표시합니다.
+                        barGap: showValueLabels ? "40%" : "20%",
+                        labelLayout: { hideOverlap: true },
+                        // 특정 값의 결과가 없는 분류도 같은 위치에 null을 넣어 시리즈의 가로축을 맞춥니다.
+                        data: categoryList.map(function (category) {
+                            return measure.points.get(category.key) || { name: category.label, value: null };
+                        }),
+                        label: {
+                            show: showValueLabels,
+                            color: "#253b50",
+                            formatter: function (params) {
+                                return formatAmount(params.data);
+                            }
+                        },
+                        emphasis: { focus: "series" }
+                    };
+                })
+            },
+            { notMerge: true }
+        );
+    }
+    // 선택한 값 셀의 원본 거래를 조회하고 상세 대화상자의 표시 방식으로 출력합니다.
+    function showDetails() {
+        if (!selectedCell) return;
+        detailRows = AUIPivot.getCellDetailList(myPivotID, selectedCell.rowIndex, selectedCell.columnIndex) || [];
+        detailPage = 0;
+        document.getElementById("ws-detail-dialog").showModal();
+        // 열린 창의 실제 너비를 기준으로 상세 화면을 생성합니다.
+        workspaceDetailView.render();
+    }
+    // 많은 원본이 한꺼번에 DOM에 쌓이지 않도록 상세 거래는 50건씩 표시합니다.
+    function renderDetails() {
+        const columns = [
+            ["DATE", "판매일"],
+            ["REGION", "판매 지점"],
+            ["NAME", "차종"],
+            ["MODEL", "모델"],
+            ["COUNT", "판매 대수"],
+            ["TOTAL", "매출액"],
+            ["COST", "원가"]
+        ];
+        const table = document.createElement("table");
+        const head = table.createTHead().insertRow();
+        columns.forEach(function (entry) {
+            const th = document.createElement("th");
+            th.textContent = entry[1];
+            th.scope = "col";
+            head.appendChild(th);
+        });
+        const body = table.createTBody();
+        detailRows.slice(detailPage * 50, (detailPage + 1) * 50).forEach(function (item) {
+            const row = body.insertRow();
+            columns.forEach(function (entry) {
+                const v = item[entry[0]];
+                row.insertCell().textContent = typeof v === "number" ? v.toLocaleString() : v;
+            });
+        });
+        document.getElementById("ws-detail-table").replaceChildren(table);
+        document.getElementById("ws-detail-count").textContent =
+            "원본 거래 " + detailRows.length.toLocaleString() + "건 / " + (detailPage + 1) + "페이지";
+        document.getElementById("ws-detail-prev").disabled = detailPage === 0;
+        document.getElementById("ws-detail-next").disabled = (detailPage + 1) * 50 >= detailRows.length;
+    }
+
+    // 보고서 API가 저장하지 않는 시각화, 고정 개수와 패널 표시도 별도 항목으로 함께 저장합니다.
+    function captureWorkspace() {
+        return {
+            kind: "AUIPivotSalesWorkspace",
+            version: 1,
+            dataset: "car-sales-cost-v1",
+            name: workspaceReportName,
+            report: AUIPivot.getReportDefinition(myPivotID),
+            visual: AUIPivot.getVisualAnalytics(myPivotID),
+            view: Object.assign({}, workspaceOptions, {
+                fixedRowFieldCount: AUIPivot.getProp(myPivotID, "fixedRowFieldCount"),
+                visualMode: workspaceValue("ws-visual-mode"),
+                visualScope: workspaceValue("ws-visual-scope"),
+                visualSummary: document.getElementById("ws-visual-summary").checked
+            })
+        };
+    }
+    // 보고서와 화면 설정을 JSON 파일로 저장합니다. 거래 원본은 파일에 포함하지 않습니다.
+    function saveWorkspaceFile() {
+        const data = captureWorkspace();
+        // UTC 변환 없이 사용자 PC의 오늘 날짜를 사용하고 파일명에 사용할 수 없는 문자는 바꿉니다.
+        const today = new Date();
+        const date =
+            String(today.getFullYear()) +
+            String(today.getMonth() + 1).padStart(2, "0") +
+            String(today.getDate()).padStart(2, "0");
+        const title = data.name.trim().replace(/[\\/:*?"<>|]/g, "_") || "새 보고서";
+        downloadWorkspaceBlob(
+            new Blob([JSON.stringify(data, null, 4)], { type: "application/json" }),
+            title + "_" + date + ".json"
+        );
+        showWorkspaceStatus("보고서 파일을 저장했습니다. 같은 워크스페이스에서 다시 열 수 있습니다.");
+    }
+    // Blob의 임시 URL로 파일을 내려받은 뒤 사용한 URL을 해제합니다.
+    function downloadWorkspaceBlob(blob, name) {
+        const url = URL.createObjectURL(blob),
+            link = document.createElement("a");
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () {
+            URL.revokeObjectURL(url);
+        }, 1000);
+    }
+    // 보고서와 화면 설정을 이 브라우저에 저장하여 다음 방문 때 자동으로 불러옵니다.
+    function saveWorkspaceBrowser() {
+        localStorage.setItem(storageKey, JSON.stringify(captureWorkspace()));
+        showWorkspaceStatus("이 브라우저에 저장했습니다. 다시 방문하면 현재 보고서가 복원되어 출력됩니다.");
+    }
+    // 브라우저 저장본이 있으면 복원하고, 읽기나 검증 실패 시 기본 보고서를 계속 사용할 수 있게 합니다.
+    function restoreWorkspaceBrowser() {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved === null) return;
+            restoreWorkspace(JSON.parse(saved));
+        } catch (error) {
+            // 저장소 접근 제한이나 손상된 저장본이 있어도 기본 보고서를 계속 사용할 수 있습니다.
+            showWorkspaceStatus("저장한 보고서를 복원하지 못했습니다. 보고서 저장 초기화 후 다시 저장하세요.", true);
+        }
+    }
+    // 현재 편집 중인 보고서와 다른 설정은 그대로 두고 워크스페이스 저장본만 삭제합니다.
+    function resetWorkspaceBrowser() {
+        localStorage.removeItem(storageKey);
+        showWorkspaceStatus("이 브라우저에 저장한 보고서를 초기화했습니다. 다음 방문에는 기본 보고서가 표시됩니다.");
+    }
+    // 선택한 보고서 파일의 크기를 확인하고 JSON을 읽어 복원합니다. 같은 파일도 다시 선택할 수 있습니다.
+    function readWorkspaceFile(event) {
+        const file = event.target.files[0];
+        event.target.value = "";
+        if (!file) return;
+        if (file.size > 1024 * 1024) {
+            showWorkspaceStatus("보고서 설정 파일은 1MB 이하로 준비하세요.", true);
+            return;
+        }
+        file.text()
+            .then(function (text) {
+                act(function () {
+                    restoreWorkspace(JSON.parse(text));
+                });
+            })
+            .catch(function () {
+                showWorkspaceStatus("파일을 읽지 못했습니다.", true);
+            });
+    }
+    // 저장 파일의 형식과 화면 설정을 검사하고 임시 피벗에서 보고서 설정의 유효성을 확인합니다.
+    function validateWorkspace(data) {
+        if (
+            !data ||
+            data.kind !== "AUIPivotSalesWorkspace" ||
+            data.version !== 1 ||
+            data.dataset !== "car-sales-cost-v1" ||
+            typeof data.name !== "string" ||
+            data.name.length > 100 ||
+            !data.view ||
+            !Array.isArray(data.visual)
+        )
+            throw new Error("이 워크스페이스에서 저장한 보고서 파일을 선택하세요.");
+        const view = data.view,
+            count = view.fixedRowFieldCount;
+        if (![null, undefined].includes(count) && (!Number.isInteger(count) || count < 0 || count > 256))
+            throw new Error("고정 개수가 잘못되었습니다.");
+        if (
+            !["none", "heatmap", "dataBar"].includes(view.visualMode) ||
+            !["GLOBAL", "ROW", "COLUMN"].includes(view.visualScope) ||
+            ["panelVisible", "chartVisible", "visualSummary"].some(function (key) {
+                return typeof view[key] !== "boolean";
+            })
+        )
+            throw new Error("화면 설정이 잘못되었습니다.");
+        // 별도 피벗에서 공개 API로 검증해 손상된 파일이 현재 작업에 부분 적용되지 않게 합니다.
+        const host = document.createElement("div");
+        host.id = "ws-validation";
+        host.style.cssText = "position:absolute;left:-10000px;width:600px;height:300px";
+        document.body.appendChild(host);
+        let pid;
+        try {
+            pid = AUIPivot.create("#ws-validation", { autoGridHeight: false, showAutoProcessLoader: false });
+            registerWorkspaceAggregator(pid);
+            // 준비한 원본을 현재 필드 설정으로 집계해 화면에 표시합니다.
+            AUIPivot.setGridData(pid, workspaceRows);
+            AUIPivot.setReportDefinition(pid, data.report);
+            AUIPivot.setVisualAnalytics(pid, data.visual);
+        } finally {
+            if (pid) AUIPivot.destroy(pid);
+            host.remove();
+        }
+    }
+    // 검증된 보고서, 시각화, 고정 개수와 패널 표시를 복원하고 다시 집계합니다.
+    function restoreWorkspace(data) {
+        validateWorkspace(data);
+        // 이전 언어로 저장한 기본 가격대 이름은 현재 선택 언어에 맞추고 저장 원본은 수정하지 않습니다.
+        const report = copy(data.report);
+        report.derivedFields = localizeWorkspaceRanges(report.derivedFields, workspaceLanguage);
+        AUIPivot.setVisualAnalytics(myPivotID, []);
+        AUIPivot.setProp(
+            myPivotID,
+            "fixedRowFieldCount",
+            data.view.fixedRowFieldCount == null ? null : data.view.fixedRowFieldCount
+        );
+        AUIPivot.setReportDefinition(myPivotID, report);
+        AUIPivot.setVisualAnalytics(myPivotID, data.visual);
+        workspaceReportName = data.name;
+        document.getElementById("ws-preset").value = "";
+        document.getElementById("ws-visual-mode").value = data.view.visualMode;
+        document.getElementById("ws-visual-scope").value = data.view.visualScope;
+        document.getElementById("ws-visual-summary").checked = data.view.visualSummary;
+        setPanelVisible(data.view.panelVisible);
+        toggleWorkspaceChart(data.view.chartVisible);
+        AUIPivot.updatePivot(myPivotID);
+        showWorkspaceStatus("저장한 보고서, 수식과 화면 설정을 불러왔습니다.");
+    }
+    // 현재 보고서를 선택한 엑셀, CSV 또는 한글 PDF 형식으로 내려받습니다.
+    function exportWorkspace(type) {
+        const options = { fileName: workspaceReportName.trim() || "매출분석", postToServer: false };
+        if (type === "pdf") {
+            options.fontPath = "../pdfkit/jejugothic.ttf";
+            AUIPivot.exportToPdf(myPivotID, options);
+        } else if (type === "xlsx")
+            AUIPivot.exportToXlsx(myPivotID, Object.assign(options, { sheetName: "매출 분석", progressBar: true }));
+        else AUIPivot.exportToCsv(myPivotID, options);
+        showWorkspaceStatus("현재 피벗 결과를 " + type.toUpperCase() + " 파일로 내보냅니다.");
+    }
+</script>
+</head>
+<body class="standalone-demo pivot-workspace">
+<!-- 개별 데모는 단일 HTML 실행 구조를 유지하며 제품 탐색만 공통으로 표시합니다. -->
+<a class="demo-skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="standalone-site-header">
+    <div class="standalone-header-inner">
+        <!-- 메인과 동일한 데모 이름을 표시하며 버전은 Builder의 version2에서 자동 갱신합니다. -->
+        <a class="standalone-brand" href="./index.html" aria-label="AUIPivot 홈"
+            ><span class="demo-brand-copy"
+                ><span>AUI<strong>Pivot</strong> v<span data-demo-version>2.8</span> Samples</span></span
+            ></a
+        >
+        <nav class="standalone-site-nav" aria-label="제품 탐색">
+            <a href="./index.html#sample-menu">데모 메뉴로 돌아가기</a
+            ><a href="../documentation/index.html" target="_blank" rel="noopener"
+                >개발 문서 <span aria-hidden="true">↗</span></a
+            >
+        </nav>
+    </div>
+</header>
+
+<div class="wrap">
+    <nav class="demo-navigation" aria-label="데모 안내">
+        <a href="./index.html#sample-menu">데모 목록</a> <a href="./data/car_sales.json">원본 JSON</a>
+    </nav>
+    <script src="./demo-theme.js"></script>
+    <header class="demo-page-intro">
+        <div class="demo-title-line">
+            <h1>피벗 워크스페이스</h1>
+            <code class="demo-api-label">AUIPivot</code>
+        </div>
+        <div class="ws-header-actions">
+            <div class="ws-message-label">
+                <label for="ws-message-language">메시지 선택</label>
+                <select id="ws-message-language" disabled>
+                    <option value="kr">한국어</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+    </header>
+    <main id="main">
+        <section class="ws-shell" aria-label="피벗 보고서 작업 공간">
+            <div class="ws-tabs" role="tablist" aria-label="보고서 작업 메뉴">
+                <button
+                    type="button"
+                    role="tab"
+                    id="ws-tab-report"
+                    data-ws-tab="report"
+                    aria-controls="ws-panel-report"
+                    aria-selected="true"
+                    tabindex="0"
+                >
+                    보고서
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="ws-tab-fields"
+                    data-ws-tab="fields"
+                    aria-controls="ws-panel-fields"
+                    aria-selected="false"
+                    tabindex="-1"
+                >
+                    필드
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="ws-tab-analysis"
+                    data-ws-tab="analysis"
+                    aria-controls="ws-panel-analysis"
+                    aria-selected="false"
+                    tabindex="-1"
+                >
+                    분석
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="ws-tab-view"
+                    data-ws-tab="view"
+                    aria-controls="ws-panel-view"
+                    aria-selected="false"
+                    tabindex="-1"
+                >
+                    표시
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="ws-tab-visual"
+                    data-ws-tab="visual"
+                    aria-controls="ws-panel-visual"
+                    aria-selected="false"
+                    tabindex="-1"
+                >
+                    시각화
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="ws-tab-export"
+                    data-ws-tab="export"
+                    aria-controls="ws-panel-export"
+                    aria-selected="false"
+                    tabindex="-1"
+                >
+                    내보내기
+                </button>
+            </div>
+            <fieldset class="ws-controls" id="ws-controls" disabled>
+                <div
+                    class="ws-ribbon"
+                    role="tabpanel"
+                    id="ws-panel-report"
+                    data-ws-panel="report"
+                    aria-labelledby="ws-tab-report"
+                >
+                    <div>
+                        <label
+                            >분석 예제
+                            <select
+                                id="ws-preset"
+                                onchange="
+                                    act(function () {
+                                        loadWorkspacePreset(workspaceValue('ws-preset'));
+                                    })
+                                "
+                            >
+                                <option value="" disabled>직접 편집한 보고서</option>
+                                <option value="sales" selected>지점별 매출</option>
+                                <option value="profit">수익성 분석</option>
+                                <option value="models">차종별 비교</option>
+                                <option value="prices">가격대별 판매</option>
+                                <option value="trend">기간별 추이</option>
+                            </select></label
+                        >
+                        <button type="button" class="ws-action" onclick="act(newWorkspaceReport)">새 보고서</button>
+                        <button type="button" class="ws-action" onclick="act(saveWorkspaceFile)">파일 저장</button>
+                        <button type="button" class="ws-action" onclick="document.getElementById('ws-file').click()">
+                            파일 열기
+                        </button>
+                        <input id="ws-file" type="file" accept=".json,application/json" hidden />
+                        <button type="button" class="ws-action" onclick="act(saveWorkspaceBrowser)">
+                            브라우저에 저장
+                        </button>
+                        <button type="button" class="ws-action" onclick="act(resetWorkspaceBrowser)">
+                            보고서 저장 초기화
+                        </button>
+                    </div>
+                    <p>
+                        예제 선택과 새 보고서는 현재 구성을 바꿉니다. 편집한 내용은 먼저 저장하세요. 저장 파일에는
+                        설정과 수식이 포함됩니다.
+                    </p>
+                </div>
+                <div
+                    class="ws-ribbon"
+                    role="tabpanel"
+                    id="ws-panel-fields"
+                    data-ws-panel="fields"
+                    aria-labelledby="ws-tab-fields"
+                    hidden
+                >
+                    <div>
+                        <label
+                            ><input
+                                id="ws-panel-toggle"
+                                type="checkbox"
+                                checked
+                                onchange="act(() => setPanelVisible(this.checked))"
+                            />필드 패널 표시</label
+                        >
+                        <button type="button" class="ws-action" onclick="act(swapWorkspaceAxes)">행과 열 바꾸기</button>
+                        <button
+                            type="button"
+                            class="ws-action"
+                            onclick="
+                                act(() => {
+                                    AUIPivot.setCustomValueOrders(myPivotID, []);
+                                    AUIPivot.updatePivot(myPivotID);
+                                })
+                            "
+                        >
+                            수동 순서 초기화
+                        </button>
+                    </div>
+                    <p>
+                        표 위의 행, 열, 값, 필터 영역에 필드를 끌어 놓으세요. 행과 열 항목에 마우스를 올리면 순서 이동
+                        손잡이를 사용할 수 있습니다.
+                    </p>
+                </div>
+                <div
+                    class="ws-ribbon"
+                    role="tabpanel"
+                    id="ws-panel-analysis"
+                    data-ws-panel="analysis"
+                    aria-labelledby="ws-tab-analysis"
+                    hidden
+                >
+                    <div>
+                        <label
+                            >값 항목
+                            <select id="ws-value-field" onchange="syncValueEditor()"></select
+                        ></label>
+                        <!-- 집계와 숫자 서식은 선택하는 즉시 보고서에 적용합니다. -->
+                        <label
+                            >집계
+                            <select id="ws-operation" onchange="act(updateValueField)">
+                                <option value="SUM">합계</option>
+                                <option value="AVG">평균</option>
+                                <option value="COUNT">개수</option>
+                                <option value="MIN">최솟값</option>
+                                <option value="MAX">최댓값</option>
+                                <option value="RATIO">같은 열 내 비율</option>
+                                <option value="WS_WEIGHTED_PRICE">가중 평균 가격</option>
+                            </select></label
+                        >
+                        <!-- 집계에 맞는 서식을 제안하고 선택하는 즉시 보고서에 반영합니다. -->
+                        <label
+                            >숫자 서식
+                            <select id="ws-format" onchange="act(updateValueField)"></select
+                        ></label>
+                        <label
+                            >열의 기간
+                            <select id="ws-period" onchange="act(() => changeWorkspacePeriod(this.value))">
+                                <option value="" disabled>기간 선택</option>
+                                <option value="DATE_MONTH">월</option>
+                                <option value="DATE_QTR">분기</option>
+                                <option value="DATE_HALF">반기</option>
+                                <option value="DATE_YEAR">년</option>
+                            </select></label
+                        >
+                        <!-- 모든 원본 필드를 선택하여 자유 배치 슬라이서를 만듭니다. -->
+                        <button type="button" class="ws-action" onclick="act(() => AUIPivot.createSlicer(myPivotID))">
+                            슬라이서 삽입
+                        </button>
+                        <button type="button" class="ws-action" onclick="act(() => AUIPivot.clearFilterAll(myPivotID))">
+                            필터 전체 해제
+                        </button>
+                    </div>
+                    <p>
+                        오른쪽 필드 패널의 <strong>계산 필드</strong>에서 수식을 추가하거나 수정하세요. 집계 후 수식에
+                        <code>(매출액 - 원가) / 매출액 * 100</code>을 입력하면 이익률을 구할 수 있습니다. 다른 집계
+                        연산은 패널의 값 메뉴에서 선택할 수 있습니다.
+                    </p>
+                </div>
+                <div
+                    class="ws-ribbon"
+                    role="tabpanel"
+                    id="ws-panel-view"
+                    data-ws-panel="view"
+                    aria-labelledby="ws-tab-view"
+                    hidden
+                >
+                    <div>
+                        <label
+                            >행 표시
+                            <select id="ws-layout" onchange="act(() => changeWorkspaceProp('layoutType', this.value))">
+                                <option value="tree">트리</option>
+                                <option value="table">테이블</option>
+                                <option value="tableCellMerge" selected>셀 병합</option>
+                            </select></label
+                        >
+                        <label
+                            >행 칼럼 고정
+                            <select id="ws-fixed" onchange="act(() => changeWorkspaceFixed(this.value))"></select
+                        ></label>
+                        <label
+                            ><input
+                                type="checkbox"
+                                data-ws-prop="showSummaryRow"
+                                onchange="act(() => changeWorkspaceProp('showSummaryRow', this.checked))"
+                            />행 부분합</label
+                        >
+                        <label
+                            ><input
+                                type="checkbox"
+                                data-ws-prop="showSummaryColumn"
+                                onchange="act(() => changeWorkspaceProp('showSummaryColumn', this.checked))"
+                            />열 부분합</label
+                        >
+                        <label
+                            ><input
+                                type="checkbox"
+                                data-ws-prop="showGrandTotalColumn"
+                                onchange="act(() => changeWorkspaceProp('showGrandTotalColumn', this.checked))"
+                            />총합계 열</label
+                        >
+                        <label
+                            ><input
+                                type="checkbox"
+                                data-ws-prop="showFooter"
+                                onchange="act(() => changeWorkspaceProp('showFooter', this.checked))"
+                            />하단 총합계</label
+                        >
+                        <label
+                            ><input
+                                type="checkbox"
+                                data-ws-prop="showTreeIcon"
+                                onchange="act(() => changeWorkspaceProp('showTreeIcon', this.checked))"
+                            />행 접기 아이콘</label
+                        >
+                        <button
+                            type="button"
+                            class="ws-action"
+                            onclick="
+                                act(() => {
+                                    AUIPivot.expandAll(myPivotID);
+                                    AUIPivot.expandAllColumns(myPivotID);
+                                    clearWorkspaceSelection();
+                                })
+                            "
+                        >
+                            모두 펼치기
+                        </button>
+                        <button
+                            type="button"
+                            class="ws-action"
+                            onclick="
+                                act(() => {
+                                    AUIPivot.collapseAll(myPivotID);
+                                    AUIPivot.collapseAllColumns(myPivotID);
+                                    clearWorkspaceSelection();
+                                })
+                            "
+                        >
+                            모두 접기
+                        </button>
+                    </div>
+                    <p>
+                        필드별 부분합은 패널의 행 필드 메뉴에서 설정합니다. 테이블과 셀 병합에서 사용할 수 있으며, 개별
+                        부분합을 바꾸면 행 접기 아이콘이 꺼집니다.
+                    </p>
+                </div>
+                <div
+                    class="ws-ribbon"
+                    role="tabpanel"
+                    id="ws-panel-visual"
+                    data-ws-panel="visual"
+                    aria-labelledby="ws-tab-visual"
+                    hidden
+                >
+                    <div>
+                        <label
+                            >표현
+                            <select id="ws-visual-mode" onchange="act(applyWorkspaceVisual)">
+                                <option value="none">사용 안 함</option>
+                                <option value="heatmap">히트맵</option>
+                                <option value="dataBar">데이터바</option>
+                            </select></label
+                        >
+                        <label
+                            >비교 범위
+                            <select id="ws-visual-scope" onchange="act(applyWorkspaceVisual)">
+                                <option value="GLOBAL">전체</option>
+                                <option value="ROW">같은 행</option>
+                                <option value="COLUMN">같은 열</option>
+                            </select></label
+                        >
+                        <label
+                            ><input
+                                id="ws-visual-summary"
+                                type="checkbox"
+                                checked
+                                onchange="act(applyWorkspaceVisual)"
+                            />부분합과 총합계에도 적용</label
+                        >
+                        <label
+                            ><input
+                                id="ws-chart-toggle"
+                                type="checkbox"
+                                checked
+                                onchange="act(() => toggleWorkspaceChart(this.checked))"
+                            />선택 행 차트 표시</label
+                        >
+                    </div>
+                    <p>
+                        각 값 항목을 독립적으로 비교합니다. 차트는 선택한 행의 모든 값 항목을 표시하며, 표를 다시
+                        계산하면 첫 행으로 돌아갑니다. 범례를 클릭하면 표시할 항목을 선택할 수 있습니다.
+                    </p>
+                </div>
+                <div
+                    class="ws-ribbon"
+                    role="tabpanel"
+                    id="ws-panel-export"
+                    data-ws-panel="export"
+                    aria-labelledby="ws-tab-export"
+                    hidden
+                >
+                    <div>
+                        <button type="button" class="ws-action" onclick="act(() => exportWorkspace('xlsx'))">
+                            Excel로 내보내기
+                        </button>
+                        <button type="button" class="ws-action" onclick="act(() => exportWorkspace('csv'))">
+                            CSV로 내보내기
+                        </button>
+                        <button type="button" class="ws-action" onclick="act(() => exportWorkspace('pdf'))">
+                            PDF로 내보내기
+                        </button>
+                    </div>
+                    <p>
+                        현재 피벗 결과를 내 컴퓨터에 저장합니다. 차트, 히트맵과 데이터바는 화면용이며 PDF는 셀 병합 없이
+                        출력됩니다. 편집 가능한 설정은 보고서 메뉴의 파일 저장을 사용하세요.
+                    </p>
+                </div>
+            </fieldset>
+            <div class="ws-status">
+                <span id="ws-status" role="status">자동차 판매 자료를 불러오는 중입니다.</span
+                ><span id="ws-count"></span>
+            </div>
+            <div class="ws-body" id="ws-body">
+                <div id="pivot_wrap"></div>
+                <div class="ws-panel-slot"><div id="pivot_panel"></div></div>
+            </div>
+            <div class="ws-selection">
+                <span id="ws-selection">값 셀을 선택하면 원본 거래를 확인할 수 있습니다.</span
+                ><button type="button" id="ws-detail-open" class="ws-action" disabled onclick="act(showDetails)">
+                    원본 거래 상세
+                </button>
+            </div>
+            <section class="ws-chart" id="ws-chart" aria-label="선택 행 비교 차트">
+                <h2>선택 행 비교</h2>
+                <p id="ws-chart-description" class="ws-note"></p>
+                <p class="ws-chart-credit">
+                    차트 라이브러리: <strong>Apache ECharts</strong> / 라이선스:
+                    <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer"
+                        >Apache License 2.0</a
+                    >
+                    / 출처:
+                    <a href="https://echarts.apache.org/en/index.html" target="_blank" rel="noopener noreferrer"
+                        >Apache ECharts 공식 사이트</a
+                    >,
+                    <a href="https://github.com/apache/echarts/tree/5.4.2" target="_blank" rel="noopener noreferrer"
+                        >소스 코드</a
+                    >
+                </p>
+                <div class="ws-chart-canvas" id="ws-chart-content"></div>
+            </section>
+        </section>
+        <details class="ws-help">
+            <summary>이 워크스페이스에서 할 수 있는 일</summary>
+            <ul>
+                <li>지점별 매출에서 필드를 옮기고, 차종 순서를 바꾸고, 행 칼럼을 고정해 보세요.</li>
+                <li>
+                    수익성 분석에서 이익률 수식을 편집해 보세요. 부분합과 총합계에서도 각 영역의 매출과 원가 합계로
+                    계산합니다.
+                </li>
+                <li>가격대별 판매에서 숫자 구간과 판매 대수에 따른 가중 평균을 비교할 수 있습니다.</li>
+                <li>값 셀을 더블클릭하면 해당 계산에 사용한 원본 거래 목록을 확인할 수 있습니다.</li>
+                <li>
+                    저장 파일에는 보고서 설정, 수식, 시각화와 화면 표시를 담습니다. 원본은 같은 자동차 자료를 다시
+                    사용하며 스크롤, 셀 선택, 개별 접힘 상태와 적용 전 초안은 저장하지 않습니다.
+                </li>
+                <li>
+                    원가는 계산 체험용 예시 금액입니다. 자료를 외부 서버로 전송하지 않습니다. 테마를 바꾸면 페이지가
+                    다시 열리므로 편집 내용은 먼저 저장하세요.
+                </li>
+            </ul>
+            <p>
+                <a href="./report_editor_demo.html">단계별 보고서 편집 안내</a> /
+                <a href="./formula_editor_demo.html">수식 편집 예제</a> /
+                <a href="./visual_analytics_demo.html">시각 분석 예제</a>
+            </p>
+        </details>
+    </main>
+    <footer class="demo-footer"><p>Copyright © AUISoft Co., Ltd.</p></footer>
+</div>
+<dialog id="ws-detail-dialog" class="ws-dialog" aria-labelledby="ws-detail-title">
+    <header>
+        <h2 id="ws-detail-title">원본 거래 상세</h2>
+        <button type="button" class="ws-action" onclick="document.getElementById('ws-detail-dialog').close()">
+            닫기
+        </button>
+    </header>
+    <p id="ws-detail-count"></p>
+    <div id="ws-detail-table" class="ws-detail-scroll"></div>
+    <button
+        type="button"
+        class="ws-action"
+        id="ws-detail-prev"
+        onclick="
+            detailPage--;
+            renderDetails();
+        "
+    >
+        이전
+    </button>
+    <button
+        type="button"
+        class="ws-action"
+        id="ws-detail-next"
+        onclick="
+            detailPage++;
+            renderDetails();
+        "
+    >
+        다음
+    </button>
+</dialog>
+</body>
+</html>

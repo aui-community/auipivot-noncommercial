@@ -1,787 +1,1152 @@
 <!doctype html>
 <html lang="ko">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="AUIPivot 배포 샘플의 주요 기능과 활용 예제입니다." />
-        <title>AUIPivot v2.7.0 Samples</title>
-        <style>
-            /* 배포 목차는 파일 위치와 관계없이 표시되도록 스타일을 내장합니다.
-               개별 데모의 글꼴, 색상과 최대 너비를 따르며 제품의 셀 스타일에는 관여하지 않습니다. */
-            :root {
-                font-family: "Segoe UI", sans-serif;
-                font-size: 14px;
-                line-height: 1.5;
-                color: #202a35;
-                background: #fff;
-            }
-            * {
-                box-sizing: border-box;
-            }
-            body {
-                margin: 0;
-            }
-            a {
-                color: #1f4e79;
-                text-decoration: none;
-            }
-            a:hover {
-                color: #2879ba;
-                text-decoration: underline;
-            }
-            a:focus-visible,
-            summary:focus-visible {
-                outline: 2px solid #2879ba;
-                outline-offset: 4px;
-            }
-            h1,
-            h2,
-            h3,
-            h5 {
-                font-weight: 700;
-                line-height: 1.6;
-            }
-            .sample-shell {
-                width: calc(100% - 40px);
-                max-width: 1600px;
-                margin: 0 auto;
-            }
-            .sample-header {
-                border-bottom: 1px solid #dce6f0;
-            }
-            .sample-header .sample-shell {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 20px;
-                min-height: 80px;
-                padding: 16px 0;
-            }
-            .sample-brand {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                min-width: 0;
-            }
-            .sample-brand svg {
-                width: 40px;
-                height: 40px;
-                flex-shrink: 0;
-            }
-            .sample-brand h1 {
-                margin: 0;
-                font-size: 21px;
-            }
-            .sample-header nav {
-                display: flex;
-                gap: 24px;
-                flex-shrink: 0;
-            }
-            .sample-header nav a {
-                color: #617184;
-            }
-            .sample-skip {
-                position: absolute;
-                top: 8px;
-                left: 20px;
-                padding: 10px 16px;
-                background: #1f4e79;
-                color: #fff;
-                transform: translateY(-160%);
-            }
-            .sample-skip:focus {
-                transform: none;
-            }
-            main {
-                padding-top: 24px;
-                padding-bottom: 40px;
-            }
-            .sample-heading {
-                margin: 0;
-                font-size: 21px;
-            }
-            .sample-description {
-                margin: 6px 0 18px;
-                color: #617184;
-            }
-            /* 실행 안내는 필요할 때 펼칩니다. 라이선스나 제품 JS 없이도 목차를 읽을 수 있습니다. */
-            .sample-guide {
-                margin-bottom: 24px;
-                border: 1px solid #dce6f0;
-                border-radius: 5px;
-                background: #f4f8fc;
-            }
-            .sample-guide summary {
-                padding: 12px 16px;
-                cursor: pointer;
-                color: #1f4e79;
-                font-weight: 600;
-            }
-            .sample-guide .guide-body {
-                padding: 0 20px 16px;
-                color: #535c67;
-            }
-            .sample-guide p {
-                margin: 0 0 8px;
-            }
-            .sample-guide ul {
-                margin: 0;
-                padding-left: 20px;
-            }
-            .sample-guide li {
-                margin-top: 8px;
-            }
-            .sample-guide code {
-                font-family: Consolas, Monaco, monospace;
-                overflow-wrap: anywhere;
-            }
-            #sample-menu {
-                scroll-margin-top: 20px;
-            }
-            .sample-section-title,
-            #sample-menu .sf_title {
-                margin: 24px 0 14px;
-                font-size: 21px;
-            }
-            /* 기존 메뉴의 링크와 순서를 그대로 사용하고 Bootstrap에 의존하던 배치만 정의합니다. */
-            #sample-menu .container.content {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 14px;
-            }
-            #sample-menu .row {
-                display: contents;
-            }
-            #sample-menu .margin-bottom-40,
-            #sample-menu .icon-info-blocks {
-                display: none;
-            }
-            #sample-menu .info-blocks {
-                padding: 18px 20px;
-                border: 1px solid #dce6f0;
-                border-radius: 5px;
-            }
-            #sample-menu .info-blocks:hover,
-            #sample-menu .info-blocks:focus-within {
-                border-color: #83accf;
-                background: #f8fbfe;
-            }
-            #sample-menu .info-blocks h3 {
-                margin: 0 0 8px;
-                font-size: 16px;
-            }
-            #sample-menu .info-blocks h3 a {
-                display: block;
-            }
-            #sample-menu .info-blocks p {
-                margin: 0;
-                color: #617184;
-            }
-            #sample-menu > div > ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-            #sample-menu > div > ul > li {
-                margin-top: 20px;
-                padding: 0 20px 16px;
-                border: 1px solid #dce6f0;
-                border-radius: 5px;
-            }
-            #sample-menu h5 {
-                margin: 0 -20px 12px;
-                padding: 12px 20px;
-                border-bottom: 1px solid #dce6f0;
-                border-radius: 5px 5px 0 0;
-                background: #f4f8fc;
-                font-size: 16px;
-            }
-            #sample-menu ol {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 2px 36px;
-                padding-left: 24px;
-                margin: 0;
-            }
-            #sample-menu ol li {
-                padding: 5px 0;
-                color: #617184;
-            }
-            #sample-menu ol a {
-                display: block;
-                overflow-wrap: anywhere;
-            }
-            .sample-footer {
-                padding: 20px 0;
-                border-top: 1px solid #dce6f0;
-                color: #617184;
-            }
-            /* 화면 폭이 줄어도 제목이나 긴 메소드명이 잘리지 않도록 한 열까지 순서대로 줄입니다. */
-            @media (max-width: 1050px) {
-                #sample-menu .container.content {
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                }
-            }
-            @media (max-width: 700px) {
-                .sample-shell {
-                    width: calc(100% - 32px);
-                }
-                .sample-header .sample-shell {
-                    flex-wrap: wrap;
-                    gap: 12px;
-                }
-                .sample-brand h1 {
-                    font-size: 18px;
-                }
-                .sample-header nav {
-                    gap: 20px;
-                }
-                #sample-menu .container.content,
-                #sample-menu ol {
-                    grid-template-columns: minmax(0, 1fr);
-                }
-                #sample-menu .info-blocks {
-                    padding: 16px;
-                }
-            }
-        </style>
-        <script>
-            // 공통 메뉴에서 기존 이동 함수를 사용하는 경우에도 동일한 예제 주소로 이동합니다.
-            function changeLocation(href) {
-                location.href = href;
-            }
-        </script>
-    </head>
-    <body>
-        <a class="sample-skip" href="#sample-menu">데모 목록으로 바로가기</a>
-        <header class="sample-header">
-            <div class="sample-shell">
-                <div class="sample-brand">
-                    <!-- 개별 데모와 같은 Pivot 마크를 내장하여 추가 이미지 경로가 필요하지 않습니다. -->
-                    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
-                        <rect width="64" height="64" rx="15" fill="#1f4e79" />
-                        <g fill="#9aafc3">
-                            <rect x="13" y="13" width="10" height="10" rx="2" />
-                            <rect x="27" y="13" width="10" height="10" rx="2" />
-                            <rect x="41" y="13" width="10" height="10" rx="2" />
-                            <rect x="13" y="27" width="10" height="10" rx="2" />
-                            <rect x="13" y="41" width="10" height="10" rx="2" />
-                        </g>
-                        <g fill="#fff">
-                            <rect x="27" y="27" width="10" height="10" rx="2" />
-                            <rect x="41" y="27" width="10" height="10" rx="2" />
-                            <rect x="27" y="41" width="10" height="10" rx="2" />
-                            <rect x="41" y="41" width="10" height="10" rx="2" />
-                        </g>
-                    </svg>
-                    <h1>AUIPivot v2.7.0 Samples</h1>
-                </div>
-                <nav aria-label="배포 샘플 안내">
-                    <!-- 현재 목차로 이동하는 링크는 생략하고 실행 안내와 문서만 제공합니다. -->
-                    <a href="#run-guide">실행 안내</a>
-                    <!-- 인터넷 연결 없이도 패키지에 포함된 개발 문서를 엽니다. -->
-                    <a href="./documentation/index.html">문서</a>
-                </nav>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="AUIPivot 배포 샘플의 주요 기능과 활용 예제입니다." />
+<title>AUIPivot v2.8 Samples</title>
+<!-- 목차와 개별 데모가 고객 패키지 전용 기본 스타일을 함께 사용합니다. -->
+<link href="./samples/demo.css" rel="stylesheet" />
+<script>
+    // 공통 메뉴에서 기존 이동 함수를 사용하는 경우에도 동일한 예제 주소로 이동합니다.
+    function changeLocation(href) {
+        location.href = href;
+    }
+</script>
+</head>
+<body class="package-index">
+<a class="sample-skip" href="#sample-menu">데모 목록으로 바로가기</a>
+<header class="sample-header">
+    <div class="sample-shell">
+        <div class="sample-brand">
+            <!-- 패키지의 공통 제목은 로고 없이 글자로만 표시합니다. -->
+            <h1>AUIPivot v2.8 Samples</h1>
+        </div>
+        <nav aria-label="배포 샘플 안내">
+            <!-- 현재 목차로 이동하는 링크는 생략하고 실행 안내와 문서만 제공합니다. -->
+            <a href="#run-guide">실행 안내</a>
+            <!-- 인터넷 연결 없이도 패키지에 포함된 개발 문서를 엽니다. -->
+            <a href="./documentation/index.html">문서</a>
+        </nav>
+    </div>
+</header>
+<main class="sample-shell">
+    <h2 class="sample-heading">데모 목록</h2>
+    <p class="sample-description">원하는 예제를 선택해 실행 화면과 소스를 확인하세요.</p>
+    <details class="sample-guide" id="run-guide">
+        <summary>실행 및 라이선스 안내</summary>
+        <div class="guide-body">
+            <p><code>unauthorized hosts for AUIPivot</code> 메시지가 나타나면 다음 항목을 확인하세요.</p>
+            <ul>
+                <li>
+                    파일을 직접 열지 말고 웹 서버에 올린 뒤 <code>http://</code> 또는 <code>https://</code> 주소로
+                    접속하세요.
+                </li>
+                <li>정품 라이선스를 사용하는 경우, 허용된 접속 도메인 또는 IP인지 확인하세요.</li>
+                <li>평가판 라이선스를 사용하는 경우에도 신청한 접속 도메인 또는 IP로 접속하세요.</li>
+            </ul>
+        </div>
+    </details>
+    <!-- 대표 데모는 기능 목록보다 먼저 안내하며 NEW 배지를 붙이지 않습니다. -->
+    <section class="sample-workspace" aria-labelledby="workspace-title">
+        <p class="workspace-eyebrow">대표 데모</p>
+        <h2 id="workspace-title">피벗 워크스페이스</h2>
+        <p>필드 배치, 계산 수식, 슬라이서와 차트부터 보고서 저장, Excel·CSV·PDF 내보내기까지 한 화면에서 체험하세요.</p>
+        <a class="workspace-open" href="./samples/pivot_workspace.html">피벗 워크스페이스 열기 →</a>
+    </section>
+    <!-- Builder가 WebDemo의 최신 기능별 목록을 삽입하고 각 목차의 상대 경로를 맞춥니다. -->
+    <section id="sample-menu" aria-label="기능별 데모 목록">
+        <!-- 새 예제도 기능 분류 안에 배치하고 NEW 배지로만 구별합니다. -->
+        <!-- 사용자 지정 주요기능과 활용 예제 분류를 순서대로 표시합니다. -->
+        <section id="major-features" class="catalog-section" data-category="features" aria-labelledby="features-title">
+            <div class="catalog-section-heading">
+                <h3 id="features-title">주요기능</h3>
+                <span class="section-count">23개</span>
             </div>
-        </header>
-        <main class="sample-shell">
-            <h2 class="sample-heading">데모 목록</h2>
-            <p class="sample-description">원하는 예제를 선택해 실행 화면과 소스를 확인하세요.</p>
-            <details class="sample-guide" id="run-guide">
-                <summary>실행 및 라이선스 안내</summary>
-                <div class="guide-body">
-                    <p><code>unauthorized hosts for AUIPivot</code> 메시지가 나타나면 다음 항목을 확인하세요.</p>
-                    <ul>
-                        <li>
-                            파일을 직접 열지 말고 웹 서버에 올린 뒤 <code>http://</code> 또는
-                            <code>https://</code> 주소로 접속하세요.
-                        </li>
-                        <li>정품 라이선스를 사용하는 경우, 허용된 접속 도메인 또는 IP인지 확인하세요.</li>
-                        <li>평가판 라이선스를 사용하는 경우에도 신청한 접속 도메인 또는 IP로 접속하세요.</li>
-                    </ul>
+            <!-- 주요기능은 번호 목록으로 표시하고 각 제목 아래에 기존 설명을 함께 제공합니다. -->
+            <ol class="example-list">
+                <li
+                    value="1"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="default_demo.html create AUIPivot 기본 데모 default_demo.html 기본적인 AUIPivot 그리드 출력한 모습을 볼 수 있습니다. create"
+                >
+                    <a href="./samples/default_demo.html"
+                        ><span class="feature-title">AUIPivot 기본 데모</span
+                        ><span class="feature-description"
+                            >기본적인 AUIPivot 그리드 출력한 모습을 볼 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="2"
+                    data-demo-entry=""
+                    data-new=""
+                    data-category="features"
+                    data-keywords="report_editor_demo.html getReportDefinition setReportDefinition 보고서 편집 필드 이동, 항목 순서, 틀 고정, 부분합과 수식을 한 보고서에서 체험할 수 있습니다. getReportDefinition / setReportDefinition"
+                >
+                    <a href="./samples/report_editor_demo.html"
+                        ><span class="feature-title"
+                            >보고서를 직접 편집해 보세요 <span class="demo-new-badge">NEW</span></span
+                        ><span class="feature-description"
+                            >필드 이동, 항목 순서, 틀 고정, 부분합과 수식을 한 보고서에서 체험할 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="3"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="pivot_panel_demo.html showPivotPanel 피벗 필드 패널 사용하기 pivot_panel_demo.html 다양한 관점에서 정보를 분석할 수 있게끔 드래그&amp;드랍을 지원하는 필드 패널을 출력시키는 데모입니다. showPivotPanel"
+                >
+                    <a href="./samples/pivot_panel_demo.html"
+                        ><span class="feature-title">피벗 필드 패널 사용하기</span
+                        ><span class="feature-description"
+                            >다양한 관점에서 정보를 분석할 수 있게끔 드래그&amp;드랍을 지원하는 필드 패널을 출력시키는
+                            데모입니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="4"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="alias_demo.html setFieldAlias 필드 별칭(alias) 지정하기 alias_demo.html 필드의 이름을 다른 이름으로 지정하여 직관성을 높일 수 있습니다. setFieldAlias"
+                >
+                    <a href="./samples/alias_demo.html"
+                        ><span class="feature-title">필드 별칭(alias) 지정하기</span
+                        ><span class="feature-description"
+                            >필드의 이름을 다른 이름으로 지정하여 직관성을 높일 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="5"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="field_layout_demo.html setFieldLayout 필드 패널 그룹과 순서 지정하기 field_layout_demo.html 필드를 그룹으로 묶고 원하는 순서로 표시하며, 그룹을 끌어 여러 필드를 한 번에 배치합니다. setFieldLayout"
+                    id="field-layout-demo"
+                >
+                    <a href="./samples/field_layout_demo.html"
+                        ><span class="feature-title">필드 패널 그룹과 순서 지정하기</span
+                        ><span class="feature-description"
+                            >필드를 그룹으로 묶고 원하는 순서로 표시하며, 그룹을 끌어 여러 필드를 한 번에
+                            배치합니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="6"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="init_state_demo.html create 초기 화면을 피벗팅 하지 않고 준비 시키기 init_state_demo.html 초기 화면을 사용자가 원하는 관점에서 분석 할 수 있도록 준비 상태로 출력시킵니다. create"
+                >
+                    <a href="./samples/init_state_demo.html"
+                        ><span class="feature-title">초기 화면을 피벗팅 하지 않고 준비 시키기</span
+                        ><span class="feature-description"
+                            >초기 화면을 사용자가 원하는 관점에서 분석 할 수 있도록 준비 상태로 출력시킵니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="7"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="layout_tree_demo.html layoutType 피벗 출력 방식 - 트리(기본값) layout_tree_demo.html 다수의 행 필드를 끌어 놓으면 기본적으로 트리 형태로 출력됩니다. layoutType"
+                >
+                    <a href="./samples/layout_tree_demo.html"
+                        ><span class="feature-title">피벗 출력 방식 - 트리(기본값)</span
+                        ><span class="feature-description"
+                            >다수의 행 필드를 끌어 놓으면 기본적으로 트리 형태로 출력됩니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="8"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="layout_table_demo.html layoutType 피벗 출력 방식 - 테이블 layout_table_demo.html 다수의 행 필드를 끌어 놓으면 각각의 행 필드가 독립적인 셀 공간을 차지하여 출력됩니다. layoutType"
+                >
+                    <a href="./samples/layout_table_demo.html"
+                        ><span class="feature-title">피벗 출력 방식 - 테이블</span
+                        ><span class="feature-description"
+                            >다수의 행 필드를 끌어 놓으면 각각의 행 필드가 독립적인 셀 공간을 차지하여 출력됩니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="9"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="layout_table_cell_merge_demo.html layoutType 피벗 출력 방식 - 셀병합 layout_table_cell_merge_demo.html 다수의 행 필드를 끌어 놓으면 각각의 행 필드가 독립적인 셀 공간을 차지하고 셀 병합 후 출력됩니다. layoutType"
+                >
+                    <a href="./samples/layout_table_cell_merge_demo.html"
+                        ><span class="feature-title">피벗 출력 방식 - 셀병합</span
+                        ><span class="feature-description"
+                            >다수의 행 필드를 끌어 놓으면 각각의 행 필드가 독립적인 셀 공간을 차지하고 셀 병합 후
+                            출력됩니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="10"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="detail_list_demo.html getCellDetailList 요약 상세(Detail) 리스트 보기(Drill-Down) detail_list_demo.html 피벗팅 된 데이터를 구성한 원본(source) 데이터를 알 수 있습니다. getCellDetailList"
+                >
+                    <a href="./samples/detail_list_demo.html"
+                        ><span class="feature-title">요약 상세(Detail) 리스트 보기(Drill-Down)</span
+                        ><span class="feature-description"
+                            >피벗팅 된 데이터를 구성한 원본(source) 데이터를 알 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="11"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="dimension_order_demo.html setDisplayOrderRules setDisplayOrderRules — 판매 지점, 차종, 월을 정렬 코드로 정렬하기 dimension_order_demo.html 피벗 분석 완료 후 출력되는 보고서의 행, 열에 출력되는 정렬 방식을 특정 필드 기준으로 출력 할 수 있습니다. setDisplayOrderRules"
+                >
+                    <a href="./samples/dimension_order_demo.html"
+                        ><span class="feature-title">행, 열에 출력되는 정렬 방식 지정하기</span
+                        ><span class="feature-description"
+                            >피벗 분석 완료 후 출력되는 보고서의 행, 열에 출력되는 정렬 방식을 특정 필드 기준으로 출력
+                            할 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="12"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="field_order_demo.html setFieldOrder 필드 순서 지정하기 field_order_demo.html 피벗 필드 패널에 출력되는 필드 리스트의 순서를 원하는 순서로 지정할 수 있습니다. setFieldOrder"
+                >
+                    <a href="./samples/field_order_demo.html"
+                        ><span class="feature-title">필드 순서 지정하기</span
+                        ><span class="feature-description"
+                            >피벗 필드 패널에 출력되는 필드 리스트의 순서를 원하는 순서로 지정할 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="13"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="formatter_demo.html formatString 숫자 포맷팅 지정하기 formatter_demo.html 값 필드의 숫자를 원하는 포맷 형식으로 지정합니다.(예, 컴마 출력. 소수점 2자리 등) formatString"
+                >
+                    <a href="./samples/formatter_demo.html"
+                        ><span class="feature-title">숫자 포맷팅 지정하기</span
+                        ><span class="feature-description"
+                            >값 필드의 숫자를 원하는 포맷 형식으로 지정합니다.(예, 컴마 출력. 소수점 2자리 등)</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="14"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="formatter_date_demo.html setDateTypeField 날짜 포맷팅 지정하기 formatter_date_demo.html 날짜에 대한 필드를 원하는 포맷 형식으로 지정합니다.(예: 2019년 1월 4일 등) setDateTypeField"
+                >
+                    <a href="./samples/formatter_date_demo.html"
+                        ><span class="feature-title">날짜 포맷팅 지정하기</span
+                        ><span class="feature-description"
+                            >날짜에 대한 필드를 원하는 포맷 형식으로 지정합니다.(예: 2019년 1월 4일 등)</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="15"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="heatmap_demo.html setHeatmapColors 히트맵(Heatmap)으로 렌더링 heatmap_demo.html 피벗팅되어 출력된 셀의 배경을 특정 색상 스펙트럼으로 출력합니다. setHeatmapColors"
+                >
+                    <a href="./samples/heatmap_demo.html"
+                        ><span class="feature-title">히트맵(Heatmap)으로 렌더링</span
+                        ><span class="feature-description"
+                            >피벗팅되어 출력된 셀의 배경을 특정 색상 스펙트럼으로 출력합니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="16"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="slicer_demo.html createSlicer 행, 열 데이터 필터링, 단면 슬라이스 하기 slicer_demo.html 출력된 보고서에서 행, 열의 데이터를 필터링하고자 할 때 필터 필드를 활용하여 필터링 할 수 있습니다. createSlicer"
+                >
+                    <a href="./samples/slicer_demo.html"
+                        ><span class="feature-title">행, 열 데이터 필터링, 단면 슬라이스 하기</span
+                        ><span class="feature-description"
+                            >출력된 보고서에서 행, 열의 데이터를 필터링하고자 할 때 필터 필드를 활용하여 필터링 할 수
+                            있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="17"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="tooltip_demo.html Tooltip 툴팁(Tooltip) 정의하기 tooltip_demo.html 마우스 오버 시 툴팁을 표시합니다. Tooltip"
+                >
+                    <a href="./samples/tooltip_demo.html"
+                        ><span class="feature-title">툴팁(Tooltip) 정의하기</span
+                        ><span class="feature-description">마우스 오버 시 툴팁을 표시합니다.</span></a
+                    >
+                </li>
+                <li
+                    value="18"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="context_demo.html contextMenu 컨텍스트 메뉴 context_demo.html 마우스 오른쪽 클릭 시 출력되는 컨텍스트 메뉴입니다. contextMenu"
+                >
+                    <a href="./samples/context_demo.html"
+                        ><span class="feature-title">컨텍스트 메뉴</span
+                        ><span class="feature-description">마우스 오른쪽 클릭 시 출력되는 컨텍스트 메뉴입니다.</span></a
+                    >
+                </li>
+                <li
+                    value="19"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="avaliable_operations_demo.html operation 지원 가능 연산자 보기 avaliable_operations_demo.html AUIPivot 에서 분석 가능한 연산자를 모두 볼 수 있습니다. operation"
+                >
+                    <a href="./samples/avaliable_operations_demo.html"
+                        ><span class="feature-title">지원 가능 연산자 보기</span
+                        ><span class="feature-description"
+                            >AUIPivot 에서 분석 가능한 연산자를 모두 볼 수 있습니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="20"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="excel_export_demo.html exportToXlsx 엑셀로 내보내기(Export) excel_export_demo.html 피벗 보고서를 엑셀(xlsx) 문서로 저장합니다. 엑셀 내보내기 할 때 진행바 표시 기능을 지원합니다. exportToXlsx"
+                >
+                    <a href="./samples/excel_export_demo.html"
+                        ><span class="feature-title">엑셀로 내보내기(Export)</span
+                        ><span class="feature-description"
+                            >피벗 보고서를 엑셀(xlsx) 문서로 저장합니다. 엑셀 내보내기 할 때 진행바 표시 기능을
+                            지원합니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="21"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="message_en_demo.html Messages 다국어(리소스번들) message_en_demo.html 기본적인 한글 메뉴를 영어, 일본어 등으로 바꿔서 AUIPivot 을 표현합니다. Messages"
+                >
+                    <a href="./samples/message_en_demo.html"
+                        ><span class="feature-title">다국어(리소스번들)</span
+                        ><span class="feature-description"
+                            >기본적인 한글 메뉴를 영어, 일본어 등으로 바꿔서 AUIPivot 을 표현합니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="22"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="theme_nova_demo.html Theme Theme 변경하기 theme_nova_demo.html 피벗 그리드에 다른 스타일이 적용된 CSS를 설정합니다. Theme"
+                >
+                    <a href="./samples/theme_nova_demo.html"
+                        ><span class="feature-title">Theme 변경하기</span
+                        ><span class="feature-description"
+                            >피벗 그리드에 다른 스타일이 적용된 CSS를 설정합니다.</span
+                        ></a
+                    >
+                </li>
+                <li
+                    value="23"
+                    data-demo-entry=""
+                    data-category="features"
+                    data-keywords="integration_google_charts.html cellClick 차트 연동하기 integration_google_charts.html 피벗 그리드에서 셀 클릭 시 해당 행에 대한 값을 Google Charts, Apache Echarts 로 표현합니다. cellClick"
+                >
+                    <a href="./samples/integration_google_charts.html"
+                        ><span class="feature-title">차트 연동하기</span
+                        ><span class="feature-description"
+                            >피벗 그리드에서 셀 클릭 시 해당 행에 대한 값을 Google Charts, Apache Echarts 로
+                            표현합니다.</span
+                        ></a
+                    >
+                </li>
+            </ol>
+        </section>
+        <div id="application-examples" class="application-catalog">
+            <h3 class="application-title">활용 예제</h3>
+            <section
+                id="pivot-general-guides"
+                class="catalog-section"
+                data-category="general"
+                aria-labelledby="pivot-general-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="pivot-general-guides-title">피벗 그리드 일반</h4>
+                    <span class="section-count">16개</span>
                 </div>
-            </details>
-            <!-- Builder가 기존 메뉴를 삽입하고 각 목차 위치에 맞는 상대 경로로 연결합니다. -->
-            <section id="sample-menu" aria-labelledby="sample-features-title">
-                <h2 class="sample-section-title" id="sample-features-title">주요 기능</h2>
-                            <div class="container content">
-                <div class="margin-bottom-40"></div>
-                <!-- 주요 기능은 네 칸씩 이어 배치하여 중간에 빈 메뉴 공간이 생기지 않게 합니다. -->
-                <div class="row margin-bottom-60">
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-bell-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/default_demo.html">AUIPivot 기본 데모</a></h3>
-                            <p>기본적인 AUIPivot 그리드 출력한 모습을 볼 수 있습니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-compress"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/pivot_panel_demo.html">피벗 필드 패널 사용하기</a></h3>
-                            <p>
-                                다양한 관점에서 정보를 분석할 수 있게끔 드래그&amp;드랍을 지원하는 필드 패널을
-                                출력시키는 데모입니다.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/alias_demo.html">필드 별칭(alias) 지정하기</a></h3>
-                            <p>필드의 이름을 다른 이름으로 지정하여 직관성을 높일 수 있습니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3 id="field-layout-demo">
-                                <a href="./samples/field_layout_demo.html">필드 패널 그룹과 순서 지정하기</a>
-                            </h3>
-                            <p>
-                                필드를 그룹으로 묶고 원하는 순서로 표시하며, 그룹을 끌어 여러 필드를 한 번에 배치합니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row margin-bottom-60">
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/init_state_demo.html">초기 화면을 피벗팅 하지 않고 준비 시키기</a></h3>
-                            <p>초기 화면을 사용자가 원하는 관점에서 분석 할 수 있도록 준비 상태로 출력시킵니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/layout_tree_demo.html">피벗 출력 방식 - 트리(기본값)</a></h3>
-                            <p>다수의 행 필드를 끌어 놓으면 기본적으로 트리 형태로 출력됩니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-code"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/layout_table_demo.html">피벗 출력 방식 - 테이블</a></h3>
-                            <p>다수의 행 필드를 끌어 놓으면 각각의 행 필드가 독립적인 셀 공간을 차지하여 출력됩니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/layout_table_cell_merge_demo.html">피벗 출력 방식 - 셀병합</a></h3>
-                            <p>
-                                다수의 행 필드를 끌어 놓으면 각각의 행 필드가 독립적인 셀 공간을 차지하고 셀 병합 후
-                                출력됩니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row margin-bottom-60">
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-code"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/detail_list_demo.html">요약 상세(Detail) 리스트 보기(Drill-Down)</a></h3>
-                            <p>피벗팅 된 데이터를 구성한 원본(source) 데이터를 알 수 있습니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/dimension_order_demo.html">행, 열에 출력되는 정렬 방식 지정하기</a></h3>
-                            <p>
-                                피벗 분석 완료 후 출력되는 보고서의 행, 열에 출력되는 정렬 방식을 특정 필드 기준으로
-                                출력 할 수 있습니다.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/field_order_demo.html">필드 순서 지정하기</a></h3>
-                            <p>피벗 필드 패널에 출력되는 필드 리스트의 순서를 원하는 순서로 지정할 수 있습니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/formatter_demo.html">숫자 포맷팅 지정하기</a></h3>
-                            <p>값 필드의 숫자를 원하는 포맷 형식으로 지정합니다.(예, 컴마 출력. 소수점 2자리 등)</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row margin-bottom-60">
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/formatter_date_demo.html">날짜 포맷팅 지정하기</a></h3>
-                            <p>날짜에 대한 필드를 원하는 포맷 형식으로 지정합니다.(예: 2019년 1월 4일 등)</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/heatmap_demo.html">히트맵(Heatmap)으로 렌더링</a></h3>
-                            <p>피벗팅되어 출력된 셀의 배경을 특정 색상 스펙트럼으로 출력합니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/slicer_demo.html">행, 열 데이터 필터링, 단면 슬라이스 하기</a></h3>
-                            <p>
-                                출력된 보고서에서 행, 열의 데이터를 필터링하고자 할 때 필터 필드를 활용하여 필터링 할 수
-                                있습니다.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/tooltip_demo.html">툴팁(Tooltip) 정의하기</a></h3>
-                            <p>마우스 오버 시 툴팁을 표시합니다.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row margin-bottom-60">
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/context_demo.html">컨텍스트 메뉴</a></h3>
-                            <p>마우스 오른쪽 클릭 시 출력되는 컨텍스트 메뉴입니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/avaliable_operations_demo.html">지원 가능 연산자 보기</a></h3>
-                            <p>AUIPivot 에서 분석 가능한 연산자를 모두 볼 수 있습니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-code"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/excel_export_demo.html">엑셀로 내보내기(Export)</a></h3>
-                            <p>
-                                피벗 보고서를 엑셀(xlsx) 문서로 저장합니다. 엑셀 내보내기 할 때 진행바 표시 기능을
-                                지원합니다.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-lock"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/message_en_demo.html">다국어(리소스번들)</a></h3>
-                            <p>기본적인 한글 메뉴를 영어, 일본어 등으로 바꿔서 AUIPivot 을 표현합니다.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row margin-bottom-60">
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/theme_nova_demo.html">Theme 변경하기</a></h3>
-                            <p>피벗 그리드에 다른 스타일이 적용된 CSS를 설정합니다.</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 info-blocks">
-                        <i class="icon-info-blocks fa fa-star-o"></i>
-                        <div class="info-blocks-in">
-                            <h3><a href="./samples/integration_google_charts.html">차트 연동하기</a></h3>
-                            <p>
-                                피벗 그리드에서 셀 클릭 시 해당 행에 대한 값을 Google Charts, Apache Echarts 로
-                                표현합니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 class="sf_title">활용 예제</h3>
-                <ul>
-                    <li>
-                        <h5 id="pivot-general-guides">피벗 그리드 일반</h5>
-                        <ol>
-                            <li>
-                                <a href="./samples/change_data_demo.html"
-                                    >setGridData — 이미 생성된 피벗 그리드에서 피벗 대상 데이터 바꾸기(소스 데이터
-                                    변경)</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/layout_switch_demo.html"
-                                    >setProp, refresh — 피벗 출력 방식 트리, 테이블, 셀병합 전환</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/except_fields_demo.html">setExceptFields — 피벗팅 대상 필드 제외 시키기</a>
-                            </li>
-                            <li>
-                                <a href="./samples/no_header_filter_demo.html"
-                                    >행(row), 열(column) 헤더에 있는 기본 필터 없이 출력시키기</a
-                                >
-                            </li>
-                            <li><a href="./samples/no_fixed_demo.html">고정 칼럼(틀 고정)을 적용하지 않기</a></li>
-                            <li>
-                                <a href="./samples/no_tree_icon_on_table_layout.html"
-                                    >출력 방식-테이블, 셀머지인 경우 트리 아이콘 출력 안하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/resize_demo.html"
-                                    >resize — Resizable &amp; Movable 피벗 그리드 예제(with JQuery UI)</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/grid_height_demo.html">피벗팅할 때 그리드 높이(height) 고정시켜 표현하기</a>
-                            </li>
-                            <li>
-                                <a href="./samples/destroy_recreate_demo.html"
-                                    >destroy, create — 피벗 그리드 제거 및 재생성(동적 제거 및 생성) 하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/pivot_panel_later_demo.html"
-                                    >createPivotPanel, destroyPivotPanel — 피벗 필드 패널 제거 및 재생성(동적 제거 및
-                                    생성) 하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/fit_size_demo.html"
-                                    >getFitColumnSizeList, setColumnSizeList — 칼럼 사이즈 조절 및 크기에 맞추기</a
-                                >
-                            </li>
-                            <li><a href="./samples/show_loader.html">피벗 연산 중에 프로세스 로더 출력 시키기</a></li>
-                            <li><a href="./samples/report_definition_demo.html">피벗 보고서 저장하고 재방문 시 복구하기</a></li>
-                        </ol>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="change_data_demo.html setGridData setGridData — 이미 생성된 피벗 그리드에서 피벗 대상 데이터 바꾸기(소스 데이터 변경) change_data_demo.html"
+                    >
+                        <a href="./samples/change_data_demo.html"
+                            >setGridData — 이미 생성된 피벗 그리드에서 피벗 대상 데이터 바꾸기(소스 데이터 변경)</a
+                        >
                     </li>
-
-                    <li>
-                        <h5 id="aggregation-field-guides">집계 연산 및 가상 필드, 그룹화</h5>
-                        <ol>
-                            <li><a href="./samples/aggregate_sum_demo.html">SUM — 매출액과 판매 대수 합계</a></li>
-                            <li><a href="./samples/aggregate_count_demo.html">COUNT — 판매기록 수 세기</a></li>
-                            <li>
-                                <a href="./samples/aggregate_distinct_count_demo.html">DISTINCT_COUNT — 중복 없는 고객 수</a>
-                            </li>
-                            <li><a href="./samples/aggregate_avg_demo.html">AVG — 차량 가격의 산술 평균</a></li>
-                            <li><a href="./samples/aggregate_min_demo.html">MIN — 판매된 차량의 최저 가격</a></li>
-                            <li><a href="./samples/aggregate_max_demo.html">MAX — 판매된 차량의 최고 가격</a></li>
-                            <li><a href="./samples/aggregate_multiply_demo.html">MULTIPLY — 기록별 값을 모두 곱하기</a></li>
-                            <li><a href="./samples/aggregate_median_demo.html">MEDIAN — 가격의 중앙값</a></li>
-                            <li><a href="./samples/aggregate_variance_demo.html">VARIANCE — 가격의 모집단 분산</a></li>
-                            <li>
-                                <a href="./samples/aggregate_std_deviation_demo.html">STD_DEVIATION — 가격의 모집단 표준편차</a>
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_sample_variance_demo.html">SAMPLE_VARIANCE — 가격의 표본 분산</a>
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_sample_std_deviation_demo.html"
-                                    >SAMPLE_STD_DEVIATION — 가격의 표본 표준편차</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_ratio_demo.html">RATIO — 같은 열 전체에서 차지하는 매출 비율</a>
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_row_ratio_demo.html"
-                                    >ROW_RATIO — 같은 행 전체에서 차지하는 매출 비율</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_ratio_of_sums_demo.html"
-                                    >RATIO_OF_SUMS — 두 합계로 판매 단가 구하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_grand_total_ratio_demo.html"
-                                    >GRAND_TOTAL_RATIO — 전체 매출 대비 비중</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/aggregate_grand_total_count_ratio_demo.html"
-                                    >GRAND_TOTAL_COUNT_RATIO — 전체 판매기록 대비 비중</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/date_virtual_fields_demo.html"
-                                    >setDateTypeField — 판매일을 연도, 반기, 분기, 월로 묶기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/calculated_field_demo.html"
-                                    >setDerivedFields — 매출에서 원가를 뺀 이익 계산하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/numeric_range_grouping_demo.html"
-                                    >setDerivedFields — 차량 가격대를 하나의 차원으로 만들기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/derived_fields_demo.html"
-                                    >setDerivedFields — 이익 계산과 가격대별로 묶어 보기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/custom_aggregation_registration_demo.html"
-                                    >registerCustomAggregator — 중복 고객을 고려한 고객당 평균 매출</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/custom_aggregator_demo.html"
-                                    >registerCustomAggregator — 판매 대수를 반영한 평균 가격</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/custom_price_share_demo.html"
-                                    >registerCustomAggregator — 기준 가격 이상 차량의 판매 비중</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/dimension_order_demo.html"
-                                    >setDisplayOrderRules — 판매 지점, 차종, 월을 정렬 코드로 정렬하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/custom_value_order_demo.html"
-                                    >setCustomValueOrders — 지점, 차종의 항목 순서 직접 지정하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/visual_analytics_demo.html"
-                                    >setVisualAnalytics — 히트맵과 데이터 막대로 판매 실적 비교하기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/aggregation_comparison_demo.html"
-                                    >비교하기 — 판매기록으로 집계 차이 살펴보기</a
-                                >
-                            </li>
-                            <li><a href="./samples/ratio_demo.html">월별 매출의 열, 행, 전체 비율 한 화면 비교</a></li>
-                            <li>
-                                <a href="./samples/executive_branch_profit_demo.html">경영 보고 1. 지점별 매출, 수익성 진단</a>
-                            </li>
-                            <li>
-                                <a href="./samples/executive_period_performance_demo.html"
-                                    >경영 보고 2. 분기, 월별 판매 실적과 수익성</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/executive_price_mix_demo.html"
-                                    >경영 보고 3. 가격대, 차종별 판매 포트폴리오</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/executive_customer_concentration_demo.html"
-                                    >경영 보고 4. 고객별 매출 집중도와 거래 폭</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/executive_price_dispersion_demo.html"
-                                    >경영 보고 5. 할인, 판매비를 반영한 예상 손익</a
-                                >
-                            </li>
-                        </ol>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="layout_switch_demo.html setProp / refresh setProp, refresh — 피벗 출력 방식 트리, 테이블, 셀병합 전환 layout_switch_demo.html"
+                    >
+                        <a href="./samples/layout_switch_demo.html"
+                            >setProp, refresh — 피벗 출력 방식 트리, 테이블, 셀병합 전환</a
+                        >
                     </li>
-
-                    <li>
-                        <h5>부분 합계, 전체 합계 정의</h5>
-                        <ol>
-                            <li><a href="./samples/no_summary_rows.html">행(rows) 부분 합계 출력하지 않기</a></li>
-                            <li>
-                                <a href="./samples/no_summary_rows_part.html"
-                                    >setExceptSumRowFields — 행(rows) 부분 합계 선택적으로 출력하기(일부 제외 시키기)</a
-                                >
-                            </li>
-                            <li><a href="./samples/no_summary_columns.html">열(columns) 부분 합계 출력하지 않기</a></li>
-                            <li>
-                                <a href="./samples/no_grandtotal_rows.html"
-                                    >행(rows) 전체 합계(Grand Total=Footer) 출력하지 않기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/no_grandtotal_columns.html"
-                                    >열(columns) 전체 합계(Grand Total) 출력하지 않기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/summary_columns_first.html"
-                                    >열(columns) 부분 합계, 전체 합계 앞에 출력 하기</a
-                                >
-                            </li>
-                        </ol>
+                    <li
+                        value="3"
+                        data-demo-entry
+                        data-new
+                        data-category="general"
+                        data-keywords="grid_field_drop_demo.html enableGridFieldDrop "
+                    >
+                        <a href="./samples/grid_field_drop_demo.html"
+                            >enableGridFieldDrop — 표에서 필드를 끌어 보고서 구성하기
+                            <span class="demo-new-badge">NEW</span></a
+                        >
                     </li>
-
-                    <li>
-                        <h5>텍스트 사용자 정의 및 포맷팅</h5>
-                        <ol>
-                            <li>
-                                <a href="./samples/user_name_value_demo.html"
-                                    >"합계 : 가격" 과 같은 값 필드 명을 원하는 이름으로 바꾸기</a
-                                >
-                            </li>
-                            <li><a href="./samples/tooltip_custom_demo.html">툴팁의 내용을 사용자 정의하기</a></li>
-                            <li><a href="./samples/message_change_demo.html">피벗 그리드 및 패널의 문구 바꾸기</a></li>
-                            <li><a href="./samples/fill_null_zero_demo.html">공백 또는 NULL 을 0으로 채우기</a></li>
-                            <li>
-                                <a href="./samples/formatter_rows_demo.html"
-                                    >setRowFormatString — 행 차원에 숫자 필드 넣고 컴마 출력 시키기</a
-                                >
-                            </li>
-                        </ol>
+                    <li
+                        value="4"
+                        data-demo-entry
+                        data-new
+                        data-category="general"
+                        data-keywords="manual_item_order_demo.html enableItemReorder "
+                    >
+                        <a href="./samples/manual_item_order_demo.html"
+                            >enableItemReorder — 항목을 원하는 순서로 배치하기
+                            <span class="demo-new-badge">NEW</span></a
+                        >
                     </li>
-
-                    <li>
-                        <h5>엑셀, CSV, PDF 로 내보내기(Export)</h5>
-                        <ol>
-                            <li>
-                                <a href="./samples/excel_header_footer_demo.html"
-                                    >exportToXlsx — 상단과 하단에 타이틀 및 추가 텍스트 넣기</a
-                                >
-                            </li>
-                            <li>
-                                <a href="./samples/excel_names_demo.html">exportToXlsx — 엑셀 파일명 및 시트 이름 설정하기</a>
-                            </li>
-                            <li>
-                                <a href="./samples/excel_local_server_demo.html"
-                                    >exportToXlsx — 엑셀 로컬 다운로드 or Blob 데이터 얻어 컨트롤 하기</a
-                                >
-                            </li>
-                            <li><a href="./samples/export_csv_demo.html">exportToCsv — CSV 로 내보내기</a></li>
-                            <li><a href="./samples/export_pdf_demo.html">exportToPdf — PDF 로 내보내기</a></li>
-                        </ol>
+                    <li
+                        value="5"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="except_fields_demo.html setExceptFields setExceptFields — 피벗팅 대상 필드 제외 시키기 except_fields_demo.html"
+                    >
+                        <a href="./samples/except_fields_demo.html">setExceptFields — 피벗팅 대상 필드 제외 시키기</a>
                     </li>
-
-                    <li>
-                        <h5>스타일(Style) 재정의</h5>
-                        <ol>
-                            <li><a href="./samples/row_style_demo.html">행의 가로선 출력 및 행 색상 지정하기</a></li>
-                            <li>
-                                <a href="./samples/row_dim_style_demo.html"
-                                    >setRowDimStyleFunction — 행 차원의 분석 값 스타일 지정하기(예:색상, 가운데 정렬
-                                    등)</a
-                                >
-                            </li>
-                        </ol>
+                    <li
+                        value="6"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="no_header_filter_demo.html Header 행(row), 열(column) 헤더에 있는 기본 필터 없이 출력시키기 no_header_filter_demo.html"
+                    >
+                        <a href="./samples/no_header_filter_demo.html"
+                            >행(row), 열(column) 헤더에 있는 기본 필터 없이 출력시키기</a
+                        >
                     </li>
-
-                    <li>
-                        <h5>이벤트 핸들링</h5>
-                        <ol>
-                            <li><a href="./samples/event_pivot_demo.html">피벗 업데이트 완료 이벤트 핸들링 하기</a></li>
-                            <li><a href="./samples/event_cell_click_demo.html">셀, 헤더, 푸터 클릭 이벤트 핸들링 하기</a></li>
-                            <li><a href="./samples/event_sorting_demo.html">정렬(sorting) 이벤트 핸들링 하기</a></li>
-                        </ol>
+                    <li
+                        value="7"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="no_fixed_demo.html Layout 고정 칼럼(틀 고정)을 적용하지 않기 no_fixed_demo.html"
+                    >
+                        <a href="./samples/no_fixed_demo.html">고정 칼럼(틀 고정)을 적용하지 않기</a>
                     </li>
-                </ul>
-            </div>
-
+                    <li
+                        value="8"
+                        data-demo-entry
+                        data-new
+                        data-category="general"
+                        data-keywords="fixed_row_fields_demo.html fixedRowFieldCount "
+                    >
+                        <a href="./samples/fixed_row_fields_demo.html"
+                            >fixedRowFieldCount — 원하는 행 칼럼까지 고정하기 <span class="demo-new-badge">NEW</span></a
+                        >
+                    </li>
+                    <li
+                        value="9"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="no_tree_icon_on_table_layout.html Layout 출력 방식-테이블, 셀머지인 경우 트리 아이콘 출력 안하기 no_tree_icon_on_table_layout.html"
+                    >
+                        <a href="./samples/no_tree_icon_on_table_layout.html"
+                            >출력 방식-테이블, 셀머지인 경우 트리 아이콘 출력 안하기</a
+                        >
+                    </li>
+                    <li
+                        value="10"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="resize_demo.html resize resize — Resizable &amp; Movable 피벗 그리드 예제(with JQuery UI) resize_demo.html"
+                    >
+                        <a href="./samples/resize_demo.html"
+                            >resize — Resizable &amp; Movable 피벗 그리드 예제(with JQuery UI)</a
+                        >
+                    </li>
+                    <li
+                        value="11"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="grid_height_demo.html height 피벗팅할 때 그리드 높이(height) 고정시켜 표현하기 grid_height_demo.html"
+                    >
+                        <a href="./samples/grid_height_demo.html">피벗팅할 때 그리드 높이(height) 고정시켜 표현하기</a>
+                    </li>
+                    <li
+                        value="12"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="destroy_recreate_demo.html destroy / create destroy, create — 피벗 그리드 제거 및 재생성(동적 제거 및 생성) 하기 destroy_recreate_demo.html"
+                    >
+                        <a href="./samples/destroy_recreate_demo.html"
+                            >destroy, create — 피벗 그리드 제거 및 재생성(동적 제거 및 생성) 하기</a
+                        >
+                    </li>
+                    <li
+                        value="13"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="pivot_panel_later_demo.html createPivotPanel / destroyPivotPanel createPivotPanel, destroyPivotPanel — 피벗 필드 패널 제거 및 재생성(동적 제거 및 생성) 하기 pivot_panel_later_demo.html"
+                    >
+                        <a href="./samples/pivot_panel_later_demo.html"
+                            >createPivotPanel, destroyPivotPanel — 피벗 필드 패널 제거 및 재생성(동적 제거 및 생성)
+                            하기</a
+                        >
+                    </li>
+                    <li
+                        value="14"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="fit_size_demo.html getFitColumnSizeList / setColumnSizeList getFitColumnSizeList, setColumnSizeList — 칼럼 사이즈 조절 및 크기에 맞추기 fit_size_demo.html"
+                    >
+                        <a href="./samples/fit_size_demo.html"
+                            >getFitColumnSizeList, setColumnSizeList — 칼럼 사이즈 조절 및 크기에 맞추기</a
+                        >
+                    </li>
+                    <li
+                        value="15"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="show_loader.html showInfoMessage 피벗 연산 중에 프로세스 로더 출력 시키기 show_loader.html"
+                    >
+                        <a href="./samples/show_loader.html">피벗 연산 중에 프로세스 로더 출력 시키기</a>
+                    </li>
+                    <li
+                        value="16"
+                        data-demo-entry
+                        data-category="general"
+                        data-keywords="report_definition_demo.html getReportDefinition / setReportDefinition 피벗 보고서 저장하고 재방문 시 복구하기 report_definition_demo.html"
+                    >
+                        <a href="./samples/report_definition_demo.html">피벗 보고서 저장하고 재방문 시 복구하기</a>
+                    </li>
+                </ol>
             </section>
-        </main>
-        <footer class="sample-footer">
-            <div class="sample-shell">Copyright © AUISoft Co., Ltd.</div>
-        </footer>
-    </body>
+            <section
+                id="aggregation-field-guides"
+                class="catalog-section"
+                data-category="aggregation"
+                aria-labelledby="aggregation-field-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="aggregation-field-guides-title">집계 연산 및 가상 필드, 그룹화</h4>
+                    <span class="section-count">35개</span>
+                </div>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_sum_demo.html SUM SUM — 매출액과 판매 대수 합계 aggregate_sum_demo.html"
+                    >
+                        <a href="./samples/aggregate_sum_demo.html">SUM — 매출액과 판매 대수 합계</a>
+                    </li>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_count_demo.html COUNT COUNT — 판매기록 수 세기 aggregate_count_demo.html"
+                    >
+                        <a href="./samples/aggregate_count_demo.html">COUNT — 판매기록 수 세기</a>
+                    </li>
+                    <li
+                        value="3"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_distinct_count_demo.html DISTINCT_COUNT DISTINCT_COUNT — 중복 없는 고객 수 aggregate_distinct_count_demo.html"
+                    >
+                        <a href="./samples/aggregate_distinct_count_demo.html">DISTINCT_COUNT — 중복 없는 고객 수</a>
+                    </li>
+                    <li
+                        value="4"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_avg_demo.html AVG AVG — 차량 가격의 산술 평균 aggregate_avg_demo.html"
+                    >
+                        <a href="./samples/aggregate_avg_demo.html">AVG — 차량 가격의 산술 평균</a>
+                    </li>
+                    <li
+                        value="5"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_min_demo.html MIN MIN — 판매된 차량의 최저 가격 aggregate_min_demo.html"
+                    >
+                        <a href="./samples/aggregate_min_demo.html">MIN — 판매된 차량의 최저 가격</a>
+                    </li>
+                    <li
+                        value="6"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_max_demo.html MAX MAX — 판매된 차량의 최고 가격 aggregate_max_demo.html"
+                    >
+                        <a href="./samples/aggregate_max_demo.html">MAX — 판매된 차량의 최고 가격</a>
+                    </li>
+                    <li
+                        value="7"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_multiply_demo.html MULTIPLY MULTIPLY — 기록별 값을 모두 곱하기 aggregate_multiply_demo.html"
+                    >
+                        <a href="./samples/aggregate_multiply_demo.html">MULTIPLY — 기록별 값을 모두 곱하기</a>
+                    </li>
+                    <li
+                        value="8"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_median_demo.html MEDIAN MEDIAN — 가격의 중앙값 aggregate_median_demo.html"
+                    >
+                        <a href="./samples/aggregate_median_demo.html">MEDIAN — 가격의 중앙값</a>
+                    </li>
+                    <li
+                        value="9"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_variance_demo.html VARIANCE VARIANCE — 가격의 모집단 분산 aggregate_variance_demo.html"
+                    >
+                        <a href="./samples/aggregate_variance_demo.html">VARIANCE — 가격의 모집단 분산</a>
+                    </li>
+                    <li
+                        value="10"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_std_deviation_demo.html STD_DEVIATION STD_DEVIATION — 가격의 모집단 표준편차 aggregate_std_deviation_demo.html"
+                    >
+                        <a href="./samples/aggregate_std_deviation_demo.html">STD_DEVIATION — 가격의 모집단 표준편차</a>
+                    </li>
+                    <li
+                        value="11"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_sample_variance_demo.html SAMPLE_VARIANCE SAMPLE_VARIANCE — 가격의 표본 분산 aggregate_sample_variance_demo.html"
+                    >
+                        <a href="./samples/aggregate_sample_variance_demo.html">SAMPLE_VARIANCE — 가격의 표본 분산</a>
+                    </li>
+                    <li
+                        value="12"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_sample_std_deviation_demo.html SAMPLE_STD_DEVIATION SAMPLE_STD_DEVIATION — 가격의 표본 표준편차 aggregate_sample_std_deviation_demo.html"
+                    >
+                        <a href="./samples/aggregate_sample_std_deviation_demo.html"
+                            >SAMPLE_STD_DEVIATION — 가격의 표본 표준편차</a
+                        >
+                    </li>
+                    <li
+                        value="13"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_ratio_demo.html RATIO RATIO — 같은 열 전체에서 차지하는 매출 비율 aggregate_ratio_demo.html"
+                    >
+                        <a href="./samples/aggregate_ratio_demo.html">RATIO — 같은 열 전체에서 차지하는 매출 비율</a>
+                    </li>
+                    <li
+                        value="14"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_row_ratio_demo.html ROW_RATIO ROW_RATIO — 같은 행 전체에서 차지하는 매출 비율 aggregate_row_ratio_demo.html"
+                    >
+                        <a href="./samples/aggregate_row_ratio_demo.html"
+                            >ROW_RATIO — 같은 행 전체에서 차지하는 매출 비율</a
+                        >
+                    </li>
+                    <li
+                        value="15"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_ratio_of_sums_demo.html RATIO_OF_SUMS RATIO_OF_SUMS — 두 합계로 판매 단가 구하기 aggregate_ratio_of_sums_demo.html"
+                    >
+                        <a href="./samples/aggregate_ratio_of_sums_demo.html"
+                            >RATIO_OF_SUMS — 두 합계로 판매 단가 구하기</a
+                        >
+                    </li>
+                    <li
+                        value="16"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_grand_total_ratio_demo.html GRAND_TOTAL_RATIO GRAND_TOTAL_RATIO — 전체 매출 대비 비중 aggregate_grand_total_ratio_demo.html"
+                    >
+                        <a href="./samples/aggregate_grand_total_ratio_demo.html"
+                            >GRAND_TOTAL_RATIO — 전체 매출 대비 비중</a
+                        >
+                    </li>
+                    <li
+                        value="17"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregate_grand_total_count_ratio_demo.html GRAND_TOTAL_COUNT_RATIO GRAND_TOTAL_COUNT_RATIO — 전체 판매기록 대비 비중 aggregate_grand_total_count_ratio_demo.html"
+                    >
+                        <a href="./samples/aggregate_grand_total_count_ratio_demo.html"
+                            >GRAND_TOTAL_COUNT_RATIO — 전체 판매기록 대비 비중</a
+                        >
+                    </li>
+                    <li
+                        value="18"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="date_virtual_fields_demo.html setDateTypeField setDateTypeField — 판매일을 연도, 반기, 분기, 월로 묶기 date_virtual_fields_demo.html"
+                    >
+                        <a href="./samples/date_virtual_fields_demo.html"
+                            >setDateTypeField — 판매일을 연도, 반기, 분기, 월로 묶기</a
+                        >
+                    </li>
+                    <li
+                        value="19"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="calculated_field_demo.html setDerivedFields setDerivedFields — 매출에서 원가를 뺀 이익 계산하기 calculated_field_demo.html"
+                    >
+                        <a href="./samples/calculated_field_demo.html"
+                            >setDerivedFields — 매출에서 원가를 뺀 이익 계산하기</a
+                        >
+                    </li>
+                    <li
+                        value="20"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="numeric_range_grouping_demo.html setDerivedFields setDerivedFields — 차량 가격대를 하나의 차원으로 만들기 numeric_range_grouping_demo.html"
+                    >
+                        <a href="./samples/numeric_range_grouping_demo.html"
+                            >setDerivedFields — 차량 가격대를 하나의 차원으로 만들기</a
+                        >
+                    </li>
+                    <li
+                        value="21"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="derived_fields_demo.html setDerivedFields setDerivedFields — 이익 계산과 가격대별로 묶어 보기 derived_fields_demo.html"
+                    >
+                        <a href="./samples/derived_fields_demo.html"
+                            >setDerivedFields — 이익 계산과 가격대별로 묶어 보기</a
+                        >
+                    </li>
+                    <li
+                        value="22"
+                        data-demo-entry
+                        data-new
+                        data-category="aggregation"
+                        data-keywords="formula_editor_demo.html enableCalculatedFieldEditor setFormulaFields calculation"
+                    >
+                        <a href="./samples/formula_editor_demo.html"
+                            >enableCalculatedFieldEditor — 수식을 입력해 이익률 계산하기
+                            <span class="demo-new-badge">NEW</span></a
+                        >
+                    </li>
+                    <li
+                        value="23"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="custom_aggregation_registration_demo.html registerCustomAggregator registerCustomAggregator — 중복 고객을 고려한 고객당 평균 매출 custom_aggregation_registration_demo.html"
+                    >
+                        <a href="./samples/custom_aggregation_registration_demo.html"
+                            >registerCustomAggregator — 중복 고객을 고려한 고객당 평균 매출</a
+                        >
+                    </li>
+                    <li
+                        value="24"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="custom_aggregator_demo.html registerCustomAggregator registerCustomAggregator — 판매 대수를 반영한 평균 가격 custom_aggregator_demo.html"
+                    >
+                        <a href="./samples/custom_aggregator_demo.html"
+                            >registerCustomAggregator — 판매 대수를 반영한 평균 가격</a
+                        >
+                    </li>
+                    <li
+                        value="25"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="custom_price_share_demo.html registerCustomAggregator registerCustomAggregator — 기준 가격 이상 차량의 판매 비중 custom_price_share_demo.html"
+                    >
+                        <a href="./samples/custom_price_share_demo.html"
+                            >registerCustomAggregator — 기준 가격 이상 차량의 판매 비중</a
+                        >
+                    </li>
+                    <li
+                        value="26"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="dimension_order_demo.html setDisplayOrderRules setDisplayOrderRules — 판매 지점, 차종, 월을 정렬 코드로 정렬하기 dimension_order_demo.html"
+                    >
+                        <a href="./samples/dimension_order_demo.html"
+                            >setDisplayOrderRules — 판매 지점, 차종, 월을 정렬 코드로 정렬하기</a
+                        >
+                    </li>
+                    <li
+                        value="27"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="custom_value_order_demo.html setCustomValueOrders setCustomValueOrders — 지점, 차종의 항목 순서 직접 지정하기 custom_value_order_demo.html"
+                    >
+                        <a href="./samples/custom_value_order_demo.html"
+                            >setCustomValueOrders — 지점, 차종의 항목 순서 직접 지정하기</a
+                        >
+                    </li>
+                    <li
+                        value="28"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="visual_analytics_demo.html setVisualAnalytics setVisualAnalytics — 히트맵과 데이터 막대로 판매 실적 비교하기 visual_analytics_demo.html"
+                    >
+                        <a href="./samples/visual_analytics_demo.html"
+                            >setVisualAnalytics — 히트맵과 데이터 막대로 판매 실적 비교하기</a
+                        >
+                    </li>
+                    <li
+                        value="29"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="aggregation_comparison_demo.html operation 비교하기 — 판매기록으로 집계 차이 살펴보기 aggregation_comparison_demo.html"
+                    >
+                        <a href="./samples/aggregation_comparison_demo.html"
+                            >비교하기 — 판매기록으로 집계 차이 살펴보기</a
+                        >
+                    </li>
+                    <li
+                        value="30"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="ratio_demo.html RATIO / ROW_RATIO 월별 매출의 열, 행, 전체 비율 한 화면 비교 ratio_demo.html"
+                    >
+                        <a href="./samples/ratio_demo.html">월별 매출의 열, 행, 전체 비율 한 화면 비교</a>
+                    </li>
+                    <li
+                        value="31"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="executive_branch_profit_demo.html Report 경영 보고 1. 지점별 매출, 수익성 진단 executive_branch_profit_demo.html"
+                    >
+                        <a href="./samples/executive_branch_profit_demo.html">경영 보고 1. 지점별 매출, 수익성 진단</a>
+                    </li>
+                    <li
+                        value="32"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="executive_period_performance_demo.html Report 경영 보고 2. 분기, 월별 판매 실적과 수익성 executive_period_performance_demo.html"
+                    >
+                        <a href="./samples/executive_period_performance_demo.html"
+                            >경영 보고 2. 분기, 월별 판매 실적과 수익성</a
+                        >
+                    </li>
+                    <li
+                        value="33"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="executive_price_mix_demo.html Report 경영 보고 3. 가격대, 차종별 판매 포트폴리오 executive_price_mix_demo.html"
+                    >
+                        <a href="./samples/executive_price_mix_demo.html"
+                            >경영 보고 3. 가격대, 차종별 판매 포트폴리오</a
+                        >
+                    </li>
+                    <li
+                        value="34"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="executive_customer_concentration_demo.html Report 경영 보고 4. 고객별 매출 집중도와 거래 폭 executive_customer_concentration_demo.html"
+                    >
+                        <a href="./samples/executive_customer_concentration_demo.html"
+                            >경영 보고 4. 고객별 매출 집중도와 거래 폭</a
+                        >
+                    </li>
+                    <li
+                        value="35"
+                        data-demo-entry
+                        data-category="aggregation"
+                        data-keywords="executive_price_dispersion_demo.html Report 경영 보고 5. 할인, 판매비를 반영한 예상 손익 executive_price_dispersion_demo.html"
+                    >
+                        <a href="./samples/executive_price_dispersion_demo.html"
+                            >경영 보고 5. 할인, 판매비를 반영한 예상 손익</a
+                        >
+                    </li>
+                </ol>
+            </section>
+            <section
+                id="summary-guides"
+                class="catalog-section"
+                data-category="totals"
+                aria-labelledby="summary-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="summary-guides-title">부분 합계, 전체 합계 정의</h4>
+                    <span class="section-count">7개</span>
+                </div>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="totals"
+                        data-keywords="no_summary_rows.html Summary 행(rows) 부분 합계 출력하지 않기 no_summary_rows.html"
+                    >
+                        <a href="./samples/no_summary_rows.html">행(rows) 부분 합계 출력하지 않기</a>
+                    </li>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="totals"
+                        data-keywords="no_summary_rows_part.html setExceptSumRowFields setExceptSumRowFields — 행(rows) 부분 합계 선택적으로 출력하기(일부 제외 시키기) no_summary_rows_part.html"
+                    >
+                        <a href="./samples/no_summary_rows_part.html"
+                            >setExceptSumRowFields — 행(rows) 부분 합계 선택적으로 출력하기(일부 제외 시키기)</a
+                        >
+                    </li>
+                    <li
+                        value="3"
+                        data-demo-entry
+                        data-new
+                        data-category="totals"
+                        data-keywords="field_subtotal_menu_demo.html enableFieldSubtotalMenu "
+                    >
+                        <a href="./samples/field_subtotal_menu_demo.html"
+                            >enableFieldSubtotalMenu — 필드별 부분합 표시하기 <span class="demo-new-badge">NEW</span></a
+                        >
+                    </li>
+                    <li
+                        value="4"
+                        data-demo-entry
+                        data-category="totals"
+                        data-keywords="no_summary_columns.html Summary 열(columns) 부분 합계 출력하지 않기 no_summary_columns.html"
+                    >
+                        <a href="./samples/no_summary_columns.html">열(columns) 부분 합계 출력하지 않기</a>
+                    </li>
+                    <li
+                        value="5"
+                        data-demo-entry
+                        data-category="totals"
+                        data-keywords="no_grandtotal_rows.html Grand Total 행(rows) 전체 합계(Grand Total=Footer) 출력하지 않기 no_grandtotal_rows.html"
+                    >
+                        <a href="./samples/no_grandtotal_rows.html"
+                            >행(rows) 전체 합계(Grand Total=Footer) 출력하지 않기</a
+                        >
+                    </li>
+                    <li
+                        value="6"
+                        data-demo-entry
+                        data-category="totals"
+                        data-keywords="no_grandtotal_columns.html Grand Total 열(columns) 전체 합계(Grand Total) 출력하지 않기 no_grandtotal_columns.html"
+                    >
+                        <a href="./samples/no_grandtotal_columns.html"
+                            >열(columns) 전체 합계(Grand Total) 출력하지 않기</a
+                        >
+                    </li>
+                    <li
+                        value="7"
+                        data-demo-entry
+                        data-category="totals"
+                        data-keywords="summary_columns_first.html Summary 열(columns) 부분 합계, 전체 합계 앞에 출력 하기 summary_columns_first.html"
+                    >
+                        <a href="./samples/summary_columns_first.html"
+                            >열(columns) 부분 합계, 전체 합계 앞에 출력 하기</a
+                        >
+                    </li>
+                </ol>
+            </section>
+            <section
+                id="formatting-guides"
+                class="catalog-section"
+                data-category="format"
+                aria-labelledby="formatting-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="formatting-guides-title">텍스트 사용자 정의 및 포맷팅</h4>
+                    <span class="section-count">5개</span>
+                </div>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="format"
+                        data-keywords='user_name_value_demo.html customLabelText "합계 : 가격" 과 같은 값 필드 명을 원하는 이름으로 바꾸기 user_name_value_demo.html'
+                    >
+                        <a href="./samples/user_name_value_demo.html"
+                            >&quot;합계 : 가격&quot; 과 같은 값 필드 명을 원하는 이름으로 바꾸기</a
+                        >
+                    </li>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="format"
+                        data-keywords="tooltip_custom_demo.html Tooltip 툴팁의 내용을 사용자 정의하기 tooltip_custom_demo.html"
+                    >
+                        <a href="./samples/tooltip_custom_demo.html">툴팁의 내용을 사용자 정의하기</a>
+                    </li>
+                    <li
+                        value="3"
+                        data-demo-entry
+                        data-category="format"
+                        data-keywords="message_change_demo.html Messages 피벗 그리드 및 패널의 문구 바꾸기 message_change_demo.html"
+                    >
+                        <a href="./samples/message_change_demo.html">피벗 그리드 및 패널의 문구 바꾸기</a>
+                    </li>
+                    <li
+                        value="4"
+                        data-demo-entry
+                        data-category="format"
+                        data-keywords="fill_null_zero_demo.html isFormatNullValue 공백 또는 NULL 을 0으로 채우기 fill_null_zero_demo.html"
+                    >
+                        <a href="./samples/fill_null_zero_demo.html">공백 또는 NULL 을 0으로 채우기</a>
+                    </li>
+                    <li
+                        value="5"
+                        data-demo-entry
+                        data-category="format"
+                        data-keywords="formatter_rows_demo.html setRowFormatString setRowFormatString — 행 차원에 숫자 필드 넣고 컴마 출력 시키기 formatter_rows_demo.html"
+                    >
+                        <a href="./samples/formatter_rows_demo.html"
+                            >setRowFormatString — 행 차원에 숫자 필드 넣고 컴마 출력 시키기</a
+                        >
+                    </li>
+                </ol>
+            </section>
+            <section
+                id="export-guides"
+                class="catalog-section"
+                data-category="export"
+                aria-labelledby="export-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="export-guides-title">엑셀, CSV, PDF 로 내보내기(Export)</h4>
+                    <span class="section-count">5개</span>
+                </div>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="export"
+                        data-keywords="excel_header_footer_demo.html exportToXlsx exportToXlsx — 상단과 하단에 타이틀 및 추가 텍스트 넣기 excel_header_footer_demo.html"
+                    >
+                        <a href="./samples/excel_header_footer_demo.html"
+                            >exportToXlsx — 상단과 하단에 타이틀 및 추가 텍스트 넣기</a
+                        >
+                    </li>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="export"
+                        data-keywords="excel_names_demo.html exportToXlsx exportToXlsx — 엑셀 파일명 및 시트 이름 설정하기 excel_names_demo.html"
+                    >
+                        <a href="./samples/excel_names_demo.html">exportToXlsx — 엑셀 파일명 및 시트 이름 설정하기</a>
+                    </li>
+                    <li
+                        value="3"
+                        data-demo-entry
+                        data-category="export"
+                        data-keywords="excel_local_server_demo.html exportToXlsx exportToXlsx — 엑셀 로컬 다운로드 or Blob 데이터 얻어 컨트롤 하기 excel_local_server_demo.html"
+                    >
+                        <a href="./samples/excel_local_server_demo.html"
+                            >exportToXlsx — 엑셀 로컬 다운로드 or Blob 데이터 얻어 컨트롤 하기</a
+                        >
+                    </li>
+                    <li
+                        value="4"
+                        data-demo-entry
+                        data-category="export"
+                        data-keywords="export_csv_demo.html exportToCsv exportToCsv — CSV 로 내보내기 export_csv_demo.html"
+                    >
+                        <a href="./samples/export_csv_demo.html">exportToCsv — CSV 로 내보내기</a>
+                    </li>
+                    <li
+                        value="5"
+                        data-demo-entry
+                        data-category="export"
+                        data-keywords="export_pdf_demo.html exportToPdf exportToPdf — PDF 로 내보내기 export_pdf_demo.html"
+                    >
+                        <a href="./samples/export_pdf_demo.html">exportToPdf — PDF 로 내보내기</a>
+                    </li>
+                </ol>
+            </section>
+            <section
+                id="style-guides"
+                class="catalog-section"
+                data-category="style"
+                aria-labelledby="style-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="style-guides-title">스타일(Style) 재정의</h4>
+                    <span class="section-count">2개</span>
+                </div>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="style"
+                        data-keywords="row_style_demo.html Style 행의 가로선 출력 및 행 색상 지정하기 row_style_demo.html"
+                    >
+                        <a href="./samples/row_style_demo.html">행의 가로선 출력 및 행 색상 지정하기</a>
+                    </li>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="style"
+                        data-keywords="row_dim_style_demo.html setRowDimStyleFunction setRowDimStyleFunction — 행 차원의 분석 값 스타일 지정하기(예:색상, 가운데 정렬 등) row_dim_style_demo.html"
+                    >
+                        <a href="./samples/row_dim_style_demo.html"
+                            >setRowDimStyleFunction — 행 차원의 분석 값 스타일 지정하기(예:색상, 가운데 정렬 등)</a
+                        >
+                    </li>
+                </ol>
+            </section>
+            <section
+                id="event-guides"
+                class="catalog-section"
+                data-category="events"
+                aria-labelledby="event-guides-title"
+            >
+                <div class="catalog-section-heading">
+                    <h4 id="event-guides-title">이벤트 핸들링</h4>
+                    <span class="section-count">3개</span>
+                </div>
+                <ol class="example-list">
+                    <li
+                        value="1"
+                        data-demo-entry
+                        data-category="events"
+                        data-keywords="event_pivot_demo.html pivotBegin / pivotComplete 피벗 업데이트 완료 이벤트 핸들링 하기 event_pivot_demo.html"
+                    >
+                        <a href="./samples/event_pivot_demo.html">피벗 업데이트 완료 이벤트 핸들링 하기</a>
+                    </li>
+                    <li
+                        value="2"
+                        data-demo-entry
+                        data-category="events"
+                        data-keywords="event_cell_click_demo.html cellClick 셀, 헤더, 푸터 클릭 이벤트 핸들링 하기 event_cell_click_demo.html"
+                    >
+                        <a href="./samples/event_cell_click_demo.html">셀, 헤더, 푸터 클릭 이벤트 핸들링 하기</a>
+                    </li>
+                    <li
+                        value="3"
+                        data-demo-entry
+                        data-category="events"
+                        data-keywords="event_sorting_demo.html sorting 정렬(sorting) 이벤트 핸들링 하기 event_sorting_demo.html"
+                    >
+                        <a href="./samples/event_sorting_demo.html">정렬(sorting) 이벤트 핸들링 하기</a>
+                    </li>
+                </ol>
+            </section>
+        </div>
+    </section>
+</main>
+<footer class="sample-footer">
+    <div class="sample-shell">Copyright © AUISoft Co., Ltd.</div>
+</footer>
+</body>
 </html>

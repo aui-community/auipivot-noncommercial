@@ -1,6 +1,7 @@
 import 'react';
 import CodeBlock from '@/views/CodeBlock';
 import TreeLayoutCode from '@/samples/TreeLayout.jsx?raw';
+// 프레임워크 샘플의 설치 방법과 제품 파일 연결 예제를 안내합니다.
 const Home = () => {
 	return (
 		<div className="home-main">

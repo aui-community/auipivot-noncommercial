@@ -1,6 +1,6 @@
 /**
- * AUIPivotReact.jsx v1.2.20261008
- * Based on AUIPivot v2.7.0
+ * AUIPivotReact.jsx v1.2.20261012
+ * Based on AUIPivot v2.8.0
  * Copyright © AUISoft Co., Ltd.
  * www.auisoft.net
  */
@@ -198,7 +198,7 @@ class AUIPivot extends React.Component {
 	createPivotPanel(props) {
 		return $ag.createPivotPanel.call($ag, this.pid, arguments[0]);
 	}
-	// 슬라이서를 만들고 생성된 슬라이서 ID를 반환합니다.
+	// 인수가 없으면 2.8의 필드 선택 창을 열고 수동 생성의 ID 반환도 유지합니다.
 	createSlicer(container, options) {
 		return $ag.createSlicer.call($ag, this.pid, arguments[0], arguments[1]);
 	}
@@ -438,6 +438,13 @@ class AUIPivot extends React.Component {
 		$ag.setDateTypeField.call($ag, this.pid, arguments[0]);
 	}
 	// 파생 필드 정의를 설정합니다.
+	// 집계 후 수식 정의와 값 영역 배치를 독립적으로 관리합니다.
+	setFormulaFields(fields) {
+		return $ag.setFormulaFields.call($ag, this.pid, fields);
+	}
+	getFormulaFields() {
+		return $ag.getFormulaFields.call($ag, this.pid);
+	}
 	setDerivedFields(definitions) {
 		$ag.setDerivedFields.call($ag, this.pid, arguments[0]);
 	}

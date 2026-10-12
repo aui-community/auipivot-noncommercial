@@ -1,5 +1,5 @@
 /*!
- * AUIPivot Non-Commercial LICENSE v2.7
+ * AUIPivot Non-Commercial LICENSE v2.8
  * Authorized Domain(or IP) : localhost, 127.0.0.1
  * www.auisoft.net
  *
@@ -27,7 +27,5 @@
  * Copyright © AUISoft Co., Ltd. https://www.auisoft.net
  */
 /* eslint-disable */
-// 비상업용 배포에 사용하는 라이선스입니다.
-const AUIPivotLicense =
-    "eyJjdCI6ImEveFEvdGR2M1B6Q2QxNlYweDRYeWJiWEFsdDVHVHdOaTZ5aWd2ODhVWkd4TTgzUUlqVG1TRVQ5RzFTVU5nMSswWW91S3BsY2lYOHRmQ3h3blZxZi9RPT0iLCJpdiI6ImQ5YzgzMGI1NGU5ODBjNGZlMGJjMDJiMmM0NTJmMDJjIiwicyI6IjJlMTZkZTljMzJiNGIwZWMifQ==";
+const AUIPivotLicense = "eyJjdCI6IkxUQmFaTFlSSVhxZThwNjhVVTluKzdRbHUwT0FBa2RPa1V5WVZKd0RoN05Bekh5ZldNd3ZRdks3VEVHcm4zYzkrZVBublYzT3NtT1E5dnhyS0VnOXdBPT0iLCJpdiI6Ijk0NGI3MDRhMmJjYjU3NTljMWYxYzA1ZmRlZjJjNTM4IiwicyI6IjEyMjEyMjIzNzhkZmQ5NTUifQ==";
 if (typeof window !== "undefined") window.AUIPivotLicense = AUIPivotLicense;

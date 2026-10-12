@@ -22,11 +22,14 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 
 	// 시작점에서 생성과 정적 JSON 요청을 분리합니다.
     const request = new AbortController();
+    // 피벗을 먼저 준비한 뒤 원본 자료를 요청해 이 예제의 초기 보고서를 표시합니다.
     function init() {
         createPivotGrid();
         requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
     }
+    // 컴포넌트 참조로 피벗을 생성하고 이 화면에서 사용할 초기 설정을 준비합니다.
     function createPivotGrid() { myPivot.value!.create(pivotProps); }
+    // 원본 JSON을 요청해 보고서에 입력합니다. 화면이 해제된 뒤 도착한 응답은 적용하지 않습니다.
     function requestData(url: string) {
 		const pivot = myPivot.value!;
 		pivot.showAjaxLoader();
@@ -48,23 +51,23 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 			});
 	}
 
-	// 피벗 데이터 초기화
+	// 행과 열의 분류와 값 집계를 설정한 뒤 원본을 입력해 보고서를 만듭니다.
 	function initPivotData(data: CarSale[]) {
 		const pivot = myPivot.value!;
 
-		// 행 필드
+		// 세로로 묶어 표시할 행 필드를 상위 항목부터 순서대로 지정합니다.
 		pivot.setRowFields(['REGION', 'NAME', 'MODEL']);
 
-		// 열 필드
+		// 가로로 나눌 열 필드를 바깥 분류부터 순서대로 지정합니다.
 		pivot.setColumnFields(['DATE_QTR', 'DATE_MONTH']);
 
-		// 값 필드
+		// 집계할 원본 필드, 연산과 숫자 표시 형식을 지정합니다.
 		pivot.setValueFields([
 			{ dataField: 'TOTAL', operation: 'SUM', formatString: '#,##0' },
 			{ dataField: 'COUNT', operation: 'SUM', formatString: '#,##0' }
 		]);
 
-		// 필터 필드
+		// 행과 열 배치를 바꾸지 않고 조회 범위를 좁힐 필터 필드를 지정합니다.
 		pivot.setFilterFields(['COLOR']);
 
 		// 날짜 필드 명시
@@ -113,6 +116,7 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 				minFieldPanelWidth: 300,
 				minFieldPanelHeight: 400
 			};
+			// 행, 열, 값과 필터를 사용자가 편집할 필드 패널을 생성합니다.
 			pivot.createPivotPanel(props);
 		}
 	}

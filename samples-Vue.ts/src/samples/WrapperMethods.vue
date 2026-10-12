@@ -84,7 +84,9 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 		pivot.bind([EventKind.PivotBegin, EventKind.PivotComplete, EventKind.CellClick, EventKind.CellDoubleClick, EventKind.HeaderClick,
 			EventKind.FooterClick, EventKind.FooterDoubleClick, EventKind.Sorting, EventKind.TreeOpenChange, EventKind.ColumnStateChange,
 			EventKind.PivotPanelShow, EventKind.PivotPanelHide], showEvent);
+		// 원본 필드명 대신 화면에 보여 줄 이름을 지정합니다.
 		pivot.setFieldAlias({ REGION: '판매 지점', NAME: '차종', COUNT: '판매 대수' });
+		// 행 필드를 위에서 아래로 묶을 순서대로 배치합니다.
 		pivot.setRowFields(['REGION', 'NAME']);
 		// 가격과 판매 대수를 곱한 거래 금액을 원본 변경 없이 계산합니다.
 		pivot.setDerivedFields([{
@@ -94,14 +96,18 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 		// 합계는 기본 SUM으로도 구할 수 있습니다. 여기서는 사용자 집계 등록 방법을 보여줍니다.
 		const sumOperation = pivot.registerCustomAggregator({
 			id: 'WRAPPER_SUM', version: 1, labelText: '판매 대수 합계',
+			// 집계 영역마다 독립된 합계 누적 상태를 만듭니다.
 			create() { return { sum: 0 }; },
 			accumulate(state, value) {
                 // 입력 값은 unknown이므로 숫자일 때 합계에 더합니다.
                 if (typeof value === 'number') state.sum += value;
             },
+			// 소계와 총계에서 하위 영역의 합계를 하나로 합칩니다.
 			merge(target, state) { target.sum += state.sum; },
+			// 누적한 합계를 현재 집계 영역의 최종 값으로 반환합니다.
 			finalize(state) { return state.sum; }
 		});
+		// 값 필드별로 집계 연산과 표시 형식을 정합니다.
 		pivot.setValueFields([
 			{ dataField: 'ROW_AMOUNT', operation: 'SUM', formatString: '#,##0' },
 			{ dataField: 'COUNT', operation: sumOperation, formatString: '#,##0' }
@@ -115,6 +121,7 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 			heatmap: { scope: 'GLOBAL', colors: ['#FFFFFF', '#2F9D27'] }
 		}]);
 	}
+	// 원본 JSON을 요청해 보고서에 입력합니다. 화면이 해제된 뒤 도착한 응답은 적용하지 않습니다.
 	function requestData(url: string) {
 		fetch(url, { signal: request.signal }).then(function (response) {
 			if (!response.ok) throw new Error('자동차 자료를 불러오지 못했습니다.');
@@ -131,6 +138,7 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 	// 정적 원본을 입력한 뒤 지점 선택용 슬라이서를 만듭니다.
 	function applyData(data: CarSale[]) {
 		const pivot = myPivot.value!;
+		// 준비한 원본을 현재 필드 설정으로 집계해 화면에 표시합니다.
 		pivot.setGridData(data);
 		slicerId = pivot.createSlicer('#vue_wrapper_slicer', {
 			dataField: 'REGION', columnCount: 4, movable: false, resizable: false
@@ -151,6 +159,7 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 		if (pivot.isCreatedPivotPanel()) {
 			pivot.showPivotPanel();
 		} else {
+			// 행, 열, 값과 필터를 사용자가 편집할 필드 패널을 생성합니다.
 			pivot.createPivotPanel({
 				panelWidth: 400, panelHeight: 500,
 				// 제목을 끌어 이동하거나 모서리를 끌어 크기를 조절할 수 있습니다.
@@ -165,23 +174,27 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 		myPivot.value!.refresh();
 		describe();
 	}
+	// 현재 보고서 설정을 메모리에 보관합니다. 페이지를 새로 열면 이 저장본은 사라집니다.
 	function saveReport() {
-		// 보고서 설정만 메모리에 보관합니다. 페이지를 새로 열면 저장 내용은 사라집니다.
 		savedReport = JSON.parse(JSON.stringify(myPivot.value!.getReportDefinition()));
 		hasReport.value = true;
 		status.value = '현재 보고서 설정을 저장했습니다. 행 배치와 필터를 바꾼 뒤 복원해 보세요.';
 	}
+	// 메모리에 보관한 보고서 설정을 적용해 필드 배치와 필터 등의 상태를 복원합니다.
 	function restoreReport() {
 		if (!savedReport) return;
 		myPivot.value!.setReportDefinition(savedReport);
 		layout.value = myPivot.value!.getProp('layoutType') ?? 'tree';
 	}
+	// 슬라이서에서 서울 지점만 선택해 연결된 보고서에 필터를 적용합니다.
 	function selectSeoul() {
 		myPivot.value!.setSlicerSelection(slicerId, ['서울 지점']);
 	}
+	// 슬라이서의 선택 제한을 해제해 전체 지점을 다시 표시합니다.
 	function clearFilter() {
 		myPivot.value!.setSlicerSelection(slicerId, null);
 	}
+	// 슬라이서와 피벗을 함께 제거하고 재생성 전까지 조작을 비활성화합니다.
 	function destroyPivot() {
 		const pivot = myPivot.value!;
 		if (!pivot?.isCreated()) return;
@@ -191,6 +204,7 @@ type PivotComponent = InstanceType<typeof AUIPivot>;
 		ready.value = false;
 		status.value = '표와 슬라이서를 제거했습니다. 다시 생성 버튼으로 같은 자료를 표시할 수 있습니다.';
 	}
+	// 기존 인스턴스를 정리한 뒤 같은 원본과 초기 설정으로 피벗을 다시 생성합니다.
 	function recreatePivot() {
 		// 살아 있는 표가 있으면 먼저 제거하여 슬라이서와 이벤트를 중복 등록하지 않습니다.
 		destroyPivot();

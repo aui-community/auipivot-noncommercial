@@ -3,8 +3,8 @@
 </template>
 <script lang="ts">
 	/**
-	 * AUIPivotT.vue for Vue.js v1.2.20261008
-	 * Based on AUIPivot v2.7.0
+	 * AUIPivotT.vue for Vue.js v1.2.20261012
+	 * Based on AUIPivot v2.8.0
 	 * Copyright © AUISoft Co., Ltd.
 	 * www.auisoft.net
 	 */
@@ -280,8 +280,10 @@
 			createPivotPanel(props?: IPivot.PanelProps): void {
 				return $ag.createPivotPanel(this.pid, props);
 			},
-			createSlicer(container: string, options: IPivot.SlicerOptions): string | undefined {
-				return $ag.createSlicer(this.pid, container, options);
+			createSlicer(...args: [] | [container: string, options: IPivot.SlicerOptions]): string | undefined {
+				// 2.8의 삽입 창 호출과 기존 수동 생성의 반환값을 함께 보존합니다.
+				const create = $ag.createSlicer as (pid: string, ...args: [] | [string, IPivot.SlicerOptions]) => string | undefined;
+				return create.call($ag, this.pid, ...args);
 			},
 			destroy(includePanelParent?: boolean): void {
 				// 수동 제거 후 다시 생성할 때 이전 알림이 남지 않게 합니다.
@@ -404,7 +406,7 @@
 			getProperty<K extends keyof IPivot.Props>(name: K): IPivot.Props[K] {
 				return $ag.getProperty(this.pid, name);
 			},
-			getReportDefinition(): IPivot.PivotReportDefinitionV3 | null {
+			getReportDefinition(): IPivot.PivotReportDefinitionV3 | IPivot.PivotReportDefinitionV4 | null {
 				return $ag.getReportDefinition(this.pid);
 			},
 			getRowCount(): number {
@@ -508,6 +510,13 @@
 			},
 			setDateTypeField(field: string | null): void {
 				return $ag.setDateTypeField(this.pid, field);
+			},
+			// 집계 후 수식 정의와 값 영역 배치를 독립적으로 관리합니다.
+			setFormulaFields(fields: IPivot.FormulaField[]): void {
+				return $ag.setFormulaFields(this.pid, fields);
+			},
+			getFormulaFields(): IPivot.FormulaField[] | null {
+				return $ag.getFormulaFields(this.pid);
 			},
 			setDerivedFields(fields: IPivot.DerivedField[]): void {
 				return $ag.setDerivedFields(this.pid, fields);
