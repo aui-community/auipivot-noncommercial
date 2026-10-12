@@ -49,15 +49,19 @@
     <div id="searchbox" class="searchbox">
         <span class="keyword"
             ><input
-                aria-label="API 검색"
-                placeholder="검색어 입력"
+                placeholder="이름 또는 설명 검색"
+                aria-label="이 페이지에서 찾기"
+                aria-describedby="search-status"
+                aria-controls="summaryTableStyle"
                 maxlength="255"
                 class="box_window"
                 name="i_query"
                 id="i_query"
-                type="text"
+                type="search"
         /></span>
     </div>
+    <!-- 검색 개수와 결과 없음 상태를 화면과 보조 기술에 함께 알립니다. -->
+    <p id="search-status" role="status" aria-live="polite" aria-atomic="true"></p>
     <div id="desc_top">
         <p></p>
         <p>AUIPivot 에서 정의 가능한 속성 리스트입니다.</p>

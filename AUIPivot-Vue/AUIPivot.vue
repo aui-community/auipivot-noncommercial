@@ -5,7 +5,7 @@
 	/* eslint-disable */
 	/**
 	 * AUIPivot.vue for Vue.js v1.2.20261012
-	 * Based on AUIPivot v2.8.0
+	 * Based on AUIPivot v2.8.1
 	 * Copyright © AUISoft Co., Ltd.
 	 * www.auisoft.net
 	 */

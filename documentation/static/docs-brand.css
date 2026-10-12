@@ -7,9 +7,12 @@ body.docs-site {
     margin: 0; color: var(--docs-ink); background: var(--docs-background); font-family: var(--demo-font); line-height: 1.5;
 }
 .docs-site :is(.docs-header, .docs-header *, .docs-home-intro, .docs-chapters, .docs-chapters *, .docs-footer, .docs-breadcrumb) { box-sizing: border-box; }
-.docs-site a:not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { color: var(--docs-blue-dark); }
-.docs-site a:hover:not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { color: var(--docs-blue); }
-.docs-site :is(a, button, summary, input):focus-visible:not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { outline: 2px solid var(--docs-blue); outline-offset: 4px; }
+/* 실제 이동 주소가 있는 본문 링크만 파란색으로 구분합니다.
+   홈페이지 헤더는 고유한 로고, 메뉴, 버튼 색상과 hover를 사용하므로 본문 링크 규칙에서 제외합니다. */
+.docs-site a:where([href]:not([href=""])):not(:where(.auisoft-site-header, .auisoft-site-header *, .aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { color: var(--docs-blue-dark); }
+.docs-site a:where([href]:not([href=""])):hover:not(:where(.auisoft-site-header, .auisoft-site-header *, .aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { color: var(--docs-blue); }
+.docs-site a:not([href]):not(:where(.auisoft-site-header, .auisoft-site-header *, .aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)), .docs-site a[href=""]:not(:where(.auisoft-site-header, .auisoft-site-header *, .aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { color: inherit; text-decoration: none; cursor: inherit; }
+.docs-site :is(a, button, summary, input):focus-visible:not(:where(.auisoft-site-header, .auisoft-site-header *, .aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { outline: 2px solid var(--docs-blue); outline-offset: 4px; }
 .docs-site :is(h1, h2, h3):not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { color: var(--docs-ink); }
 .docs-site :is(h1, h2, h3, tr[id], a[name]):not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { scroll-margin-top: 28px; }
 /* 홈페이지의 흰색 헤더와 사각 로고를 사용하고 문서 제목이 함께 들어갈 여백을 둡니다. */
@@ -38,7 +41,10 @@ body.docs-site {
 .docs-site .browser_table th:first-child, .docs-site .browser_table td:first-child { width: auto; }
 .docs-site .browser_table { width: 100%; }
 .docs-site .browser_table th { border-bottom: 1px solid var(--docs-line) !important; padding: 12px 8px !important; }
-.docs-site code:not(pre code):not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { background: var(--docs-surface); border-radius: 4px; padding: 2px 5px; color: var(--docs-blue-dark); }
+/* 본문의 파일명과 설정값은 주변 글자색을 따릅니다. 링크 안에서는 링크색을 그대로 상속합니다. */
+.docs-site code:not(pre code):not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { background: var(--docs-surface); border-radius: 4px; padding: 2px 5px; color: inherit; }
+/* 인라인 코드의 문법 토큰도 본문색을 사용하고 별도 코드 블록의 Prism 강조는 유지합니다. */
+.docs-site code:not(pre code):not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) * { color: inherit; }
 .docs-site :is(pre, xmp):not(:where(.aui-grid, .aui-grid *, [class^="aui-grid-"], [class^="aui-grid-"] *, [class*=" aui-grid-"], [class*=" aui-grid-"] *, .aui-pivot, .aui-pivot *, [class^="aui-pivot-"], [class^="aui-pivot-"] *, [class*=" aui-pivot-"], [class*=" aui-pivot-"] *)) { border-radius: 8px; }
 /* API 검색과 표는 기존 필드 ID, 정렬 순서와 검색 동작을 그대로 사용합니다. */
 .docs-site .searchbox { border: 1px solid #bacddd; border-radius: 8px; background: var(--docs-surface); }
@@ -55,7 +61,8 @@ body.docs-site {
 .docs-site .summaryTable td { border-top: 1px solid var(--docs-line); padding: 24px 20px; vertical-align: top; overflow-wrap: anywhere; }
 .docs-site .summaryTable th:first-child, .docs-site .summaryTable td:first-child { width: 250px; }
 .docs-site .summarySignature { width: auto; margin: 0; padding: 12px; text-align: left; border-color: var(--docs-line); background: var(--docs-surface); border-radius: 8px; overflow-wrap: anywhere; }
-.docs-site .signatureLink { line-height: 1.6; font-weight: 700; color: var(--docs-blue-dark); }
+/* API 이름은 링크가 아니므로 색 대신 크기와 굵기로 강조합니다. */
+.docs-site .signatureLink { line-height: 1.6; font-size: 16px; font-weight: 700; color: inherit; }
 .docs-site .summaryTableDescription > .label { color: var(--docs-muted); }
 .docs-site .prop_table, .docs-site .prop_table td { border-color: var(--docs-line); background: var(--docs-surface); }
 .docs-site .mcp-status { background: var(--docs-surface); border: 1px solid var(--docs-line); border-left: 3px solid var(--docs-blue); border-radius: 8px; padding: 20px 24px; }

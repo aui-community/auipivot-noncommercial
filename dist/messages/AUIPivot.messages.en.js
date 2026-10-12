@@ -1,6 +1,6 @@
 /* eslint-disable */
 /**
- * AUIPivot v2.8.0 Messages
+ * AUIPivot v2.8.1 Messages
  * AUIPivot 에서 사용되는 메세지들을 정의합니다.
  */
 (function () {
