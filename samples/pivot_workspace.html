@@ -462,6 +462,8 @@
             enableItemReorder: true,
             enableCalculatedFieldEditor: true,
             enableFieldSubtotalMenu: true,
+            // 값 필드가 바뀌어도 오른쪽 전체 합계 칼럼을 자동 고정합니다.
+            useFixedRightColumns: true,
             fixedRowFieldCount: 2
         };
         myPivotID = AUIPivot.create("#pivot_wrap", pivotProps);
@@ -478,6 +480,42 @@
         // 집계 결과의 필드를 참조하는 수식을 등록합니다.
         AUIPivot.setFormulaFields(myPivotID, [
             { dataField: "MARGIN", labelText: "이익률 (%)", expression: "([TOTAL] - [COST]) / [TOTAL] * 100" }
+        ]);
+        // 필드 목록을 업무별 그룹으로 표시합니다. 제목을 누르면 접거나 펼칠 수 있습니다.
+        // 목록의 표시 구성만 정하므로 예제 전환이나 저장본 복원 시 보고서 배치는 그대로 적용됩니다.
+        AUIPivot.setFieldLayout(myPivotID, [
+            {
+                groupId: "sales",
+                labelText: "판매 정보",
+                children: [
+                    { dataField: "REGION" },
+                    { dataField: "PRICE" },
+                    { dataField: "COUNT" },
+                    { dataField: "TOTAL" },
+                    { dataField: "COST" }
+                ]
+            },
+            {
+                groupId: "vehicle",
+                labelText: "차량 정보",
+                children: [{ dataField: "NAME" }, { dataField: "MODEL" }, { dataField: "COLOR" }]
+            },
+            {
+                groupId: "date",
+                labelText: "판매일",
+                children: [
+                    { dataField: "DATE" },
+                    { dataField: "DATE_YEAR" },
+                    { dataField: "DATE_HALF" },
+                    { dataField: "DATE_QTR" },
+                    { dataField: "DATE_MONTH" }
+                ]
+            },
+            {
+                groupId: "calculation",
+                labelText: "계산 항목",
+                children: [{ dataField: "PROFIT" }, { dataField: "PRICE_RANGE" }, { dataField: "MARGIN" }]
+            }
         ]);
         // 행 필드를 위에서 아래로 묶을 순서대로 배치합니다.
         AUIPivot.setRowFields(myPivotID, presets.sales.rows);
