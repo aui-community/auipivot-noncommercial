@@ -631,36 +631,28 @@ AUIPivot.exportToXlsx(myPivotID, {
                 <p>Return : (Array) 현재 그리드 칼럼 레이아웃</p>
             </td>
         </tr>
-        <tr id="getCustomValueOrders">
+        <tr id="getColumnItemByDataField">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
-                    <span class="signatureLink">getCustomValueOrders</span>
+                    <span class="signatureLink">getColumnItemByDataField</span>
                 </div>
             </td>
             <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method<br />
-                <p>setCustomValueOrders로 지정한 항목 순서를 반환합니다.</p>
-                <p>
-                    Return : (Array) {dataField, values} 객체 배열의 독립 사본. 설정이 없으면 [], 피벗 ID가 없으면
-                    null입니다.
-                </p>
-                <pre
-                    data-example="getter-orders-read"
-                ><code class="language-javascript">// REGION의 순서를 지정해 둔 경우의 조회 예입니다.
-const orders = AUIPivot.getCustomValueOrders(myPivotID);
-console.log(orders);
-// [{dataField: "REGION", values: ["서울 지점", "부산 지점"]}]</code></pre>
-                <p>
-                    등록한 순서만 반환하며 지정하지 않은 항목은 포함하지 않습니다. 사본을 수정해도 현재 설정은 바뀌지
-                    않습니다.
-                </p>
-                <p>
-                    Also See : <a href="Methods.html#setCustomValueOrders">setCustomValueOrders</a> |
-                    <a href="Methods.html#getReportDefinition">getReportDefinition</a> |
-                    <a href="https://www.auisoft.net/demo/auipivot/dimension_order_demo.html"
-                        >관련 데모 보기 — 업무 순서 비교</a
-                    >
-                </p>
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.8<br />
+                <p>데이터 필드(dataField) 에 맞는 칼럼 레이아웃의 칼럼 객체를 반환합니다.</p>
+                <p>Return : (Object) 칼럼 레이아웃의 칼럼 객체</p>
+            </td>
+        </tr>
+        <tr id="getColumnLayout">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">getColumnLayout</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.8<br />
+                <p>피벗 그리드에 출력된 현재 칼럼 레이아웃을 반환합니다.</p>
+                <p>Return : (Array) 현재 그리드 칼럼 레이아웃</p>
             </td>
         </tr>
         <tr id="getCustomAggregators">
@@ -700,28 +692,36 @@ console.log(aggregators);
                 </p>
             </td>
         </tr>
-        <tr id="getColumnItemByDataField">
+        <tr id="getCustomValueOrders">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
-                    <span class="signatureLink">getColumnItemByDataField</span>
+                    <span class="signatureLink">getCustomValueOrders</span>
                 </div>
             </td>
             <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.8<br />
-                <p>데이터 필드(dataField) 에 맞는 칼럼 레이아웃의 칼럼 객체를 반환합니다.</p>
-                <p>Return : (Object) 칼럼 레이아웃의 칼럼 객체</p>
-            </td>
-        </tr>
-        <tr id="getColumnLayout">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">getColumnLayout</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.8<br />
-                <p>피벗 그리드에 출력된 현재 칼럼 레이아웃을 반환합니다.</p>
-                <p>Return : (Array) 현재 그리드 칼럼 레이아웃</p>
+                <span class="label">Type : </span>Method<br />
+                <p>setCustomValueOrders로 지정한 항목 순서를 반환합니다.</p>
+                <p>
+                    Return : (Array) {dataField, values} 객체 배열의 독립 사본. 설정이 없으면 [], 피벗 ID가 없으면
+                    null입니다.
+                </p>
+                <pre
+                    data-example="getter-orders-read"
+                ><code class="language-javascript">// REGION의 순서를 지정해 둔 경우의 조회 예입니다.
+const orders = AUIPivot.getCustomValueOrders(myPivotID);
+console.log(orders);
+// [{dataField: "REGION", values: ["서울 지점", "부산 지점"]}]</code></pre>
+                <p>
+                    등록한 순서만 반환하며 지정하지 않은 항목은 포함하지 않습니다. 사본을 수정해도 현재 설정은 바뀌지
+                    않습니다.
+                </p>
+                <p>
+                    Also See : <a href="Methods.html#setCustomValueOrders">setCustomValueOrders</a> |
+                    <a href="Methods.html#getReportDefinition">getReportDefinition</a> |
+                    <a href="https://www.auisoft.net/demo/auipivot/dimension_order_demo.html"
+                        >관련 데모 보기 — 업무 순서 비교</a
+                    >
+                </p>
             </td>
         </tr>
         <tr id="getDataFieldByColumnIndex">
@@ -766,6 +766,44 @@ const allFields = AUIPivot.getDataFieldList(myPivotID, true);
 console.log(fields, allFields);</code></pre>
             </td>
         </tr>
+        <tr id="getDerivedFields">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">getDerivedFields</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method<br />
+                <p>등록한 계산 필드와 숫자 구간의 정의를 반환합니다.</p>
+                <p>
+                    Return : (Array) setDerivedFields에 전달할 수 있는 정의 배열의 독립 사본. 정의가 없으면 [], 피벗
+                    ID가 없으면 null입니다.
+                </p>
+                <pre
+                    data-example="getter-derived-fields-read"
+                ><code class="language-javascript">// AMOUNT를 가격 × 대수로 정의해 둔 경우의 조회 예입니다.
+const definitions = AUIPivot.getDerivedFields(myPivotID);
+console.log(definitions);
+// [{dataField: "AMOUNT", labelText: "판매금액",
+//   expression: {operator: "multiply", operands: ["PRICE", "COUNT"]}}]</code></pre>
+                <p>
+                    사본을 바꿔도 현재 설정은 바뀌지 않습니다. 각 원본 행의 계산 결과는 getDerivedFieldValue로
+                    조회합니다.
+                </p>
+                <p>
+                    Also See : <a href="Methods.html#setDerivedFields">setDerivedFields</a> |
+                    <a href="Methods.html#getDerivedFieldValue">getDerivedFieldValue</a> |
+                    <a href="Methods.html#getReportDefinition">getReportDefinition</a> |
+                    <a href="https://www.auisoft.net/demo/auipivot/calculated_field_demo.html"
+                        >관련 데모 보기 — 일반 파생 필드</a
+                    >
+                    |
+                    <a href="https://www.auisoft.net/demo/auipivot/numeric_range_grouping_demo.html"
+                        >관련 데모 보기 — 숫자 구간</a
+                    >
+                </p>
+            </td>
+        </tr>
         <tr id="getDerivedFieldValue">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -803,44 +841,6 @@ console.log(amount); // PRICE가 100, COUNT가 3인 행이면 300입니다.</cod
                     <a href="Methods.html#getDerivedFields">getDerivedFields</a> |
                     <a href="Methods.html#getSourceData">getSourceData</a> |
                     <a href="Methods.html#getCellDetailList">getCellDetailList</a> |
-                    <a href="https://www.auisoft.net/demo/auipivot/calculated_field_demo.html"
-                        >관련 데모 보기 — 일반 파생 필드</a
-                    >
-                    |
-                    <a href="https://www.auisoft.net/demo/auipivot/numeric_range_grouping_demo.html"
-                        >관련 데모 보기 — 숫자 구간</a
-                    >
-                </p>
-            </td>
-        </tr>
-        <tr id="getDerivedFields">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">getDerivedFields</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method<br />
-                <p>등록한 계산 필드와 숫자 구간의 정의를 반환합니다.</p>
-                <p>
-                    Return : (Array) setDerivedFields에 전달할 수 있는 정의 배열의 독립 사본. 정의가 없으면 [], 피벗
-                    ID가 없으면 null입니다.
-                </p>
-                <pre
-                    data-example="getter-derived-fields-read"
-                ><code class="language-javascript">// AMOUNT를 가격 × 대수로 정의해 둔 경우의 조회 예입니다.
-const definitions = AUIPivot.getDerivedFields(myPivotID);
-console.log(definitions);
-// [{dataField: "AMOUNT", labelText: "판매금액",
-//   expression: {operator: "multiply", operands: ["PRICE", "COUNT"]}}]</code></pre>
-                <p>
-                    사본을 바꿔도 현재 설정은 바뀌지 않습니다. 각 원본 행의 계산 결과는 getDerivedFieldValue로
-                    조회합니다.
-                </p>
-                <p>
-                    Also See : <a href="Methods.html#setDerivedFields">setDerivedFields</a> |
-                    <a href="Methods.html#getDerivedFieldValue">getDerivedFieldValue</a> |
-                    <a href="Methods.html#getReportDefinition">getReportDefinition</a> |
                     <a href="https://www.auisoft.net/demo/auipivot/calculated_field_demo.html"
                         >관련 데모 보기 — 일반 파생 필드</a
                     >
@@ -1012,6 +1012,27 @@ AUIPivot.setColumnSizeList(myPivotID, sizes);</code></pre>
                 <p>Return : (Array) 모든 푸터의 값을 배열로 반환</p>
             </td>
         </tr>
+        <tr id="getFormulaFields">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">getFormulaFields</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>등록된 수식 정의의 독립 사본을 반환합니다. 화면에 표시하지 않는 중간 수식도 포함됩니다.</p>
+                <p>
+                    반환값은 {dataField, expression, labelText?, version: 1} 배열입니다. expression의 참조는 [필드ID]로
+                    정규화됩니다. 정의가 없으면 [], 피벗이 없으면 null입니다.
+                </p>
+                <pre><code class="language-javascript">// 저장한 배열을 수정해도 현재 수식 정의는 바뀌지 않습니다.
+const formulas = AUIPivot.getFormulaFields(myPivotID);</code></pre>
+                <p>
+                    <a href="Methods.html#setFormulaFields">setFormulaFields</a>,
+                    <a href="Methods.html#getReportDefinition">getReportDefinition</a>
+                </p>
+            </td>
+        </tr>
         <tr id="getItemByRowIndex">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -1093,34 +1114,6 @@ if (AUIPivot.getPivotPanelState(myPivotID) === "shown") {
                 <p>Return : (Object) 속성값. setProp으로 변경한 값은 화면에 적용되기 전에도 반환합니다.</p>
             </td>
         </tr>
-        <tr id="getRowCount">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">getRowCount</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.0<br />
-                <p>현재 피벗 그리드에서 출력하고 있는 전체 행의 개수를 반환합니다.</p>
-                <p>
-                    만약 트리 그리드로 출력하고 있을 때 접혀진 요약 행 그대로 개수를 반환합니다. 예를 들어 요약 행이
-                    모두 닫혀져 3개만 보이고 있을 때 3이 반환됩니다.
-                </p>
-                <p>Return : (Number) 전체 행 수</p>
-            </td>
-        </tr>
-        <tr id="getRowFields">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">getRowFields</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.8<br />
-                <p>피벗 차원에서 행(rows) 차원에 설정한 필드를 반환합니다.</p>
-                <p>Return : (Array) 행 차원에 설정한 필드</p>
-            </td>
-        </tr>
         <tr id="getReportDefinition">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -1158,6 +1151,34 @@ localStorage.setItem("salesPivotReport", JSON.stringify(report));</code></pre>
                     >
                     | <a href="../Desc/fields-and-grouping.html#report">보고서 구조와 복원 안내</a>
                 </p>
+            </td>
+        </tr>
+        <tr id="getRowCount">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">getRowCount</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.0<br />
+                <p>현재 피벗 그리드에서 출력하고 있는 전체 행의 개수를 반환합니다.</p>
+                <p>
+                    만약 트리 그리드로 출력하고 있을 때 접혀진 요약 행 그대로 개수를 반환합니다. 예를 들어 요약 행이
+                    모두 닫혀져 3개만 보이고 있을 때 3이 반환됩니다.
+                </p>
+                <p>Return : (Number) 전체 행 수</p>
+            </td>
+        </tr>
+        <tr id="getRowFields">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">getRowFields</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.8<br />
+                <p>피벗 차원에서 행(rows) 차원에 설정한 필드를 반환합니다.</p>
+                <p>Return : (Array) 행 차원에 설정한 필드</p>
             </td>
         </tr>
         <tr id="getSelectedIndex">
@@ -1393,6 +1414,35 @@ const created = AUIPivot.isCreated("#pivot_wrap");</code></pre>
                 <p>Return : (Boolean) 필터링 되었는지 여부</p>
             </td>
         </tr>
+        <tr id="refresh">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">refresh</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.7<br />
+                <p>속성 변경 사항을 현재 데이터와 피벗 설정에 반영하여 화면을 갱신합니다.</p>
+                <p>Return : 없음</p>
+                <pre><code class="language-javascript">// 현재 보고서의 출력 방식을 테이블로 바꿉니다.
+AUIPivot.setProp(myPivotID, "layoutType", "table");
+AUIPivot.refresh(myPivotID);</code></pre>
+                <p>
+                    원본, 집계값, 필터 선택, 정렬 조건은 유지합니다. 행, 열, 값이나 집계 기준을 바꿨다면
+                    <a href="Methods.html#updatePivot">updatePivot</a>으로 다시 계산합니다.
+                </p>
+                <p>
+                    화면은 동기적으로 갱신하며 pivotBegin, pivotComplete 이벤트는 발생하지 않습니다. 같은 열 구성이면
+                    선택과 스크롤을 유지합니다. 열 구성이나 selectionMode가 바뀌면 선택은 해제하며, 스크롤은 유효 범위
+                    안에서 유지합니다.
+                </p>
+                <p>
+                    Also See: <a href="Methods.html#setProp">setProp</a> |
+                    <a href="Methods.html#updatePivot">updatePivot</a> | <a href="Methods.html#resize">resize</a> |
+                    <a href="https://www.auisoft.net/demo/auipivot/playground/refresh-property.html">관련 데모 보기</a>
+                </p>
+            </td>
+        </tr>
         <tr id="registerCustomAggregator">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -1518,35 +1568,6 @@ AUIPivot.updatePivot(myPivotID);</code></pre>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.0<br />
                 <p>피벗 그리드에 표시된 프리로더가 있다면 삭제합니다.</p>
-            </td>
-        </tr>
-        <tr id="refresh">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">refresh</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.7<br />
-                <p>속성 변경 사항을 현재 데이터와 피벗 설정에 반영하여 화면을 갱신합니다.</p>
-                <p>Return : 없음</p>
-                <pre><code class="language-javascript">// 현재 보고서의 출력 방식을 테이블로 바꿉니다.
-AUIPivot.setProp(myPivotID, "layoutType", "table");
-AUIPivot.refresh(myPivotID);</code></pre>
-                <p>
-                    원본, 집계값, 필터 선택, 정렬 조건은 유지합니다. 행, 열, 값이나 집계 기준을 바꿨다면
-                    <a href="Methods.html#updatePivot">updatePivot</a>으로 다시 계산합니다.
-                </p>
-                <p>
-                    화면은 동기적으로 갱신하며 pivotBegin, pivotComplete 이벤트는 발생하지 않습니다. 같은 열 구성이면
-                    선택과 스크롤을 유지합니다. 열 구성이나 selectionMode가 바뀌면 선택은 해제하며, 스크롤은 유효 범위
-                    안에서 유지합니다.
-                </p>
-                <p>
-                    Also See: <a href="Methods.html#setProp">setProp</a> |
-                    <a href="Methods.html#updatePivot">updatePivot</a> | <a href="Methods.html#resize">resize</a> |
-                    <a href="https://www.auisoft.net/demo/auipivot/playground/refresh-property.html">관련 데모 보기</a>
-                </p>
             </td>
         </tr>
         <tr id="resize">
@@ -2030,45 +2051,6 @@ AUIPivot.setFieldLayout(myPivotID, [
                 <p>Also See : <a href="#getFilterCache">getFilterCache</a></p>
             </td>
         </tr>
-        <tr id="setSlicerSelection">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">setSlicerSelection</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.7<br />
-                <p>
-                    슬라이서의 선택값을 지정하고 보고서를 다시 계산합니다. 같은 필드의 값은 OR, 서로 다른 필드의 조건은
-                    AND로 적용합니다.
-                </p>
-                <p>파라메터 설명</p>
-                <ul>
-                    <li>slicerID (String): createSlicer가 반환한 ID</li>
-                    <li>
-                        values (Array 또는 null): 원시 값 배열. 문자열, 유한 숫자, boolean, null, undefined를 사용할 수
-                        있습니다. 배열의 null, undefined, 빈 문자열은 “필드 값 없음”을 뜻합니다. null을 직접 전달하면
-                        해당 필드의 필터를 해제합니다. 빈 배열 []는 오류입니다.
-                    </li>
-                </ul>
-                <p>Return : 없음</p>
-                <pre><code class="language-javascript">// 서울 또는 부산을 선택합니다. 다른 필드의 필터는 유지합니다.
-AUIPivot.setSlicerSelection(myPivotID, regionSlicer, ["서울 지점", "부산 지점"]);
-// 지점 조건만 해제합니다.
-AUIPivot.setSlicerSelection(myPivotID, regionSlicer, null);</code></pre>
-                <p>
-                    같은 선택값이면 다시 계산하지 않습니다. 없는 ID, 잠긴 피벗, 원본에서 사라진 필드는 무시합니다.
-                    2.8.0부터 보고서 배치에서 제거한 필드의 슬라이서도 계속 사용할 수 있습니다. 검색창 입력은 선택값을
-                    바꾸지 않습니다.
-                </p>
-                <p>
-                    Also See: <a href="Methods.html#createSlicer">createSlicer</a> |
-                    <a href="Methods.html#getSlicerSelection">getSlicerSelection</a> |
-                    <a href="Methods.html#destroySlicer">destroySlicer</a> |
-                    <a href="https://www.auisoft.net/demo/auipivot/slicer_demo.html">관련 데모 보기</a>
-                </p>
-            </td>
-        </tr>
         <tr id="setFilterFields">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -2088,6 +2070,46 @@ AUIPivot.setFilterFields(myPivotID, ["COLOR"]);</code></pre>
                 <p>
                     설정 후 <a href="Methods.html#updatePivot">updatePivot</a> 또는
                     <a href="Methods.html#setGridData">setGridData</a>로 반영합니다.
+                </p>
+            </td>
+        </tr>
+        <tr id="setFormulaFields">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">setFormulaFields</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>필드 합계를 이용하는 집계 후 수식을 정의합니다. 정의는 값 영역의 표시 여부와 별도로 보존됩니다.</p>
+                <p>
+                    fields (Array): {dataField, expression, labelText?, version?} 배열입니다. dataField는 고유 ID,
+                    expression은 수식 문자열, labelText는 선택 표시명입니다. version은 1이며 생략할 수 있습니다.
+                </p>
+                <p>
+                    정의 전체를 교체하며 updatePivot 또는 setGridData로 반영합니다. []로 제거할 수 있지만 값 영역 또는
+                    다른 수식이 참조 중이면 오류입니다. 원본/파생 필드와의 ID 충돌, 잘못된 구문, 없는 참조와 순환 참조도
+                    오류이며 이전 정의를 유지합니다. 데이터 도착 전 등록하면 물리 필드의 존재 검사는 첫 데이터 입력으로
+                    미룹니다.
+                </p>
+                <p>
+                    괄호, + - * /, 단항 부호, %, 숫자와 필드 참조를 지원합니다. [필드ID]는 명시적 ID, 고유한 별칭은 직접
+                    또는 작은따옴표로 입력합니다. 부분합과 총합계도 각 영역의 필드를 합산한 뒤 같은 수식으로 계산합니다.
+                    0 나누기와 비유한 결과는 빈 값으로 표시됩니다.
+                </p>
+                <p>Return : 없음</p>
+                <pre><code class="language-javascript">// 숨긴 중간 계산을 정의하고 이익률만 표시합니다.
+AUIPivot.setFormulaFields(myPivotID, [
+    {dataField: "Profit", labelText: "이익", expression: "[TOTAL] - [COST]"},
+    {dataField: "Rate", labelText: "이익률", expression: "[Profit] / [TOTAL] * 100"}
+]);
+AUIPivot.setValueFields(myPivotID, [
+    {dataField: "Rate", calculation: {kind: "formula"}, formatString: "0.00"}
+]);
+AUIPivot.updatePivot(myPivotID);</code></pre>
+                <p>
+                    <a href="../Desc/aggregation.html#formula">계산 의미, 오류와 제한</a>,
+                    <a href="Methods.html#getFormulaFields">getFormulaFields</a>
                 </p>
             </td>
         </tr>
@@ -2162,36 +2184,6 @@ AUIPivot.setFilterFields(myPivotID, ["COLOR"]);</code></pre>
   });</code></pre>
             </td>
         </tr>
-        <tr id="setRowDimStyleFunction">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">setRowDimStyleFunction</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.5.5<br />
-                <p>
-                    속성 layoutType 을 "table" 또는 "tableCellMerge" 설정했을 때 행 차원 분석 값에 동적 스타일을
-                    정의합니다.
-                </p>
-                <p>setRowDimStyleFunction는 함수를 지정해야 하며 함수 형태는 다음과 같습니다.</p>
-                <ul>
-                    <li>rowField : 행 차원 필드</li>
-                    <li>columnIndex : 열 인덱스</li>
-                </ul>
-                <pre><code class="language-javascript"> // 행 차원 분석 값 스타일 정의
-  AUIPivot.setRowDimStyleFunction(myPivotID, function(rowField, columnIndex) {
-       if(rowField === "TOTAL") // 행 차원에 TOTAL 필드를 설정한 경우 my-right-align 스타일 적용
-            return "my-right-align";
-       return "my-style";
-  });</code></pre>
-                <p>함수의 반환값은 CSS 에서 이미 선언되어 있는 CSS 클래스여야 합니다.</p>
-                <p>
-                    다중의 CSS 클래스는 지원하지 않습니다. 예를 들어 "right-style bold-style font12-style" 과 같은
-                    구조는 지원하지 않습니다.
-                </p>
-            </td>
-        </tr>
         <tr id="setProp">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -2252,27 +2244,6 @@ AUIPivot.refresh(myPivotID);</code></pre>
                 </p>
             </td>
         </tr>
-        <tr id="setRowFields">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">setRowFields</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.0<br />
-                <p>피벗의 행 영역에 사용할 필드를 지정합니다.</p>
-                <p>파라메터 설명</p>
-                <ul>
-                    <li>fields (Array): 행 영역에 배치할 필드명 배열</li>
-                </ul>
-                <pre><code class="language-javascript">// 지점, 차종 순서로 행을 구성합니다.
-AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);</code></pre>
-                <p>
-                    설정 후 <a href="Methods.html#updatePivot">updatePivot</a> 또는
-                    <a href="Methods.html#setGridData">setGridData</a>로 반영합니다.
-                </p>
-            </td>
-        </tr>
         <tr id="setReportDefinition">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -2323,6 +2294,57 @@ if (savedReport !== null) {
                 </p>
             </td>
         </tr>
+        <tr id="setRowDimStyleFunction">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">setRowDimStyleFunction</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.5.5<br />
+                <p>
+                    속성 layoutType 을 "table" 또는 "tableCellMerge" 설정했을 때 행 차원 분석 값에 동적 스타일을
+                    정의합니다.
+                </p>
+                <p>setRowDimStyleFunction는 함수를 지정해야 하며 함수 형태는 다음과 같습니다.</p>
+                <ul>
+                    <li>rowField : 행 차원 필드</li>
+                    <li>columnIndex : 열 인덱스</li>
+                </ul>
+                <pre><code class="language-javascript"> // 행 차원 분석 값 스타일 정의
+  AUIPivot.setRowDimStyleFunction(myPivotID, function(rowField, columnIndex) {
+       if(rowField === "TOTAL") // 행 차원에 TOTAL 필드를 설정한 경우 my-right-align 스타일 적용
+            return "my-right-align";
+       return "my-style";
+  });</code></pre>
+                <p>함수의 반환값은 CSS 에서 이미 선언되어 있는 CSS 클래스여야 합니다.</p>
+                <p>
+                    다중의 CSS 클래스는 지원하지 않습니다. 예를 들어 "right-style bold-style font12-style" 과 같은
+                    구조는 지원하지 않습니다.
+                </p>
+            </td>
+        </tr>
+        <tr id="setRowFields">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">setRowFields</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>1.0<br />
+                <p>피벗의 행 영역에 사용할 필드를 지정합니다.</p>
+                <p>파라메터 설명</p>
+                <ul>
+                    <li>fields (Array): 행 영역에 배치할 필드명 배열</li>
+                </ul>
+                <pre><code class="language-javascript">// 지점, 차종 순서로 행을 구성합니다.
+AUIPivot.setRowFields(myPivotID, ["REGION", "NAME"]);</code></pre>
+                <p>
+                    설정 후 <a href="Methods.html#updatePivot">updatePivot</a> 또는
+                    <a href="Methods.html#setGridData">setGridData</a>로 반영합니다.
+                </p>
+            </td>
+        </tr>
         <tr id="setRowFormatString">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -2347,6 +2369,45 @@ if (savedReport !== null) {
   }, {
       dataField : "DATE", formatString : "yyyy. mm. dd." // DATE 필드를 행 차원에 설정한 경우 "yyyy. mm. dd." 로 포매팅하여 출력함
   }]);</code></pre>
+            </td>
+        </tr>
+        <tr id="setSlicerSelection">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">setSlicerSelection</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.7<br />
+                <p>
+                    슬라이서의 선택값을 지정하고 보고서를 다시 계산합니다. 같은 필드의 값은 OR, 서로 다른 필드의 조건은
+                    AND로 적용합니다.
+                </p>
+                <p>파라메터 설명</p>
+                <ul>
+                    <li>slicerID (String): createSlicer가 반환한 ID</li>
+                    <li>
+                        values (Array 또는 null): 원시 값 배열. 문자열, 유한 숫자, boolean, null, undefined를 사용할 수
+                        있습니다. 배열의 null, undefined, 빈 문자열은 “필드 값 없음”을 뜻합니다. null을 직접 전달하면
+                        해당 필드의 필터를 해제합니다. 빈 배열 []는 오류입니다.
+                    </li>
+                </ul>
+                <p>Return : 없음</p>
+                <pre><code class="language-javascript">// 서울 또는 부산을 선택합니다. 다른 필드의 필터는 유지합니다.
+AUIPivot.setSlicerSelection(myPivotID, regionSlicer, ["서울 지점", "부산 지점"]);
+// 지점 조건만 해제합니다.
+AUIPivot.setSlicerSelection(myPivotID, regionSlicer, null);</code></pre>
+                <p>
+                    같은 선택값이면 다시 계산하지 않습니다. 없는 ID, 잠긴 피벗, 원본에서 사라진 필드는 무시합니다.
+                    2.8.0부터 보고서 배치에서 제거한 필드의 슬라이서도 계속 사용할 수 있습니다. 검색창 입력은 선택값을
+                    바꾸지 않습니다.
+                </p>
+                <p>
+                    Also See: <a href="Methods.html#createSlicer">createSlicer</a> |
+                    <a href="Methods.html#getSlicerSelection">getSlicerSelection</a> |
+                    <a href="Methods.html#destroySlicer">destroySlicer</a> |
+                    <a href="https://www.auisoft.net/demo/auipivot/slicer_demo.html">관련 데모 보기</a>
+                </p>
             </td>
         </tr>
         <tr id="setSorting">
@@ -2600,67 +2661,6 @@ AUIPivot.unbind(myPivotID, "cellClick");</code></pre>
   // 새로 피벗팅 업데이트
   AUIPivot.updatePivot(myPivotID);
   </code></pre>
-            </td>
-        </tr>
-        <tr id="setFormulaFields">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">setFormulaFields</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>필드 합계를 이용하는 집계 후 수식을 정의합니다. 정의는 값 영역의 표시 여부와 별도로 보존됩니다.</p>
-                <p>
-                    fields (Array): {dataField, expression, labelText?, version?} 배열입니다. dataField는 고유 ID,
-                    expression은 수식 문자열, labelText는 선택 표시명입니다. version은 1이며 생략할 수 있습니다.
-                </p>
-                <p>
-                    정의 전체를 교체하며 updatePivot 또는 setGridData로 반영합니다. []로 제거할 수 있지만 값 영역 또는
-                    다른 수식이 참조 중이면 오류입니다. 원본/파생 필드와의 ID 충돌, 잘못된 구문, 없는 참조와 순환 참조도
-                    오류이며 이전 정의를 유지합니다. 데이터 도착 전 등록하면 물리 필드의 존재 검사는 첫 데이터 입력으로
-                    미룹니다.
-                </p>
-                <p>
-                    괄호, + - * /, 단항 부호, %, 숫자와 필드 참조를 지원합니다. [필드ID]는 명시적 ID, 고유한 별칭은 직접
-                    또는 작은따옴표로 입력합니다. 부분합과 총합계도 각 영역의 필드를 합산한 뒤 같은 수식으로 계산합니다.
-                    0 나누기와 비유한 결과는 빈 값으로 표시됩니다.
-                </p>
-                <p>Return : 없음</p>
-                <pre><code class="language-javascript">// 숨긴 중간 계산을 정의하고 이익률만 표시합니다.
-AUIPivot.setFormulaFields(myPivotID, [
-    {dataField: "Profit", labelText: "이익", expression: "[TOTAL] - [COST]"},
-    {dataField: "Rate", labelText: "이익률", expression: "[Profit] / [TOTAL] * 100"}
-]);
-AUIPivot.setValueFields(myPivotID, [
-    {dataField: "Rate", calculation: {kind: "formula"}, formatString: "0.00"}
-]);
-AUIPivot.updatePivot(myPivotID);</code></pre>
-                <p>
-                    <a href="../Desc/aggregation.html#formula">계산 의미, 오류와 제한</a>,
-                    <a href="Methods.html#getFormulaFields">getFormulaFields</a>
-                </p>
-            </td>
-        </tr>
-        <tr id="getFormulaFields">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">getFormulaFields</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Method &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>등록된 수식 정의의 독립 사본을 반환합니다. 화면에 표시하지 않는 중간 수식도 포함됩니다.</p>
-                <p>
-                    반환값은 {dataField, expression, labelText?, version: 1} 배열입니다. expression의 참조는 [필드ID]로
-                    정규화됩니다. 정의가 없으면 [], 피벗이 없으면 null입니다.
-                </p>
-                <pre><code class="language-javascript">// 저장한 배열을 수정해도 현재 수식 정의는 바뀌지 않습니다.
-const formulas = AUIPivot.getFormulaFields(myPivotID);</code></pre>
-                <p>
-                    <a href="Methods.html#setFormulaFields">setFormulaFields</a>,
-                    <a href="Methods.html#getReportDefinition">getReportDefinition</a>
-                </p>
             </td>
         </tr>
     </table>

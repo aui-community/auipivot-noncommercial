@@ -388,6 +388,40 @@
                 기본값(default) : <code>true</code>
             </td>
         </tr>
+        <tr id="enableCalculatedFieldEditor">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">enableCalculatedFieldEditor</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Boolean &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>필드 패널의 값 영역에 계산 필드 편집 버튼을 표시합니다.</p>
+                <p>
+                    기본값은 false입니다. true이면 데이터를 불러온 뒤 계산 필드를 추가, 수정, 삭제할 수 있습니다. 실행
+                    중에는 setProp으로 변경한 뒤 refresh를 호출합니다. 필드 패널을 생성해야 버튼이 표시됩니다.
+                </p>
+                <p>
+                    원본 행의 사칙연산과 합계 간 비율을 지원합니다. 패널의 isUpdatePiovtLater가 true이면 업데이트 버튼을
+                    누를 때 반영합니다. 수식과 값 설정은 보고서 저장 정의에 포함하며, 이 표시 속성과 적용 전 초안은
+                    포함하지 않습니다.
+                </p>
+                <p>
+                    입력 범위, 미리보기와 삭제 조건은
+                    <a href="../Desc/pivot-panel.html#calculated-field-editor">계산 필드 편집</a>을 참고하세요.
+                </p>
+                <pre><code class="language-javascript">// 필드 패널에서 계산 필드를 편집할 수 있습니다.
+const pivotProps = {
+    enableCalculatedFieldEditor: true
+};</code></pre>
+                <p>
+                    집계 후 수식 모드에서는 괄호와 사칙연산을 직접 입력하고 현재 필터를 반영한 전체 총합계의 원시값과
+                    서식 적용값을 미리 볼 수 있습니다. 수식 정의는 표시 여부와 별도로 관리됩니다.
+                    <a href="../Desc/aggregation.html#formula">자유 수식 안내</a>를 참고하세요.
+                </p>
+                기본값(default) : <code>false</code>
+            </td>
+        </tr>
         <tr id="enableClipboard">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -413,6 +447,35 @@
                     바뀝니다.
                 </p>
                 기본값(default) : <code>true</code>
+            </td>
+        </tr>
+        <tr id="enableFieldSubtotalMenu">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">enableFieldSubtotalMenu</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Boolean &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>필드 패널의 행 필드 메뉴에 부분합 설정을 표시합니다.</p>
+                <p>
+                    Boolean이며 기본값은 false입니다. true로 설정하고 필드 패널을 생성하면 사용할 수 있습니다. 실행
+                    중에는 setProp으로 변경한 뒤 refresh를 호출합니다.
+                </p>
+                <p>
+                    table과 tableCellMerge에서 해당 행 필드의 부분합을 표시하거나 숨깁니다. showSummaryRow가 false이거나
+                    마지막 행 필드이면 변경할 수 없습니다. tree는 지원하지 않습니다. 변경하면 setExceptSumRowFields와
+                    동일하게 showTreeIcon이 false가 되며 부분합을 다시 표시해도 아이콘은 자동 복원되지 않습니다.
+                </p>
+                <p>
+                    패널의 isUpdatePiovtLater가 true이면 업데이트 버튼을 누를 때 반영됩니다. 자세한 적용과 저장 규칙은
+                    <a href="../Desc/pivot-panel.html#field-subtotal">필드별 부분합 설정</a>을 참고하세요.
+                </p>
+                <pre><code class="language-javascript">// 행 필드 메뉴에서 부분합을 설정할 수 있습니다.
+const pivotProps = {
+    enableFieldSubtotalMenu: true
+};</code></pre>
+                기본값(default) : <code>false</code>
             </td>
         </tr>
         <tr id="enableFocus">
@@ -453,98 +516,6 @@ const pivotProps = {
                 기본값(default) : <code>false</code>
             </td>
         </tr>
-        <tr id="enableItemReorder">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">enableItemReorder</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Boolean &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>행, 열 항목을 드래그하거나 이동 메뉴로 순서를 바꿀 수 있는 손잡이를 표시합니다.</p>
-                <p>
-                    기본값은 false입니다. true이면 tree, table, tableCellMerge에서 행 레이블과 열 항목에 표시합니다.
-                    실행 중에는 setProp으로 변경한 뒤 refresh를 호출합니다.
-                </p>
-                <p>
-                    같은 부모의 같은 필드 항목끼리 이동하며 자식과 부분 합계를 함께 옮깁니다. 변경한 순서는 필드 전체에
-                    적용되어 setCustomValueOrders와 보고서 저장 정의에 반영됩니다. 이 표시 속성 자체는 보고서 저장
-                    정의에 포함하지 않습니다.
-                </p>
-                <p>
-                    행 결과 정렬 중에는 이동 메뉴에서 정렬을 먼저 해제하세요. 손잡이 조작, 키보드와 지원 값은
-                    <a href="../Desc/pivot-panel.html#item-reorder">항목 수동 순서</a>를 참고하세요.
-                </p>
-                <pre><code class="language-javascript">// 행, 열 항목의 순서를 직접 바꿀 수 있습니다.
-const pivotProps = {
-    enableItemReorder: true
-};</code></pre>
-                기본값(default) : <code>false</code>
-            </td>
-        </tr>
-        <tr id="enableCalculatedFieldEditor">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">enableCalculatedFieldEditor</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Boolean &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>필드 패널의 값 영역에 계산 필드 편집 버튼을 표시합니다.</p>
-                <p>
-                    기본값은 false입니다. true이면 데이터를 불러온 뒤 계산 필드를 추가, 수정, 삭제할 수 있습니다. 실행
-                    중에는 setProp으로 변경한 뒤 refresh를 호출합니다. 필드 패널을 생성해야 버튼이 표시됩니다.
-                </p>
-                <p>
-                    원본 행의 사칙연산과 합계 간 비율을 지원합니다. 패널의 isUpdatePiovtLater가 true이면 업데이트 버튼을
-                    누를 때 반영합니다. 수식과 값 설정은 보고서 저장 정의에 포함하며, 이 표시 속성과 적용 전 초안은
-                    포함하지 않습니다.
-                </p>
-                <p>
-                    입력 범위, 미리보기와 삭제 조건은
-                    <a href="../Desc/pivot-panel.html#calculated-field-editor">계산 필드 편집</a>을 참고하세요.
-                </p>
-                <pre><code class="language-javascript">// 필드 패널에서 계산 필드를 편집할 수 있습니다.
-const pivotProps = {
-    enableCalculatedFieldEditor: true
-};</code></pre>
-                <p>
-                    집계 후 수식 모드에서는 괄호와 사칙연산을 직접 입력하고 현재 필터를 반영한 전체 총합계의 원시값과
-                    서식 적용값을 미리 볼 수 있습니다. 수식 정의는 표시 여부와 별도로 관리됩니다.
-                    <a href="../Desc/aggregation.html#formula">자유 수식 안내</a>를 참고하세요.
-                </p>
-                기본값(default) : <code>false</code>
-            </td>
-        </tr>
-        <tr id="enableFieldSubtotalMenu">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">enableFieldSubtotalMenu</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Boolean &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>필드 패널의 행 필드 메뉴에 부분합 설정을 표시합니다.</p>
-                <p>
-                    Boolean이며 기본값은 false입니다. true로 설정하고 필드 패널을 생성하면 사용할 수 있습니다. 실행
-                    중에는 setProp으로 변경한 뒤 refresh를 호출합니다.
-                </p>
-                <p>
-                    table과 tableCellMerge에서 해당 행 필드의 부분합을 표시하거나 숨깁니다. showSummaryRow가 false이거나
-                    마지막 행 필드이면 변경할 수 없습니다. tree는 지원하지 않습니다. 변경하면 setExceptSumRowFields와
-                    동일하게 showTreeIcon이 false가 되며 부분합을 다시 표시해도 아이콘은 자동 복원되지 않습니다.
-                </p>
-                <p>
-                    패널의 isUpdatePiovtLater가 true이면 업데이트 버튼을 누를 때 반영됩니다. 자세한 적용과 저장 규칙은
-                    <a href="../Desc/pivot-panel.html#field-subtotal">필드별 부분합 설정</a>을 참고하세요.
-                </p>
-                <pre><code class="language-javascript">// 행 필드 메뉴에서 부분합을 설정할 수 있습니다.
-const pivotProps = {
-    enableFieldSubtotalMenu: true
-};</code></pre>
-                기본값(default) : <code>false</code>
-            </td>
-        </tr>
         <tr id="enableHScrollByOnlyShiftKey">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -574,6 +545,35 @@ const pivotProps = {
                 <p>Shift + 마우스 휠(wheel)이 수평 스크롤에 반응할지 여부를 지정합니다.</p>
                 <p>만약, enableMouseWheel=false 설정하면 enableHScrollByWheel 는 무시됩니다.</p>
                 기본값(default) : <code>true</code>
+            </td>
+        </tr>
+        <tr id="enableItemReorder">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">enableItemReorder</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Boolean &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>행, 열 항목을 드래그하거나 이동 메뉴로 순서를 바꿀 수 있는 손잡이를 표시합니다.</p>
+                <p>
+                    기본값은 false입니다. true이면 tree, table, tableCellMerge에서 행 레이블과 열 항목에 표시합니다.
+                    실행 중에는 setProp으로 변경한 뒤 refresh를 호출합니다.
+                </p>
+                <p>
+                    같은 부모의 같은 필드 항목끼리 이동하며 자식과 부분 합계를 함께 옮깁니다. 변경한 순서는 필드 전체에
+                    적용되어 setCustomValueOrders와 보고서 저장 정의에 반영됩니다. 이 표시 속성 자체는 보고서 저장
+                    정의에 포함하지 않습니다.
+                </p>
+                <p>
+                    행 결과 정렬 중에는 이동 메뉴에서 정렬을 먼저 해제하세요. 손잡이 조작, 키보드와 지원 값은
+                    <a href="../Desc/pivot-panel.html#item-reorder">항목 수동 순서</a>를 참고하세요.
+                </p>
+                <pre><code class="language-javascript">// 행, 열 항목의 순서를 직접 바꿀 수 있습니다.
+const pivotProps = {
+    enableItemReorder: true
+};</code></pre>
+                기본값(default) : <code>false</code>
             </td>
         </tr>
         <tr id="enableMouseWheel">
@@ -741,6 +741,61 @@ const pivotProps = {
                 기본값(default) : <code>0</code>
             </td>
         </tr>
+        <tr id="fixedColumnsMinWidth">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">fixedColumnsMinWidth</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.2<br />
+                <p>좌우 칼럼 고정을 유지할 피벗의 최소 너비를 픽셀 단위로 지정합니다. 기본값은 600입니다.</p>
+                <p>
+                    피벗 자체의 너비(테두리 포함)가 이 값보다 작으면 고정을 일시 해제하고, 다시 이 값 이상이면 기존
+                    설정대로 복원합니다.
+                </p>
+                <p>
+                    0은 너비에 따른 자동 해제를 사용하지 않습니다. 0 이상의 유한한 숫자만 허용하며 그 외에는 Error를
+                    발생시킵니다.
+                </p>
+                <p>
+                    실행 중에는 setProp으로 변경한 뒤 refresh를 호출하고, 컨테이너 크기를 바꾼 뒤에는 resize를
+                    호출하세요. 적용 범위와 저장 기준은
+                    <a href="../Desc/pivot-panel.html#responsive-fixed-columns">좁은 화면의 고정 해제</a>를 참고하세요.
+                </p>
+                <pre><code class="language-javascript">// 피벗 너비가 600px 미만이면 좌우 고정을 일시 해제합니다.
+const pivotProps = { fixedColumnsMinWidth: 600 };</code></pre>
+                기본값(default) : <code>600</code>
+            </td>
+        </tr>
+        <tr id="fixedRightColumnCount">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">fixedRightColumnCount</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.2<br />
+                <p>오른쪽에 고정할 값 칼럼 수를 지정합니다.</p>
+                <ul>
+                    <li>null(기본값): 오른쪽 끝의 전체 합계 칼럼을 자동 고정합니다.</li>
+                    <li>0: 고정을 해제합니다.</li>
+                    <li>양의 안전한 정수: 오른쪽 마지막 값 칼럼을 지정한 개수만큼 고정합니다.</li>
+                </ul>
+                <p>행 레이블, 행 번호와 상태 칼럼은 개수에서 제외합니다. 허용값 이외에는 Error를 발생시킵니다.</p>
+                <p>
+                    적용 조건은 <a href="#useFixedRightColumns">useFixedRightColumns</a>를 따릅니다. 실행 중에는
+                    setProp으로 변경한 뒤 refresh를 호출하세요.
+                </p>
+                <p>
+                    자동 고정 범위, 너비 제한과 저장 기준은
+                    <a href="../Desc/pivot-panel.html#fixed-right-columns">오른쪽 값 칼럼 고정</a>을 참고하세요.
+                </p>
+                <pre><code class="language-javascript">// 오른쪽 값 칼럼 두 개를 고정합니다.
+const pivotProps = { fixedRightColumnCount: 2 };</code></pre>
+                기본값(default) : <code>null</code>
+            </td>
+        </tr>
         <tr id="fixedRowFieldCount">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -777,61 +832,6 @@ const pivotProps = {
     fixedRowFieldCount: 2
 };</code></pre>
                 기본값(default) : <code>null</code>
-            </td>
-        </tr>
-        <tr id="fixedRightColumnCount">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">fixedRightColumnCount</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.2<br />
-                <p>오른쪽에 고정할 값 칼럼 수를 지정합니다.</p>
-                <ul>
-                    <li>null(기본값): 오른쪽 끝의 전체 합계 칼럼을 자동 고정합니다.</li>
-                    <li>0: 고정을 해제합니다.</li>
-                    <li>양의 안전한 정수: 오른쪽 마지막 값 칼럼을 지정한 개수만큼 고정합니다.</li>
-                </ul>
-                <p>행 레이블, 행 번호와 상태 칼럼은 개수에서 제외합니다. 허용값 이외에는 Error를 발생시킵니다.</p>
-                <p>
-                    적용 조건은 <a href="#useFixedRightColumns">useFixedRightColumns</a>를 따릅니다. 실행 중에는
-                    setProp으로 변경한 뒤 refresh를 호출하세요.
-                </p>
-                <p>
-                    자동 고정 범위, 너비 제한과 저장 기준은
-                    <a href="../Desc/pivot-panel.html#fixed-right-columns">오른쪽 값 칼럼 고정</a>을 참고하세요.
-                </p>
-                <pre><code class="language-javascript">// 오른쪽 값 칼럼 두 개를 고정합니다.
-const pivotProps = { fixedRightColumnCount: 2 };</code></pre>
-                기본값(default) : <code>null</code>
-            </td>
-        </tr>
-        <tr id="fixedColumnsMinWidth">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">fixedColumnsMinWidth</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.2<br />
-                <p>좌우 칼럼 고정을 유지할 피벗의 최소 너비를 픽셀 단위로 지정합니다. 기본값은 600입니다.</p>
-                <p>
-                    피벗 자체의 너비(테두리 포함)가 이 값보다 작으면 고정을 일시 해제하고, 다시 이 값 이상이면 기존
-                    설정대로 복원합니다.
-                </p>
-                <p>
-                    0은 너비에 따른 자동 해제를 사용하지 않습니다. 0 이상의 유한한 숫자만 허용하며 그 외에는 Error를
-                    발생시킵니다.
-                </p>
-                <p>
-                    실행 중에는 setProp으로 변경한 뒤 refresh를 호출하고, 컨테이너 크기를 바꾼 뒤에는 resize를
-                    호출하세요. 적용 범위와 저장 기준은
-                    <a href="../Desc/pivot-panel.html#responsive-fixed-columns">좁은 화면의 고정 해제</a>를 참고하세요.
-                </p>
-                <pre><code class="language-javascript">// 피벗 너비가 600px 미만이면 좌우 고정을 일시 해제합니다.
-const pivotProps = { fixedColumnsMinWidth: 600 };</code></pre>
-                기본값(default) : <code>600</code>
             </td>
         </tr>
         <tr id="footerHeight">
@@ -1386,6 +1386,54 @@ const pivotProps = {
                 기본값(default) : <code>true</code>
             </td>
         </tr>
+        <tr id="slicerHeight">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">slicerHeight</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>슬라이서 삽입 창에서 새로 만드는 슬라이서의 초기 높이를 픽셀 단위로 지정합니다.</p>
+                <p>
+                    180 이상의 유한한 숫자를 사용합니다. 화면보다 크면 최소 180px을 유지하는 범위에서 화면 여백을 제외한
+                    크기로 줄입니다.
+                </p>
+                <p>
+                    <code>setProp</code>으로 변경하면 다음에 삽입하는 슬라이서부터 적용됩니다. 이미 열린 슬라이서와
+                    영역을 직접 지정한 수동 슬라이서에는 적용하지 않습니다. 보고서 저장 대상이 아닙니다.
+                </p>
+                <pre>
+// 슬라이서 삽입 창에서 생성할 기본 크기를 지정합니다.
+const pivotProps = { slicerWidth: 320, slicerHeight: 360 };</pre>
+                <p><a href="#slicerWidth">slicerWidth</a>, <a href="./Methods.html#createSlicer">createSlicer</a></p>
+                기본값(default) : <code>330</code>
+            </td>
+        </tr>
+        <tr id="slicerWidth">
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature">
+                    <span class="signatureLink">slicerWidth</span>
+                </div>
+            </td>
+            <td class="summaryTableDescription">
+                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.0<br />
+                <p>슬라이서 삽입 창에서 새로 만드는 슬라이서의 초기 너비를 픽셀 단위로 지정합니다.</p>
+                <p>
+                    200 이상의 유한한 숫자를 사용합니다. 화면보다 크면 최소 200px을 유지하는 범위에서 화면 여백을 제외한
+                    크기로 줄입니다.
+                </p>
+                <p>
+                    <code>setProp</code>으로 변경하면 다음에 삽입하는 슬라이서부터 적용됩니다. 이미 열린 슬라이서와
+                    영역을 직접 지정한 수동 슬라이서에는 적용하지 않습니다. 보고서 저장 대상이 아닙니다.
+                </p>
+                <pre>
+// 슬라이서 삽입 창에서 생성할 기본 크기를 지정합니다.
+const pivotProps = { slicerWidth: 320, slicerHeight: 360 };</pre>
+                <p><a href="#slicerHeight">slicerHeight</a>, <a href="./Methods.html#createSlicer">createSlicer</a></p>
+                기본값(default) : <code>300</code>
+            </td>
+        </tr>
         <tr id="stateColumnWidth">
             <td class="summaryTableSignatureCol">
                 <div class="summarySignature">
@@ -1686,54 +1734,6 @@ const pivotProps = { useFixedRightColumns: true };</code></pre>
                     만큼 할당됩니다.(즉, 부모 width의 100%)
                 </p>
                 기본값(default) : <code>NaN</code>
-            </td>
-        </tr>
-        <tr id="slicerWidth">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">slicerWidth</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>슬라이서 삽입 창에서 새로 만드는 슬라이서의 초기 너비를 픽셀 단위로 지정합니다.</p>
-                <p>
-                    200 이상의 유한한 숫자를 사용합니다. 화면보다 크면 최소 200px을 유지하는 범위에서 화면 여백을 제외한
-                    크기로 줄입니다.
-                </p>
-                <p>
-                    <code>setProp</code>으로 변경하면 다음에 삽입하는 슬라이서부터 적용됩니다. 이미 열린 슬라이서와
-                    영역을 직접 지정한 수동 슬라이서에는 적용하지 않습니다. 보고서 저장 대상이 아닙니다.
-                </p>
-                <pre>
-// 슬라이서 삽입 창에서 생성할 기본 크기를 지정합니다.
-const pivotProps = { slicerWidth: 320, slicerHeight: 360 };</pre>
-                <p><a href="#slicerHeight">slicerHeight</a>, <a href="./Methods.html#createSlicer">createSlicer</a></p>
-                기본값(default) : <code>300</code>
-            </td>
-        </tr>
-        <tr id="slicerHeight">
-            <td class="summaryTableSignatureCol">
-                <div class="summarySignature">
-                    <span class="signatureLink">slicerHeight</span>
-                </div>
-            </td>
-            <td class="summaryTableDescription">
-                <span class="label">Type : </span>Number &nbsp; <span class="label">Version: </span>2.8.0<br />
-                <p>슬라이서 삽입 창에서 새로 만드는 슬라이서의 초기 높이를 픽셀 단위로 지정합니다.</p>
-                <p>
-                    180 이상의 유한한 숫자를 사용합니다. 화면보다 크면 최소 180px을 유지하는 범위에서 화면 여백을 제외한
-                    크기로 줄입니다.
-                </p>
-                <p>
-                    <code>setProp</code>으로 변경하면 다음에 삽입하는 슬라이서부터 적용됩니다. 이미 열린 슬라이서와
-                    영역을 직접 지정한 수동 슬라이서에는 적용하지 않습니다. 보고서 저장 대상이 아닙니다.
-                </p>
-                <pre>
-// 슬라이서 삽입 창에서 생성할 기본 크기를 지정합니다.
-const pivotProps = { slicerWidth: 320, slicerHeight: 360 };</pre>
-                <p><a href="#slicerWidth">slicerWidth</a>, <a href="./Methods.html#createSlicer">createSlicer</a></p>
-                기본값(default) : <code>330</code>
             </td>
         </tr>
     </table>

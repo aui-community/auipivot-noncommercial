@@ -611,7 +611,11 @@
             baselineReport = localizeWorkspaceReport(baselineReport, previousMessages, messages, language);
             AUIPivot.destroy(myPivotID);
             createPivotGrid();
-            AUIPivot.setProp(myPivotID, "fixedRowFieldCount", state.view.fixedRowFieldCount);
+            // 언어를 바꾸어 다시 생성해도 사용자가 선택한 좌우 고정 설정을 유지합니다.
+            AUIPivot.setProp(myPivotID, {
+                fixedRowFieldCount: state.view.fixedRowFieldCount,
+                useFixedRightColumns: state.view.useFixedRightColumns
+            });
             AUIPivot.setReportDefinition(myPivotID, state.report);
             AUIPivot.setVisualAnalytics(myPivotID, state.visual);
             AUIPivot.setGridData(myPivotID, workspaceRows);
@@ -823,7 +827,12 @@
         // 사용자 집계는 공개 보고서 계약에 등록 ID와 버전도 함께 지정합니다.
         report.aggregatorDependencies = key === "prices" ? [{ id: "WS_WEIGHTED_PRICE", version: 1 }] : [];
         AUIPivot.setVisualAnalytics(myPivotID, []);
-        AUIPivot.setProp(myPivotID, { fixedRowFieldCount: 2, useFixedColumns: true });
+        // 새 보고서와 분석 예제는 좌우 고정을 처음 생성했을 때의 기본 설정으로 돌립니다.
+        AUIPivot.setProp(myPivotID, {
+            fixedRowFieldCount: 2,
+            useFixedColumns: true,
+            useFixedRightColumns: true
+        });
         AUIPivot.setReportDefinition(myPivotID, report);
         workspaceReportName = preset ? preset.title : "새 보고서";
         document.getElementById("ws-preset").value = preset ? key : "";
@@ -849,11 +858,17 @@
         const maximum = Math.max(AUIPivot.getRowFields(myPivotID).length, fixed || 0, 3);
         for (let i = 0; i <= maximum; i++) fixedSelect.add(new Option(i + "개", String(i)));
         fixedSelect.value = fixed == null ? "auto" : String(fixed);
-        ["showSummaryRow", "showSummaryColumn", "showGrandTotalColumn", "showFooter", "showTreeIcon"].forEach(
-            function (prop) {
-                document.querySelector('[data-ws-prop="' + prop + '"]').checked = AUIPivot.getProp(myPivotID, prop);
-            }
-        );
+        // 실제 고정 적용 여부가 아니라 요청한 설정을 표시해 좁은 화면에서도 선택을 유지합니다.
+        [
+            "useFixedRightColumns",
+            "showSummaryRow",
+            "showSummaryColumn",
+            "showGrandTotalColumn",
+            "showFooter",
+            "showTreeIcon"
+        ].forEach(function (prop) {
+            document.querySelector('[data-ws-prop="' + prop + '"]').checked = AUIPivot.getProp(myPivotID, prop);
+        });
         document.querySelector('[data-ws-prop="showSummaryRow"]').disabled =
             AUIPivot.getProp(myPivotID, "layoutType") === "tree";
         const values = AUIPivot.getValueFields(myPivotID);
@@ -1417,7 +1432,7 @@
         document.getElementById("ws-detail-next").disabled = (detailPage + 1) * 50 >= detailRows.length;
     }
 
-    // 보고서 API가 저장하지 않는 시각화, 고정 개수와 패널 표시도 별도 항목으로 함께 저장합니다.
+    // 보고서 API가 저장하지 않는 시각화, 좌우 고정 설정과 패널 표시도 별도로 저장합니다.
     function captureWorkspace() {
         return {
             kind: "AUIPivotSalesWorkspace",
@@ -1428,6 +1443,7 @@
             visual: AUIPivot.getVisualAnalytics(myPivotID),
             view: Object.assign({}, workspaceOptions, {
                 fixedRowFieldCount: AUIPivot.getProp(myPivotID, "fixedRowFieldCount"),
+                useFixedRightColumns: AUIPivot.getProp(myPivotID, "useFixedRightColumns"),
                 visualMode: workspaceValue("ws-visual-mode"),
                 visualScope: workspaceValue("ws-visual-scope"),
                 visualSummary: document.getElementById("ws-visual-summary").checked
@@ -1520,6 +1536,9 @@
             count = view.fixedRowFieldCount;
         if (![null, undefined].includes(count) && (!Number.isInteger(count) || count < 0 || count > 256))
             throw new Error("고정 개수가 잘못되었습니다.");
+        // 이전 저장본에는 오른쪽 고정 항목이 없으므로 누락은 허용하고, 잘못된 새 값만 거부합니다.
+        if (view.useFixedRightColumns !== undefined && typeof view.useFixedRightColumns !== "boolean")
+            throw new Error("오른쪽 고정 설정이 잘못되었습니다.");
         if (
             !["none", "heatmap", "dataBar"].includes(view.visualMode) ||
             !["GLOBAL", "ROW", "COLUMN"].includes(view.visualScope) ||
@@ -1546,18 +1565,18 @@
             host.remove();
         }
     }
-    // 검증된 보고서, 시각화, 고정 개수와 패널 표시를 복원하고 다시 집계합니다.
+    // 검증된 보고서, 시각화, 좌우 고정 설정과 패널 표시를 복원하고 다시 집계합니다.
     function restoreWorkspace(data) {
         validateWorkspace(data);
         // 이전 언어로 저장한 기본 가격대 이름은 현재 선택 언어에 맞추고 저장 원본은 수정하지 않습니다.
         const report = copy(data.report);
         report.derivedFields = localizeWorkspaceRanges(report.derivedFields, workspaceLanguage);
         AUIPivot.setVisualAnalytics(myPivotID, []);
-        AUIPivot.setProp(
-            myPivotID,
-            "fixedRowFieldCount",
-            data.view.fixedRowFieldCount == null ? null : data.view.fixedRowFieldCount
-        );
+        // 이전 저장본은 종전 기본값인 오른쪽 자동 고정을 적용합니다.
+        AUIPivot.setProp(myPivotID, {
+            fixedRowFieldCount: data.view.fixedRowFieldCount == null ? null : data.view.fixedRowFieldCount,
+            useFixedRightColumns: data.view.useFixedRightColumns !== false
+        });
         AUIPivot.setReportDefinition(myPivotID, report);
         AUIPivot.setVisualAnalytics(myPivotID, data.visual);
         workspaceReportName = data.name;
@@ -1851,6 +1870,14 @@
                             >행 칼럼 고정
                             <select id="ws-fixed" onchange="act(() => changeWorkspaceFixed(this.value))"></select
                         ></label>
+                        <!-- 오른쪽 자동 고정은 요청 설정을 유지하고 화면 너비와 가로 스크롤에 따라 적용됩니다. -->
+                        <label
+                            ><input
+                                type="checkbox"
+                                data-ws-prop="useFixedRightColumns"
+                                onchange="act(() => changeWorkspaceProp('useFixedRightColumns', this.checked))"
+                            />오른쪽 고정</label
+                        >
                         <label
                             ><input
                                 type="checkbox"
