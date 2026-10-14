@@ -1,3 +1,11 @@
+/*!
+ * AUIPivot Non-Commercial v2.8.2 - Messages (Korean)
+ * Copyright (c) AUISoft Co., Ltd. All rights reserved.
+ *
+ * AUIPivot 화면 메시지 파일입니다. AUIPivot 사용권 범위 안에서 번역하거나 수정하여 사용할 수 있습니다.
+ * This is an AUIPivot UI message file. You may translate or modify it within the scope of your AUIPivot license.
+ * License: https://github.com/aui-community/auipivot-noncommercial/blob/main/LICENSE
+ */
 /* eslint-disable */
 /**
  * AUIPivot v2.8.2 Messages

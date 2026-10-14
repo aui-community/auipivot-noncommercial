@@ -4,7 +4,7 @@
 <script>
 	/* eslint-disable */
 	/**
-	 * AUIPivot.vue for Vue.js v1.2.20261013
+	 * AUIPivot.vue for Vue.js v1.2.20261014
 	 * Based on AUIPivot v2.8.2
 	 * Copyright © AUISoft Co., Ltd.
 	 * www.auisoft.net
