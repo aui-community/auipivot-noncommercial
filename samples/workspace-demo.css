@@ -1,0 +1,283 @@
+@charset "UTF-8";
+
+/* pivot_workspace.html 전용 스타일입니다. 데모 공통 스타일과 제품 테마 뒤에 연결합니다. */
+/* 워크스페이스의 조작부만 꾸미며 피벗 셀과 필드 패널에는 제품 테마를 유지합니다. */
+/* 스타일 순서: 상단 조작부, 도구 탭, 피벗/패널 배치, 차트, 상세 창, 좁은 화면 대응. */
+/* 메시지 선택과 소스 보기를 같은 줄에 두고 좁은 화면에서는 함께 줄바꿈합니다. */
+.ws-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.ws-message-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font: 14px/1.5 var(--demo-font);
+    color: #343c46;
+}
+#ws-message-language {
+    box-sizing: border-box;
+    height: 44px;
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid #d5dae0;
+    border-radius: 4px;
+    background: #fff;
+    color: #343c46;
+    font: inherit;
+}
+.ws-shell {
+    border: 1px solid #d8e3ed;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+}
+.ws-note {
+    color: #617386;
+}
+.ws-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 0 16px;
+    border-block: 1px solid #d8e3ed;
+    background: #f8fbfd;
+}
+.ws-tabs button {
+    flex-shrink: 0;
+    padding: 12px 20px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #50677c;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.ws-tabs button[aria-selected="true"] {
+    background: #eaf3fb;
+    color: #245b88;
+    border-bottom-color: #337ab7;
+}
+/* 빈 보고서에서는 보고서 탭만 사용하고 오른쪽 필드 패널에서 배치를 시작합니다. */
+.ws-tabs button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+.ws-controls {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    min-width: 0;
+}
+.ws-ribbon {
+    padding: 14px 20px;
+    background: #f4f8fc;
+    border-bottom: 1px solid #d8e3ed;
+}
+.ws-ribbon > div {
+    display: flex;
+    align-items: center;
+    gap: 10px 16px;
+    flex-wrap: wrap;
+}
+.ws-ribbon label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.ws-ribbon p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #526a80;
+}
+.pivot-workspace .ws-action {
+    font: inherit;
+    border: 1px solid #337ab7;
+    border-radius: 5px;
+    padding: 7px 12px;
+    cursor: pointer;
+    background: #337ab7;
+    color: #fff;
+}
+.pivot-workspace .ws-action:hover {
+    background: #286090;
+}
+.pivot-workspace .ws-action:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.pivot-workspace .ws-ribbon :is(input:not([type="checkbox"]), select) {
+    font: inherit;
+    color: #263b4d;
+    padding: 7px 9px;
+    border: 1px solid #bfcedb;
+    border-radius: 5px;
+    background: #fff;
+    max-width: 100%;
+}
+.ws-tabs button:focus-visible,
+.ws-action:focus-visible {
+    outline: 2px solid #173e62;
+    outline-offset: -2px;
+}
+.ws-status {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 9px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid #e1e9f1;
+}
+#ws-status {
+    color: #27587d;
+}
+#ws-status[data-error="true"] {
+    color: #b3261e;
+}
+.ws-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 12px;
+    padding: 12px;
+}
+.ws-body.panel-hidden {
+    grid-template-columns: minmax(0, 1fr);
+}
+#pivot_wrap {
+    width: 100%;
+    min-width: 0;
+    height: 560px;
+}
+/* 이동 창으로 분리한 뒤에도 최초 패널 자리의 높이를 유지합니다. */
+.ws-panel-slot,
+#pivot_panel {
+    width: 100%;
+    min-width: 0;
+    height: 560px;
+}
+.ws-body.panel-hidden .ws-panel-slot {
+    display: none;
+}
+.ws-selection {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px 20px;
+    border-top: 1px solid #d8e3ed;
+    background: #f8fbfd;
+}
+#ws-selection {
+    flex: 1;
+    min-width: 180px;
+    color: #526a80;
+}
+.ws-chart {
+    padding: 16px 20px;
+    border-top: 1px solid #d8e3ed;
+}
+.ws-chart h2 {
+    font-size: 18px;
+    margin: 0 0 4px;
+}
+/* 차트 너비는 현재 영역에 맞추고 축과 라벨의 간격은 실제 너비에 따라 계산합니다. */
+.ws-chart-canvas {
+    width: 100%;
+    min-width: 0;
+    /* renderWorkspaceChart에서도 같은 높이를 사용해 빈 상태와 차트 사이를 전환합니다. */
+    height: 300px;
+}
+.ws-chart-credit {
+    margin: 8px 0 12px;
+    color: #526a80;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.ws-chart-credit a {
+    color: #337ab7;
+    text-decoration: underline;
+}
+.ws-help {
+    margin: 16px 0;
+    color: #526a80;
+}
+.ws-help summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+.ws-help ul {
+    padding-left: 20px;
+}
+.ws-dialog {
+    width: min(1000px, calc(100vw - 40px));
+    max-height: 80vh;
+    box-sizing: border-box;
+    padding: 20px;
+    border: 1px solid #c5d4e2;
+    border-radius: 10px;
+    color: #253b50;
+}
+.ws-dialog::backdrop {
+    background: #12263880;
+}
+.ws-dialog header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+.ws-dialog h2 {
+    margin: 0;
+    font-size: 21px;
+}
+#ws-detail-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#ws-detail-table :is(th, td) {
+    border-bottom: 1px solid #d8e3ed;
+    padding: 7px 10px;
+    white-space: nowrap;
+    text-align: right;
+}
+#ws-detail-table th {
+    background: #f4f8fc;
+}
+.ws-dialog .ws-detail-scroll {
+    max-height: 50vh;
+    overflow: auto;
+    margin: 12px 0;
+}
+.pivot-workspace [hidden] {
+    display: none !important;
+}
+@media (max-width: 850px) {
+    .ws-body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .ws-panel-slot,
+    #pivot_panel {
+        height: 460px;
+    }
+    .ws-ribbon {
+        padding: 12px;
+    }
+    .ws-tabs {
+        padding: 0 4px;
+    }
+    .ws-tabs button {
+        padding: 10px 14px;
+    }
+}
+
+/* WebDemo의 원본 거래 상세 그리드 영역입니다. 기본 상세 표를 쓰는 패키지에는 적용 대상이 없습니다. */
+#ws-detail-grid {
+    width: 100%;
+    height: min(440px, 50vh);
+    margin: 12px 0;
+}

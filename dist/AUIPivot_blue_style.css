@@ -138,10 +138,10 @@
 	cursor: default;
 }
 
-/* 고정 칼럼과 일반 칼럼 경계선 */
+/* 고정 칼럼과 일반 칼럼 사이를 0.5px 경계선으로 구분합니다. */
 .aui-pivot-fixed-column-rule {
 	background: #a9a9a9;
-	width: 1px;
+	width: 0.5px;
 }
 
 /* 그리드 헤더 정렬 표시자 시작 */
