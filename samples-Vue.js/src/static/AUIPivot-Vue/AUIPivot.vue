@@ -4,8 +4,8 @@
 <script>
 	/* eslint-disable */
 	/**
-	 * AUIPivot.vue for Vue.js v1.2.20261014
-	 * Based on AUIPivot v2.8.2
+	 * AUIPivot.vue for Vue.js v1.2.20261028
+	 * Based on AUIPivot v2.8.3
 	 * Copyright © AUISoft Co., Ltd.
 	 * www.auisoft.net
 	 */
@@ -241,6 +241,16 @@
 				this.__setupEvents();
 				this.__setupGlobalResize();
 				return this.pid;
+			},
+
+			// 기존 이벤트를 유지하는 추가 알림 등록입니다.
+			on(name, func) {
+				return $ag.on.call($ag, this.pid, arguments[0], arguments[1]);
+			},
+
+			// 기존 이벤트를 유지하는 추가 알림 해제입니다.
+			off(name, func) {
+				return $ag.off.call($ag, this.pid, arguments[0], arguments[1]);
 			},
 
 			bind(name, func) {

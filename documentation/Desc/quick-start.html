@@ -46,10 +46,9 @@
     <h1>3. 간단하게 피벗 그리드 생성해 보기(Quick Start)</h1>
 
     <p>
-        이 문서는 AUIPivot를 처음 사용하는 개발자를 위한 가장 간단하면서도 완성된 형태의 사용 예제입니다. HTML 구조
-        작성부터, 피벗 그리드 출력, 원시 데이터(JSON 데이터) 로딩까지 순차적으로 작성합니다.
+        AUIPivot을 처음 사용하는 개발자를 위한 가장 간단한 완성 예제입니다.<br />
+        HTML 작성부터 피벗 생성, 원본 데이터(JSON) 로딩까지 차례로 살펴봅니다.
     </p>
-
     <p>
         처음 시작한다면 <a href="noncommercial.html">비상업용 CDN 안내</a>의
         <a href="../examples/noncommercial-cdn.html" download="index.html">HTML 시작 예제</a>로 별도 데이터 파일 없이
@@ -57,15 +56,15 @@
     </p>
     <p>
         <code>localhost</code>, <code>127.0.0.1</code> 외의 접속 도메인이나 IP에서는
-        <a href="https://www.auisoft.net/dcenter.html?product=AUIPivot">30일 평가판</a>을 제공합니다. 정품과 동일한
-        기능으로 사전 평가, 적합성 검토(PoC), 테스트에 사용할 수 있습니다.
+        <a href="https://www.auisoft.net/dcenter.html?product=AUIPivot">30일 평가판</a>을 제공합니다.<br />
+        정품과 동일한 기능으로 사전 평가, 적합성 검토(PoC), 테스트에 사용할 수 있습니다.
         <a href="noncommercial.html#trial">평가판 사용 안내</a>를 확인하세요.
     </p>
 
     <h2>3.1 기본 HTML 구조</h2>
     <p>
-        AUIPivot 라이선스, 언어 파일, 엔진, CSS와 자동차 판매 JSON을 배치합니다. 웹 서버에서 이 페이지를 열면 원본
-        데이터를 불러와 보고서를 생성합니다.
+        AUIPivot 라이선스, 언어 파일, 엔진, CSS와 자동차 판매 JSON을 배치합니다.<br />
+        웹 서버에서 이 페이지를 열면 원본 데이터를 불러와 보고서를 생성합니다.
     </p>
     <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html lang="ko"&gt;
@@ -139,85 +138,79 @@
 </code class="language-html"></pre>
 
     <p>
-        파일 구성은 <a href="setup.html">설치 안내</a>를 참고하세요. JSON은 HTTP(S)로 제공해야 하며 파일을 직접 여는
-        방식에서는 fetch가 제한될 수 있습니다.
+        파일 구성은 <a href="setup.html">설치 안내</a>를 참고하세요.<br />
+        JSON은 HTTP(S)로 제공해야 하며 파일을 직접 여는 방식에서는 fetch가 제한될 수 있습니다.
     </p>
 
     <h2>3.2 주요 요소 설명</h2>
-    <table>
-        <tr>
-            <th>구성</th>
-            <th>설명</th>
-        </tr>
-
-        <tr>
-            <td><code class="language-html">AUIPivotLicense.js</code></td>
-            <td>AUIPivot 라이선스 등록 파일 (필수)</td>
-        </tr>
-        <tr>
-            <td><code class="language-html">AUIPivot.js</code></td>
-            <td>AUIPivot 피벗 엔진과 화면을 제공하는 파일 (필수)</td>
-        </tr>
-        <tr>
-            <td><code class="language-html">AUIPivot.messages.kr.js</code></td>
-            <td>AUIPivot 메세지 파일 JS (원하는 언어로 변경 가능) (필수)</td>
-        </tr>
-
-        <tr>
-            <td><code class="language-html">AUIPivot_style.css</code></td>
-            <td>AUIPivot 필터, 필드 패널 등 UI 스타일 (필수)</td>
-        </tr>
-
-        <tr>
-            <td><code class="language-html">pivotProps</code></td>
-            <td>
-                피벗 속성 정의 객체 (선택). 자세한 속성에 대한 내용은 <a href="../Pivot/Properties.html">여기 문서</a>를
-                클릭하세요.
-            </td>
-        </tr>
-        <tr>
-            <td><code class="language-html">AUIPivot.setGridData()</code></td>
-            <td>
-                피벗 원시 데이터 삽입 메소드 (필수). 구체적 메소드에 대한 내용은
-                <a href="../Pivot/Methods.html">여기 문서</a>를 클릭하세요.
-            </td>
-        </tr>
-        <tr>
-            <td><code class="language-html">AUIPivot.bind()</code></td>
-            <td>
-                피벗 이벤트 정의 바인딩 메소드 (선택). 구체적 이벤트에 대한 내용은
-                <a href="../Pivot/Events.html">여기 문서</a>를 클릭하세요.
-            </td>
-        </tr>
-        <tr>
-            <td><code class="language-html">AUIPivot.create()</code></td>
-            <td>실제 피벗 그리드 생성 함수 (필수)</td>
-        </tr>
-        <tr>
-            <td><code class="language-html">fetch().then()</code></td>
-            <td>외부 JSON 파일로부터 비동기 데이터 로딩</td>
-        </tr>
+    <table class="browser_table">
+        <thead>
+            <tr>
+                <th>구성</th>
+                <th>설명</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>AUIPivotLicense.js</code></td>
+                <td>AUIPivot 라이선스 등록 파일 (필수)</td>
+            </tr>
+            <tr>
+                <td><code>AUIPivot.js</code></td>
+                <td>피벗 엔진과 화면을 제공하는 파일 (필수)</td>
+            </tr>
+            <tr>
+                <td><code>AUIPivot.messages.kr.js</code></td>
+                <td>화면 메시지 파일. 원하는 언어 파일로 바꿀 수 있습니다. (필수)</td>
+            </tr>
+            <tr>
+                <td><code>AUIPivot_style.css</code></td>
+                <td>필터, 필드 패널 등 화면 스타일 (필수)</td>
+            </tr>
+            <tr>
+                <td><code>pivotProps</code></td>
+                <td>피벗 속성 정의 객체 (선택). <a href="../Pivot/Properties.html">속성 문서</a>를 참고하세요.</td>
+            </tr>
+            <tr>
+                <td><code>AUIPivot.create()</code></td>
+                <td>피벗 생성 함수 (필수)</td>
+            </tr>
+            <tr>
+                <td><code>AUIPivot.setGridData()</code></td>
+                <td>원본 데이터를 넣는 메소드 (필수). <a href="../Pivot/Methods.html">메소드 문서</a>를 참고하세요.</td>
+            </tr>
+            <tr>
+                <td><code>AUIPivot.bind()</code></td>
+                <td>이벤트를 연결하는 메소드 (선택). <a href="../Pivot/Events.html">이벤트 문서</a>를 참고하세요.</td>
+            </tr>
+            <tr>
+                <td><code>fetch().then()</code></td>
+                <td>외부 JSON 파일을 비동기로 불러옵니다.</td>
+            </tr>
+        </tbody>
     </table>
 
     <h2>3.3 생성 완료 후 판단</h2>
     <ul>
-        <li>단일 HTML 파일로 빠르게 테스트 가능</li>
-        <li>외부 프레임워크 없이 기본적인 AUIPivot 실행 확인</li>
-        <li>JSON 데이터는 <code class="language-html">./data/car_sales.json</code>에 존재해야 함</li>
+        <li>단일 HTML 파일로 빠르게 테스트할 수 있습니다.</li>
+        <li>외부 프레임워크 없이 AUIPivot의 기본 실행을 확인할 수 있습니다.</li>
+        <li>JSON 데이터는 <code>./data/car_sales.json</code>에 있어야 합니다.</li>
     </ul>
 
     <h2>3.4 설치 후 테스트</h2>
-    <p>웹 서버에서 위 HTML 페이지를 열어 결과 화면을 확인하세요. 에러 없이 피벗 그리드가 나타나면 성공입니다.</p>
+    <p>웹 서버에서 위 HTML 페이지를 열어 결과 화면을 확인하세요. 오류 없이 피벗이 나타나면 성공입니다.</p>
 
     <h2>3.5 최종 확인 라이브 샘플</h2>
-    <p>다음 링크에서 확인 가능합니다.</p>
-    <a href="https://www.auisoft.net/blog/auipivot/quick_start.html" target="_blank"
-        >https://www.auisoft.net/blog/auipivot/quick_start.html</a
-    >
+    <p>다음 링크에서 같은 예제의 실행 결과를 확인할 수 있습니다.</p>
+    <p>
+        <a href="https://www.auisoft.net/blog/auipivot/quick_start.html" target="_blank"
+            >https://www.auisoft.net/blog/auipivot/quick_start.html</a
+        >
+    </p>
 
     <div class="warn">
-        ⚠️ <strong>주의:</strong> 이 예제는 복사하여 바로 실행할 수 있는 구조이지만, fetch 경로에 맞는 JSON 파일이
-        반드시 존재해야 합니다.
+        <strong>주의:</strong> 이 예제는 복사하여 바로 실행할 수 있지만, fetch 경로에 맞는 JSON 파일이 반드시 있어야
+        합니다.
     </div>
 </div>
 <footer class="docs-footer">

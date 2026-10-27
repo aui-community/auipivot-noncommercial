@@ -64,7 +64,11 @@
     <p id="search-status" role="status" aria-live="polite" aria-atomic="true"></p>
     <div id="desc_top">
         <p></p>
-        <p>AUIPivot 에서 송출되는 이벤트 리스트입니다.</p>
+        <p>
+            사용자 조작과 피벗 상태 변화를 처리하는 이벤트 목록입니다.<br />
+            이벤트는 AUIPivot.bind()로 연결하며, 발생 조건과 전달되는 이벤트 정보, 반환값의 의미는 각 항목을
+            확인하십시오.
+        </p>
         </p>
     </div>
 </main>
@@ -82,11 +86,14 @@
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>단일 셀 클릭 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    단일 셀 클릭 시 발생하는 이벤트입니다.<br />
+                    셀을 클릭했을 때 해당 집계의 원본 목록을 보여 주는 등 원하는 처리를 하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>rowIndex : 행 인덱스</li>
                     <li>columnIndex : 칼럼 인덱스</li>
                     <li>value : 셀에 출력되고 있는 값(value)</li>
@@ -97,8 +104,9 @@
                 <p>이 이벤트를 핸들링하는 방법은 다음과 같습니다.</p>
                 <pre><code class="language-javascript">
 AUIPivot.bind(myPivotID, "cellClick", function( event ) {
-      alert("rowIndex : " + event.rowIndex + ", "columnIndex : " + event.columnIndex + " clicked");
+      alert("rowIndex : " + event.rowIndex + ", columnIndex : " + event.columnIndex + " clicked");
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/event_cell_click_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="cellDoubleClick">
@@ -109,11 +117,14 @@ AUIPivot.bind(myPivotID, "cellClick", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>단일 셀 더블클릭 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    단일 셀 더블클릭 시 발생하는 이벤트입니다.<br />
+                    셀을 더블클릭했을 때 상세 화면을 여는 등의 처리를 하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>rowIndex : 행 인덱스</li>
                     <li>columnIndex : 칼럼 인덱스</li>
                     <li>value : 셀에 출력되고 있는 값(value)</li>
@@ -124,8 +135,9 @@ AUIPivot.bind(myPivotID, "cellClick", function( event ) {
                 <p>이 이벤트를 핸들링하는 방법은 다음과 같습니다.</p>
                 <pre><code class="language-javascript">
 AUIPivot.bind(myPivotID, "cellDoubleClick", function( event ) {
-      alert("rowIndex : " + event.rowIndex + ", "columnIndex : " + event.columnIndex + " dbl clicked");
+      alert("rowIndex : " + event.rowIndex + ", columnIndex : " + event.columnIndex + " dbl clicked");
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/detail_list_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="columnStateChange">
@@ -136,11 +148,14 @@ AUIPivot.bind(myPivotID, "cellDoubleClick", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event &nbsp; <span class="label">Version: </span>2.2<br />
-                <p>그리드의 칼럼을 사용자가 드래깅으로 자리를 바꾸거나 사이즈를 바꾼 경우 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    그리드의 칼럼을 사용자가 드래깅으로 자리를 바꾸거나 사이즈를 바꾼 경우 발생하는 이벤트입니다.<br />
+                    사용자가 바꾼 칼럼 순서나 너비를 저장해 두려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>property : 변경된 칼럼의 속성(columnIndex or width) (String)</li>
                     <li>dataField : 적용된 칼럼의 dataField 값 (String)</li>
                     <li>headerText : 적용된 칼럼의 헤더 텍스트 (String)</li>
@@ -158,6 +173,7 @@ AUIPivot.bind(myPivotID, "columnStateChange", function(event) {
       str += ", old : " + event.old + ", current : " + event.current;
       alert(str);
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/fit_size_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="contextMenu">
@@ -168,21 +184,24 @@ AUIPivot.bind(myPivotID, "columnStateChange", function(event) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event &nbsp; <span class="label">Version: </span>2.6<br />
-                <p>그리드에서 마우스 오른쪽 버턴 즉, 컨텍스트 메뉴를 활성화 했을 경우 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    그리드에서 마우스 오른쪽 버튼 즉, 컨텍스트 메뉴를 활성화 했을 경우 발생하는 이벤트입니다.<br />
+                    컨텍스트 메뉴를 열기 전에 상황에 맞게 메뉴를 바꾸거나 열지 않게 하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 그리드의 부모 DIV ID (샘플 상의 myGridID 와 일치함)</li>
-                    <li>target : 헤더(header) 또는 바디(body) 에서 발생했는지를 나타냄</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
+                    <li>target : 헤더(header) 또는 바디(body)에서 발생했는지를 나타냄</li>
                     <li>dataField : 컨텍스트 활성화 된 지점의 열(Column) 데이터 필드명 (String)</li>
                     <li>headerText : 컨텍스트 활성화 된 지점의 열(Column) 헤더 텍스트 (String)</li>
                     <li>columnIndex : 컨텍스트 활성화 된 지점의 열(Column) 인덱스 (Number)</li>
                     <li>
-                        rowIndex : 바디 컨텍스트 활성화 된 지점의 행(Row) 인덱스 (target 값이 "body" 인 경우에만 유효)
+                        rowIndex : 바디 컨텍스트 활성화 된 지점의 행(Row) 인덱스 (target 값이 "body"인 경우에만 유효)
                         (Number)
                     </li>
                     <li>
-                        depth : 헤더 컨텍스트 활성화 된 지점의 헤더 그룹핑 depth 값(target 값이 "header" 인 경우만 유효)
+                        depth : 헤더 컨텍스트 활성화 된 지점의 헤더 그룹핑 depth 값(target 값이 "header"인 경우만 유효)
                         (Number)
                     </li>
                     <li>item : 해당 행(Row)에 출력되고 있는 행 아이템 객체 (Object)</li>
@@ -195,10 +214,11 @@ AUIPivot.bind(myPivotID, "contextMenu", function( event ) {
      alert(  "이벤트명: " + event.type + ", 컨텍스트 활성화 된 곳 : " + event.target );
 });</code></pre>
                 <p>
-                    Return : (Boolean or Array) false 를 반환하면 기본 행위인 기본 컨텍스트를 출력시키지 않습니다.
-                    바디(body) 에서 발생했을 경우 사용자 정의 컨텍스트 메뉴를 Array 로 구성하여 반환하면 동적 컨텍스트
+                    Return : (Boolean or Array) false를 반환하면 기본 행위인 기본 컨텍스트를 출력시키지 않습니다.<br />
+                    바디(body)에서 발생했을 경우 사용자 정의 컨텍스트 메뉴를 Array로 구성하여 반환하면 동적 컨텍스트
                     메뉴를 구성합니다.
                 </p>
+                <p><a href="https://www.auisoft.net/demo/auipivot/context_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="footerClick">
@@ -209,11 +229,14 @@ AUIPivot.bind(myPivotID, "contextMenu", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>피벗 그리드 푸터 클릭 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    피벗 그리드 푸터 클릭 시 발생하는 이벤트입니다.<br />
+                    푸터(총합계) 셀을 클릭했을 때 원하는 처리를 하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>footerIndex : 푸터 칼럼 인덱스</li>
                     <li>footerText : 푸터 텍스트</li>
                     <li>footerValue : 포매팅 전 푸터의 값</li>
@@ -225,6 +248,7 @@ AUIPivot.bind(myPivotID, "contextMenu", function( event ) {
 AUIPivot.bind(myPivotID, "footerClick", function( event ) {
      alert(event.type + " : " + event.footerIndex + " text : " + event.footerText);
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/event_cell_click_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="footerDoubleClick">
@@ -235,11 +259,14 @@ AUIPivot.bind(myPivotID, "footerClick", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>피벗 그리드 푸터 더블 클릭 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    피벗 그리드 푸터 더블 클릭 시 발생하는 이벤트입니다.<br />
+                    푸터(총합계) 셀을 더블클릭했을 때 원하는 처리를 하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>footerIndex : 푸터 칼럼 인덱스</li>
                     <li>footerText : 푸터 텍스트</li>
                     <li>footerValue : 포매팅 전 푸터의 값</li>
@@ -261,16 +288,19 @@ AUIPivot.bind(myPivotID, "footerDoubleClick", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>피벗 그리드 헤더 클릭 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    피벗 그리드 헤더 클릭 시 발생하는 이벤트입니다.<br />
+                    헤더를 클릭했을 때 정렬 외의 처리를 하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>columnIndex : 헤더 칼럼 인덱스</li>
                     <li>headerText : 헤더 텍스트</li>
                     <li>
-                        depth : 헤더의 depth 즉, 헤더를 그룹핑으로 정의한 경우 최상위가 1depth (단일 계층인 경우 depth
-                        는 1)
+                        depth : 헤더의 depth 즉, 헤더를 그룹핑으로 정의한 경우 최상위가 1depth (단일 계층인 경우 depth는
+                        1)
                     </li>
                     <li>item : 칼럼 레이아웃에서 정의한 자신 칼럼 아이템 객체 (Object)</li>
                     <li>dataField : 현재 칼럼이 출력되고 있는 데이터의 필드</li>
@@ -286,6 +316,7 @@ AUIPivot.bind(myPivotID, "headerClick", function( event ) {
      // return false; // 정렬 실행 안함. 
     
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/event_cell_click_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="hScrollChange">
@@ -298,12 +329,13 @@ AUIPivot.bind(myPivotID, "headerClick", function( event ) {
                 <span class="label">Type : </span>Event<br />
                 <p>
                     피벗 그리드의 수평 스크롤(X 스크롤)이 있는 경우, 수평 스크롤의 값이 변경되었을 때 발생하는
-                    이벤트입니다.
+                    이벤트입니다.<br />
+                    가로 스크롤 위치에 맞춰 다른 영역을 함께 스크롤하려면 이 이벤트를 사용합니다.
                 </p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>position : 현재 스크롤의 위치 (Number)</li>
                     <li>oldPosition : 변경 전 스크롤의 위치 (Number)</li>
                     <li>minPosition : 수직 스크롤의 최대 위치 (Number)</li>
@@ -325,18 +357,20 @@ AUIPivot.bind(myPivotID, "hScrollChange", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event &nbsp; <span class="label">Version: </span>2.5.6<br />
-                <p>피벗팅이 시작할 때 발생하는 이벤트입니다.</p>
+                <p>
+                    피벗팅이 시작할 때 발생하는 이벤트입니다.<br />
+                    피벗 계산을 시작하기 전에 로딩 표시를 하거나 조건에 따라 계산을 막으려면 이 이벤트를 사용합니다.
+                </p>
                 <p>pivotBegin 이벤트는 pivotComplete 이벤트와 함께 발생합니다.</p>
-                <p></p>
                 <p>
                     즉, 피벗팅 계산이 시작하기 전에 pivotBegin 이벤트가 발생하고 피벗팅 계산 완료 후 렌더링까지 완료된
                     후 pivotComplete 이벤트가 발생합니다.
                 </p>
-                <p>이 pivotBegion, pivotComplete 이벤트는 피벗팅 연산이 수행될 때마다 다시 발생합니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>이 pivotBegin, pivotComplete 이벤트는 피벗팅 연산이 수행될 때마다 다시 발생합니다.</p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>rowFields : 피벗팅 수행할 행 차원 필드들(Array)</li>
                     <li>columnFields : 피벗팅 수행할 열 차원 필드들(Array)</li>
                     <li>valueFields : 피벗팅 수행할 값 차원 필드들, 연산자등의 정보들(Array)</li>
@@ -358,7 +392,8 @@ AUIPivot.bind(myPivotID, ["pivotBegin", "pivotComplete"], function(event) {
         console.timeEnd("피봇 생성 시간");
     }
 });</code></pre>
-                <p>Return : (Boolean) false 를 반환하면 피벗팅을 하지 않습니다.</p>
+                <p>Return : (Boolean) false를 반환하면 피벗팅을 하지 않습니다.</p>
+                <p><a href="https://www.auisoft.net/demo/auipivot/event_pivot_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="pivotComplete">
@@ -369,18 +404,21 @@ AUIPivot.bind(myPivotID, ["pivotBegin", "pivotComplete"], function(event) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>피벗팅 계산 후 렌더링이 완료될 때 발생하는 이벤트입니다.</p>
+                <p>
+                    피벗팅 계산 후 렌더링이 완료될 때 발생하는 이벤트입니다.<br />
+                    피벗 결과가 화면에 표시된 뒤 차트를 그리거나 결과 건수를 보여 주는 등의 처리를 하려면 이 이벤트를
+                    사용합니다.
+                </p>
                 <p>pivotComplete 이벤트는 pivotBegin 이벤트와 함께 발생합니다.</p>
-                <p></p>
                 <p>
                     즉, 피벗팅 계산이 시작하기 전에 pivotBegin 이벤트가 발생하고 피벗팅 계산 완료 후 렌더링까지 완료된
                     후 pivotComplete 이벤트가 발생합니다.
                 </p>
-                <p>이 pivotBegion, pivotComplete 이벤트는 피벗팅 연산이 수행될 때마다 다시 발생합니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>이 pivotBegin, pivotComplete 이벤트는 피벗팅 연산이 수행될 때마다 다시 발생합니다.</p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>rowFields : 피벗팅 수행한 행 차원 필드들</li>
                     <li>columnFields : 피벗팅 수행한 열 차원 필드들</li>
                     <li>valueFields : 피벗팅 수행한 값 차원 필드들, 연산자등의 정보들</li>
@@ -395,6 +433,7 @@ AUIPivot.bind(myPivotID, ["pivotBegin", "pivotComplete"], function(event) {
         console.timeEnd("피봇 생성 시간");
     }
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/event_pivot_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="pivotPanelHide">
@@ -405,12 +444,15 @@ AUIPivot.bind(myPivotID, ["pivotBegin", "pivotComplete"], function(event) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event &nbsp; <span class="label">Version: </span>2.5.1<br />
-                <p>피벗 패널이 생성된 경우(사용 하는 경우) 피벗 패널이 감춰질 때 발생하는 이벤트입니다.</p>
+                <p>
+                    피벗 패널이 생성된 경우(사용 하는 경우) 피벗 패널이 감춰질 때 발생하는 이벤트입니다.<br />
+                    피벗 패널이 감춰질 때 화면 배치를 함께 바꾸려면 이 이벤트를 사용합니다.
+                </p>
                 <p>이 이벤트는 피벗 패널이 이미 생성된 후 사용자에 의해 감춰질 때 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>panelId : 피벗 패널이 생성된 DIV ID</li>
                 </ul>
                 <p>이 이벤트를 핸들링하는 방법은 다음과 같습니다.</p>
@@ -418,6 +460,7 @@ AUIPivot.bind(myPivotID, ["pivotBegin", "pivotComplete"], function(event) {
 AUIPivot.bind(myPivotID, "pivotPanelHide", function(event) {
       alert(event.type);
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/pivot_panel_later_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="pivotPanelShow">
@@ -428,15 +471,18 @@ AUIPivot.bind(myPivotID, "pivotPanelHide", function(event) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event &nbsp; <span class="label">Version: </span>2.5.1<br />
-                <p>피벗 패널이 생성된 경우(사용 하는 경우) 피벗 패널이 보일 때 발생하는 이벤트입니다.</p>
+                <p>
+                    피벗 패널이 생성된 경우(사용 하는 경우) 피벗 패널이 보일 때 발생하는 이벤트입니다.<br />
+                    감춰 둔 피벗 패널이 다시 보일 때 화면 배치를 함께 바꾸려면 이 이벤트를 사용합니다.
+                </p>
                 <p>
                     이 이벤트는 피벗 패널이 생성될 때가 아닌 이미 생성된 후 사용자에 의해 감춰지고 다시 보일 때 발생하는
                     이벤트입니다.
                 </p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>panelId : 피벗 패널이 생성된 DIV ID</li>
                 </ul>
                 <p>이 이벤트를 핸들링하는 방법은 다음과 같습니다.</p>
@@ -444,6 +490,7 @@ AUIPivot.bind(myPivotID, "pivotPanelHide", function(event) {
 AUIPivot.bind(myPivotID, "pivotPanelShow", function(event) {
       alert(event.type);
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/pivot_panel_later_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="sorting">
@@ -454,11 +501,14 @@ AUIPivot.bind(myPivotID, "pivotPanelShow", function(event) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>사용자가 헤더를 클릭 해서 정렬(Sorting)을 설정하거나 변경, 해제 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    사용자가 헤더를 클릭 해서 정렬(Sorting)을 설정하거나 변경, 해제 시 발생하는 이벤트입니다.<br />
+                    정렬이 바뀔 때 정렬 상태를 저장하거나 화면을 갱신하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>sortingFields : 현재 정렬된 필드 및 정렬 방법들 (Array)</li>
                 </ul>
                 <p>
@@ -471,6 +521,7 @@ AUIPivot.bind(myPivotID, "pivotPanelShow", function(event) {
 AUIPivot.bind(myPivotID, "sorting", function( event ) {
      console.log(  "이벤트명: " + event.type + ", 현재 소팅 필드 개수 : " + event.sortingFields.length );
 });</code></pre>
+                <p><a href="https://www.auisoft.net/demo/auipivot/event_sorting_demo.html">관련 데모 보기</a></p>
             </td>
         </tr>
         <tr id="treeOpenChange">
@@ -481,15 +532,18 @@ AUIPivot.bind(myPivotID, "sorting", function( event ) {
             </td>
             <td class="summaryTableDescription">
                 <span class="label">Type : </span>Event<br />
-                <p>트리 그리드 일 때 요약 행 아이템의 열기/닫기 상태 변경 시 발생하는 이벤트입니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>
+                    트리 그리드 일 때 요약 행 아이템의 열기/닫기 상태 변경 시 발생하는 이벤트입니다.<br />
+                    트리에서 요약 행을 펼치거나 접을 때 상태를 저장하거나 화면을 갱신하려면 이 이벤트를 사용합니다.
+                </p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>isOpen : 현재 열린 상태인지 닫힌 상태인지 여부</li>
                     <li>rowIndex : 해당 아이템의 rowIndex</li>
                     <li>
-                        depth : 트리 아이템의 depth 즉, 최상위 브랜치 아이템이 1 depth 이며 아래로 내려갈 수록 depth 1씩
+                        depth : 트리 아이템의 depth 즉, 최상위 브랜치 아이템이 1 depth이며 아래로 내려갈 수록 depth 1씩
                         증가함
                     </li>
                     <li>item : 해당 행에 출력되고 있는 행 아이템 객체 (Object)</li>
@@ -511,13 +565,15 @@ AUIPivot.bind(myPivotID, "treeOpenChange", function( event ) {
                 <span class="label">Type : </span>Event<br />
                 <p>
                     피벗 그리드의 수직 스크롤(Y 스크롤)이 있는 경우, 수직 스크롤의 값이 변경되었을 때 발생하는
-                    이벤트입니다.
+                    이벤트입니다.<br />
+                    스크롤 위치에 따라 다른 영역을 갱신하는 등 세로 스크롤 변화에 맞춰 처리하려면 이 이벤트를
+                    사용합니다.
                 </p>
                 <p>사용자가 마우스 휠이나 다른 특정 행위로 수직 스크롤이 변경되면 발생합니다.</p>
-                <p>이벤트 핸들러로 전달되는 파라메터의 event 객체 요소는 다음과 같습니다.</p>
+                <p>이벤트 핸들러로 전달되는 매개변수의 event 객체 요소는 다음과 같습니다.</p>
                 <ul>
                     <li>type : 이벤트 유형</li>
-                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID 와 일치함)</li>
+                    <li>pid : 사용자에 의해 작성된 피벗 그리드의 부모 DIV ID (샘플 상의 myPivotID와 일치함)</li>
                     <li>position : 현재 스크롤의 위치 (Number)</li>
                     <li>oldPosition : 변경 전 스크롤의 위치 (Number)</li>
                     <li>minPosition : 수직 스크롤의 최대 위치 (Number)</li>

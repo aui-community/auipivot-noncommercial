@@ -1,5 +1,5 @@
 /*!
- * AUIPivot Non-Commercial v2.8.2 - Messages (English (US))
+ * AUIPivot Non-Commercial v2.8.3 - Messages (English (US))
  * Copyright (c) AUISoft Co., Ltd. All rights reserved.
  *
  * AUIPivot 화면 메시지 파일입니다. AUIPivot 사용권 범위 안에서 번역하거나 수정하여 사용할 수 있습니다.
@@ -8,7 +8,7 @@
  */
 /* eslint-disable */
 /**
- * AUIPivot v2.8.2 Messages
+ * AUIPivot v2.8.3 Messages
  * AUIPivot 에서 사용되는 메세지들을 정의합니다.
  */
 (function () {

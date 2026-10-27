@@ -46,15 +46,15 @@
 <div class="MainContent">
     <h1>AUIPivot에서 사용하는 OpenSource 라이선스 명시 의무</h1>
 
-    <h2>1 AUIPivot와 오픈소스</h2>
+    <h2>1. AUIPivot과 오픈소스</h2>
     <p>
-        AUIPivot는 자체적으로 개발된 고유한 상용 라이브러리이지만, 일부 기능을 위해 아래와 같은 오픈소스 소프트웨어를
-        포함하거나 연동할 수 있습니다.
+        AUIPivot은 자체 개발한 상용 라이브러리이지만, 일부 기능을 위해 아래 오픈소스 소프트웨어를 포함하거나 연동할 수
+        있습니다.<br />
+        따라서 사용자는 배포 및 사용 시 다음 오픈소스 라이선스의 고지를 포함해야 할 의무가 있습니다.
     </p>
-    <p>이에 따라 사용자는 배포 및 사용 시 다음 오픈소스 라이선스의 고지를 포함해야 할 의무가 있습니다.</p>
 
-    <h2>2 사용 중 포함 가능성이 있는 주요 오픈소스</h2>
-    <table>
+    <h2>2. 사용 중 포함 가능성이 있는 주요 오픈소스</h2>
+    <table class="browser_table">
         <thead>
             <tr>
                 <th>라이브러리명</th>
@@ -65,7 +65,7 @@
         <tbody>
             <tr>
                 <td>FileSaver.js</td>
-                <td>파일 저장 (Excel, PDF 등)</td>
+                <td>파일 저장(엑셀(Excel), PDF 등)</td>
                 <td>MIT</td>
             </tr>
             <tr>
@@ -75,8 +75,10 @@
             </tr>
         </tbody>
     </table>
-    <p>FileSaver.js와 pdfkit은 구성에 따라 별도 Excel(Xlsx), PDF, CSV 등의 내보내기 데모 및 샘플에서 사용합니다.</p>
-    <h2>3 고지문 작성</h2>
+    <p>FileSaver.js와 pdfkit은 구성에 따라 엑셀(Excel, XLSX), PDF, CSV 등의 내보내기 데모와 샘플에서 사용합니다.</p>
+
+    <h2>3. 고지문 작성</h2>
+    <p>배포하는 소프트웨어의 라이선스 안내에 다음과 같은 고지문을 포함합니다.</p>
     <pre><code class="language-javascript">본 소프트웨어는 다음의 오픈소스를 포함하고 있습니다:
 
 - FileSaver.js - © Eli Grey (MIT License)
@@ -85,13 +87,13 @@
   https://pdfkit.org/
 </code></pre>
 
-    <h2>4 상용 라이선스와의 병행 고지</h2>
+    <h2>4. 상용 라이선스와의 병행 고지</h2>
     <ul>
         <li>
-            AUIPivot는 상용 라이선스로 구매/배포되며, 내장된 일부 기능이 오픈소스 라이브러리를 호출하는 경우에도 전체
+            AUIPivot은 상용 라이선스로 구매하고 배포하며, 내장된 일부 기능이 오픈소스 라이브러리를 호출하더라도 전체
             소프트웨어에 영향을 주지 않습니다.
         </li>
-        <li>그러나 오픈소스 자체의 라이선스는 <strong>소스 사용 고지 및 명시 의무</strong>가 적용됩니다.</li>
+        <li>다만 오픈소스 자체의 라이선스에는 <strong>소스 사용 고지 및 명시 의무</strong>가 적용됩니다.</li>
         <li>
             AUIPivot 라이선스 파일(AUIPivotLicense.js)은 별도로 보호되며, GPL, MIT 등 오픈소스 조항에 포함되지 않습니다.
         </li>

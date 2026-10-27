@@ -12,16 +12,16 @@
     "aui-pivot": "latest",
     "file-saver": "^2.0.5",
     "prismjs": "^1.30.0",
-    "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
   },
   "devDependencies": {
-    "@types/node": "^22.18.0",
+    "@types/node": "^26.6.5",
     "@types/prismjs": "^1.26.6",
-    "@vitejs/plugin-vue": "^6.0.0",
-    "typescript": "~5.9.3",
-    "vite": "^7.0.4",
-    "vue-tsc": "~3.1.0"
+    "@vitejs/plugin-vue": "^6.0.10",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.4",
+    "vue-tsc": "~3.3.13"
   },
   "type": "module"
 }

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta
     name="description"
-    content="AUIPivot React, Vue 및 TypeScript에서 사용하기. 설치, 예제, 메소드와 이벤트 사용 방법을 안내합니다."
+    content="AUIPivot React, Vue 및 TypeScript에서 사용하기. 파일 준비, React와 Vue 예제, 메소드와 이벤트, 서브 컴포넌트 속성을 한 페이지에서 안내합니다."
 />
 <title>React, Vue 및 TypeScript에서 사용하기 | AUIPivot 2.8 Documentation</title>
 
@@ -14,7 +14,11 @@
 <link rel="stylesheet" href="../static/typography.css" />
 <link rel="stylesheet" href="../static/code-examples.css" />
 <link rel="stylesheet" href="../static/mcp-guide.css" />
+<link rel="stylesheet" href="../static/framework-guide.css" />
 <script src="../static/prism.js" data-manual></script>
+<script src="../static/prism-typescript.min.js"></script>
+<script src="../static/prism-jsx.min.js"></script>
+<script src="../static/prism-tsx.min.js"></script>
 <script src="../static/code-examples.js"></script>
 
 <link rel="icon" href="../static/favicon.ico" sizes="any" />
@@ -38,22 +42,22 @@
 <main class="MainContent">
     <h1>9. React, Vue 및 TypeScript에서 사용하기</h1>
     <p>
-        AUIPivot 서브 컴포넌트(래퍼)는 React와 Vue의 생성 및 해제 시점에 맞춰 피벗을 관리합니다. 속성을 전달해
-        컴포넌트를 배치하고, <code>ref</code>로 행, 열, 값 필드와 데이터를 설정합니다.
+        AUIPivot 서브 컴포넌트(래퍼)는 React와 Vue의 생성 및 해제 시점에 맞춰 피벗을 관리합니다.<br />
+        속성을 전달해 컴포넌트를 배치하고, <code>ref</code>로 행, 열, 값 필드와 데이터를 설정합니다.
     </p>
     <p>
-        JavaScript와 TypeScript용 컴포넌트를 각각 제공합니다. 사용 환경에 맞는 예제를 선택하십시오. Vue 예제는 Vue 3의
-        <code>script setup</code>을 기준으로 작성했습니다.
+        JavaScript와 TypeScript용 컴포넌트를 각각 제공합니다. 사용 환경에 맞는 예제를 선택하십시오.<br />
+        Vue 예제는 Vue 3의 <code>script setup</code>을 기준으로 작성했습니다.
     </p>
-    <nav class="mcp-toc" aria-label="프레임워크 문서">
-        <a href="#prepare">파일 준비</a><a href="react.html">React 및 TypeScript</a>
-        <a href="vue.html">Vue 및 TypeScript</a><a href="component-props.html">컴포넌트 속성</a>
+    <nav class="mcp-toc" aria-label="이 페이지 목차">
+        <a href="#prepare">9.1 파일 준비</a><a href="#react">9.2 React</a> <a href="#vue">9.3 Vue</a
+        ><a href="#component-props">9.4 서브 컴포넌트 속성</a>
     </nav>
 
     <h2 id="prepare">9.1 파일 준비와 공통 사용 흐름</h2>
     <p>
-        제품 패키지의 샘플 프로젝트에서 시작하거나, 서브 컴포넌트와 제품 파일을 기존 프로젝트에 배치합니다. 실행 명령은
-        <a href="setup.html#framework-samples">Vue, React 샘플 실행 방법</a>을 참고하십시오.
+        제품 패키지의 샘플 프로젝트에서 시작하거나, 서브 컴포넌트와 제품 파일을 기존 프로젝트에 배치합니다.<br />
+        실행 명령은 <a href="setup.html#framework-samples">Vue, React 샘플 실행 방법</a>을 참고하십시오.
     </p>
     <ul>
         <li>
@@ -75,7 +79,8 @@
     </ul>
     <p>
         위 경로는 샘플 내부의 경로입니다. 패키지 루트의 <code>AUIPivot-React/</code>, <code>AUIPivot-Vue/</code>에도
-        서브 컴포넌트를 제공합니다. 실제 배치한 위치에 맞춰 import 경로를 지정하십시오.
+        서브 컴포넌트를 제공합니다.<br />
+        실제 배치한 위치에 맞춰 import 경로를 지정하십시오.
     </p>
     <ol>
         <li>
@@ -85,12 +90,14 @@
         </li>
         <li>
             래퍼 상단의 엔진, 라이선스, 메시지 및 CSS import 경로를 확인합니다. 샘플에서는 <code>../AUIPivot/</code>를
-            사용합니다. 파일 위치는 프로젝트에 맞게 바꿀 수 있습니다. 래퍼가 엔진을 import하므로 같은 엔진을 script
-            태그로 중복 연결하지 않습니다.
+            사용합니다.<br />
+            파일 위치는 프로젝트에 맞게 바꿀 수 있습니다. 래퍼가 엔진을 import하므로 같은 엔진을 script 태그로 중복
+            연결하지 않습니다.
         </li>
         <li>
-            TypeScript 프로젝트에는 <code>aui-pivot</code>를 설치합니다. 이 패키지는 타입과
-            <code>EventKind</code> enum을 제공하며, 실행 엔진, 라이선스, CSS 및 서브 컴포넌트는 포함하지 않습니다.
+            TypeScript 프로젝트에는 <code>aui-pivot</code>를 설치합니다.<br />
+            이 패키지는 타입과 <code>EventKind</code> enum을 제공하며, 실행 엔진, 라이선스, CSS 및 서브 컴포넌트는
+            포함하지 않습니다.
         </li>
         <li>
             컴포넌트를 배치하고, 마운트 후 <code>ref</code>로 필드를 설정한 다음 <code>setGridData()</code>로 데이터를
@@ -99,8 +106,9 @@
     </ol>
     <pre><code class="language-plain">npm install aui-pivot@latest</code></pre>
     <p>
-        공식 TypeScript 샘플은 <code>"aui-pivot": "latest"</code>로 의존성을 선언합니다. <code>npm ci</code>는 잠금
-        파일의 버전을 설치하며, 최신 버전으로 갱신하려면 <code>npm update aui-pivot</code>을 실행합니다.
+        공식 TypeScript 샘플은 <code>"aui-pivot": "latest"</code>로 의존성을 선언합니다.<br />
+        <code>npm ci</code>는 잠금 파일의 버전을 설치하며, 최신 버전으로 갱신하려면 <code>npm update aui-pivot</code>을
+        실행합니다.
     </p>
     <p>
         타입 패키지는 AUIPivot.js <code>2.7</code>부터 지원합니다. 최신 타입에 선언된 API라도 사용 중인 엔진에서
@@ -111,27 +119,488 @@
         처리합니다. 샘플 프로젝트에는 Vite 설정이 포함되어 있습니다.
     </p>
 
-    <h3 id="guides">프레임워크별 문서</h3>
-    <ul>
-        <li>
-            <a href="react.html">9.2 React에서 사용하기</a>: JavaScript와 TypeScript 예제, <code>useRef</code>, 메소드,
-            이벤트와 해제 시점
-        </li>
-        <li>
-            <a href="vue.html">9.3 Vue에서 사용하기</a>: JavaScript와 TypeScript 예제, 템플릿 이벤트,
-            <code>KeepAlive</code>와 비동기 처리
-        </li>
-        <li>
-            <a href="component-props.html">9.4 서브 컴포넌트 속성</a>: 기본값, 지원 환경, <code>resizeMode</code>와 크기
-            설정
-        </li>
-    </ul>
+    <h3 id="guides">엔진 속성과 래퍼 속성</h3>
     <p>
         <code>layoutType</code>, <code>height</code>, <code>showPivotPanel</code> 같은 엔진 속성은
         <code>pivotProps</code>에 넣습니다. <code>autoResize</code>, <code>resizeMode</code> 같은 래퍼 속성은 컴포넌트에
-        직접 지정합니다. 엔진 속성의 전체 목록은 <a href="../Pivot/Properties.html">AUIPivot 속성</a>에서 확인할 수
+        직접 지정합니다.<br />
+        엔진 속성의 전체 목록은 <a href="../Pivot/Properties.html">AUIPivot 속성</a>에서 확인할 수 있습니다.
+    </p>
+
+    <h2 id="react">9.2 React에서 사용하기</h3>
+    <p>
+        함수 컴포넌트에서 <code>useRef</code>로 AUIPivot 서브 컴포넌트를 참조하고, <code>useEffect</code>에서
+        초기화합니다.
+    </p>
+    <h3 id="react-javascript">9.2.1 JavaScript 예제</h3>
+    <p>
+        <a href="#prepare">파일 준비</a>를 마친 샘플 프로젝트에서 사용할 수 있는 예제입니다. 아래 파일은
+        <code>src/samples/Report.jsx</code>에 둔다고 가정합니다.<br />
+        샘플에 포함된 <code>public/data/car_sales.json</code>을 읽으며, 실제 배치 위치에 맞춰 경로를 바꾸십시오.
+    </p>
+    <p>
+        예제는 <code>createOnMounted=false</code>로 자동 생성을 끄고 <code>init()</code>에서
+        <code>createPivotGrid()</code>를 호출해 한 번 생성합니다. 행은 지점과 차종, 열은 색상, 값은 매출 합계입니다.<br />
+        <code>requestData()</code>에서 자료를 읽은 후 <code>setGridData()</code>로 집계합니다.
+    </p>
+    <pre><code class="language-jsx">import { useEffect, useRef } from 'react';
+import AUIPivot from '../static/AUIPivot-React/AUIPivotReact';
+
+export default function Report() {
+    const pivotProps = { height: 400 };
+    const myPivot = useRef(null);
+    // 시작점에서 피벗을 생성한 뒤 자동차 자료를 읽습니다.
+    function init() {
+        createPivotGrid();
+        return requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
+    }
+    function createPivotGrid() {
+        const pivot = myPivot.current;
+        if (!pivot) return;
+        pivot.create(pivotProps);
+        pivot.setRowFields(['REGION', 'NAME']);
+        pivot.setColumnFields(['COLOR']);
+        pivot.setValueFields([{ dataField: 'TOTAL', operation: 'SUM' }]);
+        pivot.bind('pivotComplete', event =&gt; console.log(event.type));
+    }
+    // 요청 도중 화면이 해제되면 결과를 사용하지 않습니다.
+    function requestData(url) {
+        let disposed = false;
+        fetch(url).then(response =&gt; {
+            if (!response.ok) throw new Error('자료 요청 실패');
+            return response.json();
+        }).then(data =&gt; {
+            const pivot = myPivot.current;
+            if (!disposed &amp;&amp; pivot?.isCreated()) pivot.setGridData(data);
+        }).catch(error =&gt; { if (!disposed) console.error(error); });
+        return () =&gt; { disposed = true; };
+    }
+    useEffect(() =&gt; init(), []);
+    return &lt;AUIPivot ref={myPivot} createOnMounted={false}
+        resizeMode="container" resizeDelayTime={100} /&gt;;
+}</code></pre>
+    <h3 id="react-typescript">9.2.2 TypeScript 예제</h3>
+    <p>
+        <code>src/samples/Report.tsx</code>에서 TypeScript용 서브 컴포넌트를 가져옵니다. <code>IPivot.Props</code>는
+        엔진 속성을 검사하고, <code>useRef&lt;AUIPivot | null&gt;</code>은 메소드의 인수와 반환 타입을 제공합니다.
+    </p>
+    <pre><code class="language-tsx">import { useEffect, useRef } from 'react';
+import AUIPivot from '../static/AUIPivot-React.tsx/AUIPivotReact';
+import type * as IPivot from 'aui-pivot';
+
+export default function Report() {
+    const pivotProps: IPivot.Props = { height: 400 };
+    const myPivot = useRef&lt;AUIPivot | null&gt;(null);
+    // 시작점에서 피벗을 생성한 뒤 자동차 자료를 읽습니다.
+    function init() {
+        createPivotGrid();
+        return requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
+    }
+    function createPivotGrid() {
+        const pivot = myPivot.current;
+        if (!pivot) return;
+        pivot.create(pivotProps);
+        pivot.setRowFields(['REGION', 'NAME']);
+        pivot.setColumnFields(['COLOR']);
+        pivot.setValueFields([{ dataField: 'TOTAL', operation: 'SUM' }]);
+        pivot.bind('pivotComplete', event =&gt; console.log(event.type));
+    }
+    // 요청 도중 화면이 해제되면 결과를 사용하지 않습니다.
+    function requestData(url: string) {
+        let disposed = false;
+        fetch(url).then(response =&gt; {
+            if (!response.ok) throw new Error('자료 요청 실패');
+            return response.json();
+        }).then(data =&gt; {
+            const pivot = myPivot.current;
+            if (!disposed &amp;&amp; pivot?.isCreated()) pivot.setGridData(data);
+        }).catch(error =&gt; { if (!disposed) console.error(error); });
+        return () =&gt; { disposed = true; };
+    }
+    useEffect(() =&gt; init(), []);
+    return &lt;AUIPivot ref={myPivot} createOnMounted={false}
+        resizeMode="container" resizeDelayTime={100} /&gt;;
+}</code></pre>
+    <h3 id="react-methods">9.2.3 메소드 호출과 이벤트</h3>
+    <p>
+        <code>myPivot.current</code>의 메소드는 대상 피벗 ID를 자동으로 전달합니다. 전역 API와 달리 첫 번째 인수에 ID를
+        넣지 않습니다.<br />
+        예를 들어 <code>myPivot.current?.setGridData(data)</code>로 호출합니다.
+    </p>
+    <p>
+        이벤트는 생성 후 <code>bind()</code>로 등록합니다. React 컴포넌트에 <code>onCellClick</code> 같은 JSX 속성을
+        붙여 등록하지 않습니다.<br />
+        문자열 이벤트 이름이나 <code>aui-pivot</code>의 <code>EventKind</code>를 사용할 수 있습니다.
+    </p>
+    <pre><code class="language-tsx">import { EventKind } from 'aui-pivot';
+import type { CellClickEvent } from 'aui-pivot';
+
+// 생성된 피벗에서 클릭한 셀의 값을 확인합니다.
+const pivot = myPivot.current;
+const onCellClick = (event: CellClickEvent) =&gt; console.log(event.value);
+pivot?.bind(EventKind.cellClick, onCellClick);
+// 같은 피벗에서 이 처리기만 제거할 때 동일한 함수 참조를 전달합니다.
+pivot?.unbind(EventKind.cellClick, onCellClick);</code></pre>
+    <p>
+        위 코드는 등록과 선택적 해제 방법을 함께 보여 줍니다. 실제 해제는 해당 기능을 종료할 때 실행하십시오.<br />
+        <code>unbind(이벤트명)</code>은 그 이벤트의 모든 처리기를 제거하므로 다른 기능이 등록한 처리기도 해제할 수
         있습니다.
     </p>
+    <p>
+        <a href="../Pivot/Events.html#pivotBegin">pivotBegin</a>,
+        <a href="../Pivot/Events.html#headerClick">headerClick</a>,
+        <a href="../Pivot/Events.html#contextMenu">contextMenu</a>처럼 반환값이 있는 이벤트는 등록한 함수에서 그 값을
+        직접 반환하십시오.<br />
+        비동기 함수의 Promise로 취소 여부나 메뉴 목록을 반환하지 않습니다.
+    </p>
+
+    <h3 id="react-lifecycle">9.2.4 생성과 해제 시점</h3>
+    <ul>
+        <li>
+            <code>createOnMounted</code>의 기본값은 <code>true</code>입니다. 자동 생성 시에는 <code>pivotProps</code>를
+            전달하고, 마운트 후 필드와 데이터를 설정합니다.<br />
+            같은 피벗에 <code>create()</code>를 중복 호출하지 않습니다.
+        </li>
+        <li>
+            컴포넌트가 해제되면 피벗과 크기 감지 작업도 정리됩니다. 부모에서 엔진의 <code>destroy()</code>를 중복 호출할
+            필요가 없습니다.
+        </li>
+        <li>
+            비동기 응답이 화면 해제 후 도착할 수 있습니다. 예제처럼 요청별 정리 함수와 <code>isCreated()</code>로 늦은
+            응답을 처리하지 않도록 합니다.
+        </li>
+        <li>
+            생성 후 <code>pivotProps</code>를 바꾸는 것만으로 엔진 속성이 갱신되지는 않습니다.
+            <a href="../Pivot/Methods.html#setProp">setProp()</a>와
+            <a href="../Pivot/Methods.html#refresh">refresh()</a> 등 해당 API를 사용합니다.
+        </li>
+    </ul>
+    <p>
+        Portal 등에서 자동 생성 시점을 한 프레임 늦추려면 <code>waitPortalRendering=true</code>를 사용합니다. 이는 탭
+        표시나 애니메이션 완료를 보장하지 않습니다.<br />
+        수동 생성 예제에서는 화면이 표시된 뒤 <code>create()</code>를 호출하고, 이미 생성된 피벗은
+        <code>resize()</code>로 크기를 다시 맞춥니다.
+    </p>
+    <p>
+        서버 렌더링 환경에서는 엔진과 서브 컴포넌트를 클라이언트에서만 불러오십시오. DOM이 준비된 후 생성하는 절차가
+        필요합니다.<br />
+        크기 설정은 <a href="#size">크기 감지와 표시 시점</a>을 참고하십시오.
+    </p>
+
+    <h2 id="vue">9.3 Vue에서 사용하기</h3>
+    <p>
+        Vue 3의 <code>script setup</code>에서 템플릿 ref로 서브 컴포넌트를 참조하고, <code>onMounted</code>에서
+        초기화합니다.
+    </p>
+    <h3 id="vue-javascript">9.3.1 JavaScript 예제</h3>
+    <p>
+        <a href="#prepare">파일 준비</a>를 마친 샘플 프로젝트에서 사용할 수 있는 예제입니다. 아래 파일은
+        <code>src/samples/Report.vue</code>에 둔다고 가정합니다.<br />
+        샘플에 포함된 <code>public/data/car_sales.json</code>을 읽으며, 실제 배치 위치에 맞춰 경로를 바꾸십시오.
+    </p>
+    <p>
+        예제는 <code>createOnMounted=false</code>로 자동 생성을 끄고 <code>init()</code>에서
+        <code>createPivotGrid()</code>를 호출해 한 번 생성합니다. 행은 지점과 차종, 열은 색상, 값은 매출 합계입니다.<br />
+        <code>requestData()</code>에서 자료를 읽은 후 <code>setGridData()</code>로 집계합니다.
+    </p>
+    <pre><code class="language-html">&lt;script setup&gt;
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import AUIPivot from '../static/AUIPivot-Vue/AUIPivot.vue';
+const pivotProps = { height: 400 };
+const myPivot = ref(null);
+let disposed = false;
+// 시작점에서 피벗을 생성한 뒤 자동차 자료를 읽습니다.
+function init() {
+    createPivotGrid();
+    requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
+}
+function createPivotGrid() {
+    const pivot = myPivot.value;
+    if (!pivot) return;
+    pivot.create(pivotProps);
+    pivot.setRowFields(['REGION', 'NAME']);
+    pivot.setColumnFields(['COLOR']);
+    pivot.setValueFields([{ dataField: 'TOTAL', operation: 'SUM' }]);
+    pivot.bind('pivotComplete', event =&gt; console.log(event.type));
+}
+// 요청 도중 화면이 해제되면 결과를 사용하지 않습니다.
+function requestData(url) {
+    return fetch(url).then(response =&gt; {
+        if (!response.ok) throw new Error('자료 요청 실패');
+        return response.json();
+    }).then(data =&gt; {
+        const pivot = myPivot.value;
+        if (!disposed &amp;&amp; pivot?.isCreated()) pivot.setGridData(data);
+    }).catch(error =&gt; { if (!disposed) console.error(error); });
+}
+onMounted(init);
+onBeforeUnmount(() =&gt; { disposed = true; });
+&lt;/script&gt;
+&lt;template&gt;
+    &lt;AUIPivot ref="myPivot" :createOnMounted="false"
+        resizeMode="container" :resizeDelayTime="100" /&gt;
+&lt;/template&gt;</code></pre>
+    <h3 id="vue-typescript">9.3.2 TypeScript 예제</h3>
+    <p>
+        <code>lang="ts"</code>를 지정하고 TypeScript용 <code>AUIPivotT.vue</code>를 가져옵니다. 엔진 속성은
+        <code>IPivot.Props</code>, 컴포넌트 참조는 <code>InstanceType&lt;typeof AUIPivot&gt;</code>으로 지정합니다.
+    </p>
+    <pre><code class="language-html">&lt;script setup lang="ts"&gt;
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import AUIPivot from '../static/AUIPivot-Vue/AUIPivotT.vue';
+import type * as IPivot from 'aui-pivot';
+const pivotProps: IPivot.Props = { height: 400 };
+const myPivot = ref&lt;InstanceType&lt;typeof AUIPivot&gt; | null&gt;(null);
+let disposed = false;
+// 시작점에서 피벗을 생성한 뒤 자동차 자료를 읽습니다.
+function init() {
+    createPivotGrid();
+    requestData(`${import.meta.env.BASE_URL}data/car_sales.json`);
+}
+function createPivotGrid() {
+    const pivot = myPivot.value;
+    if (!pivot) return;
+    pivot.create(pivotProps);
+    pivot.setRowFields(['REGION', 'NAME']);
+    pivot.setColumnFields(['COLOR']);
+    pivot.setValueFields([{ dataField: 'TOTAL', operation: 'SUM' }]);
+    pivot.bind('pivotComplete', event =&gt; console.log(event.type));
+}
+// 요청 도중 화면이 해제되면 결과를 사용하지 않습니다.
+function requestData(url: string) {
+    return fetch(url).then(response =&gt; {
+        if (!response.ok) throw new Error('자료 요청 실패');
+        return response.json();
+    }).then(data =&gt; {
+        const pivot = myPivot.value;
+        if (!disposed &amp;&amp; pivot?.isCreated()) pivot.setGridData(data);
+    }).catch(error =&gt; { if (!disposed) console.error(error); });
+}
+onMounted(init);
+onBeforeUnmount(() =&gt; { disposed = true; });
+&lt;/script&gt;
+&lt;template&gt;
+    &lt;AUIPivot ref="myPivot" :createOnMounted="false"
+        resizeMode="container" :resizeDelayTime="100" /&gt;
+&lt;/template&gt;</code></pre>
+    <h3 id="vue-methods">9.3.3 메소드 호출과 이벤트</h3>
+    <p>
+        <code>myPivot.value</code>의 메소드는 피벗 ID를 자동으로 전달합니다.
+        <code>myPivot.value?.setGridData(data)</code>처럼 ID를 제외하고 호출하십시오.
+    </p>
+    <p>템플릿 이벤트는 피벗 생성 시 연결됩니다. 다음 코드는 위 예제에 셀 클릭 처리를 추가하는 부분입니다.</p>
+    <pre><code class="language-html">&lt;!-- 기존 AUIPivot 태그에 셀 클릭 처리기를 연결합니다. --&gt;
+&lt;AUIPivot ref="myPivot" :createOnMounted="false" @cellClick="onCellClick" /&gt;
+
+&lt;script setup lang="ts"&gt;
+import type { CellClickEvent } from 'aui-pivot';
+// 기존 script setup 블록에 추가합니다.
+function onCellClick(event: CellClickEvent) {
+    console.log(event.value);
+}
+&lt;/script&gt;</code></pre>
+    <p>
+        같은 이벤트를 템플릿과 <code>bind()</code> 양쪽에 중복 등록하지 마십시오.<br />
+        생성 후 새로 등록할 때는 <code>myPivot.value?.bind('cellClick', handler)</code>를 사용하고, 선택적으로 해제할
+        때는 동일한 함수 참조를 <code>unbind('cellClick', handler)</code>에 전달합니다.
+    </p>
+    <p>
+        <a href="../Pivot/Events.html#pivotBegin">pivotBegin</a>,
+        <a href="../Pivot/Events.html#headerClick">headerClick</a>,
+        <a href="../Pivot/Events.html#contextMenu">contextMenu</a>는 처리기의 반환값을 사용합니다.<br />
+        템플릿에 함수 하나를 연결하고 그 함수에서 값을 직접 반환하십시오. 각 이벤트의 취소 및 반환 규칙은 API 문서를
+        따릅니다.
+    </p>
+
+    <h3 id="vue-lifecycle">9.3.4 생성과 해제 시점</h3>
+    <ul>
+        <li>
+            <code>createOnMounted</code>의 기본값은 <code>true</code>입니다. 자동 생성 시에는
+            <code>:pivotProps="pivotProps"</code>를 전달하고, 부모의 <code>onMounted</code>에서 필드와 데이터를
+            설정합니다.<br />
+            이 경우 <code>create()</code>를 다시 호출하지 않습니다.
+        </li>
+        <li>
+            컴포넌트가 해제되면 피벗과 크기 감지 작업도 정리됩니다. 예제는 <code>onBeforeUnmount</code>에서 요청 결과의
+            적용도 중지합니다.
+        </li>
+        <li>
+            Vue의 반응형 <code>pivotProps</code>를 바꾸는 것만으로 생성된 피벗이 갱신되지는 않습니다.
+            <a href="../Pivot/Methods.html#setProp">setProp()</a>와
+            <a href="../Pivot/Methods.html#refresh">refresh()</a> 등 해당 API를 사용합니다.
+        </li>
+    </ul>
+    <p>
+        <code>KeepAlive</code>와 <code>resizeMode="container"</code>를 함께 쓰면 비활성화 중에는 크기 관찰을 멈추고,
+        다시 활성화될 때 관찰을 재개합니다. 피벗과 기존 데이터는 유지됩니다.<br />
+        <code>window</code> 모드에서는 창 크기가 바뀌지 않은 탭 전환을 자동 감지하지 않으므로 표시 후
+        <code>resize()</code>를 호출하십시오.
+    </p>
+    <p>
+        <code>v-if</code>로 만든 영역은 <code>nextTick()</code> 이후 실제 DOM이 연결되어 있는지 확인합니다. 전환 효과가
+        있다면 표시 전환이 끝난 시점에 <code>resize()</code>를 호출하십시오.<br />
+        <code>nextTick()</code>만으로 애니메이션 완료가 보장되지는 않습니다.
+    </p>
+    <p>
+        Vue 컴포넌트에는 <code>waitPortalRendering</code> 속성이 없습니다.<br />
+        서버 렌더링 환경에서는 엔진과 컴포넌트를 클라이언트에서만 불러오고, DOM이 준비된 뒤 생성하십시오.<br />
+        자세한 크기 설정은 <a href="#size">크기 감지와 표시 시점</a>을 참고하십시오.
+    </p>
+
+    <h2 id="component-props">9.4 서브 컴포넌트 속성</h3>
+    <p>
+        다음은 React와 Vue 서브 컴포넌트에 직접 지정하는 속성입니다. 피벗 엔진의 속성은 <code>pivotProps</code> 또는
+        수동 생성 시 <code>create()</code>에 전달합니다.
+    </p>
+    <!-- 작은 화면에서는 속성 이름과 타입을 잘게 나누지 않고 표만 가로로 탐색합니다. -->
+    <div class="framework-props-scroll" role="region" aria-label="컴포넌트 속성 표" tabindex="0">
+        <table class="framework-props-table">
+            <thead>
+                <tr>
+                    <th scope="col">속성</th>
+                    <th scope="col">타입</th>
+                    <th scope="col">기본값</th>
+                    <th scope="col">지원 컴포넌트</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href="#autoResize">autoResize</a></td>
+                    <td>boolean</td>
+                    <td>true</td>
+                    <td>React, Vue의 JavaScript 및 TypeScript</td>
+                </tr>
+                <tr>
+                    <td><a href="#createOnMounted">createOnMounted</a></td>
+                    <td>boolean</td>
+                    <td>true</td>
+                    <td>네 컴포넌트 공통</td>
+                </tr>
+                <tr>
+                    <td><a href="#name">name</a></td>
+                    <td>string</td>
+                    <td>빈 문자열</td>
+                    <td>네 컴포넌트 공통</td>
+                </tr>
+                <tr>
+                    <td><a href="#pivotProps">pivotProps</a></td>
+                    <td>Props 객체</td>
+                    <td>{}</td>
+                    <td>네 컴포넌트 공통</td>
+                </tr>
+                <tr>
+                    <td><a href="#resizeDelayTime">resizeDelayTime</a></td>
+                    <td>number</td>
+                    <td>300 (밀리초)</td>
+                    <td>네 컴포넌트 공통</td>
+                </tr>
+                <tr>
+                    <td><a href="#resizeMode">resizeMode</a></td>
+                    <td>"window" | "container"</td>
+                    <td>"window"</td>
+                    <td>네 컴포넌트 공통</td>
+                </tr>
+                <tr>
+                    <td><a href="#waitPortalRendering">waitPortalRendering</a></td>
+                    <td>boolean</td>
+                    <td>false</td>
+                    <td>React JavaScript 및 TypeScript만 지원</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 id="autoResize">9.4.1 autoResize</h3>
+    <p>
+        컴포넌트가 크기 변경을 감지해 피벗 크기를 자동으로 맞출지 지정합니다. 기본값은 <code>true</code>입니다.<br />
+        <code>false</code>이면 자동 감지를 사용하지 않으며, 필요할 때 ref의 <code>resize()</code>를 직접 호출합니다.
+    </p>
+    <h3 id="createOnMounted">9.4.2 createOnMounted</h3>
+    <p>
+        마운트 시 <code>pivotProps</code>로 피벗을 자동 생성합니다. 기본값은 <code>true</code>입니다.
+        <code>false</code>이면 DOM이 준비된 후 ref의 <code>create(pivotProps)</code>를 호출하십시오.<br />
+        행, 열, 값 설정과 데이터 입력은 생성 이후에 수행합니다.
+    </p>
+    <h3 id="name">9.4.3 name</h3>
+    <p>
+        피벗 영역의 DOM ID에 사용할 이름입니다. 기본값인 빈 문자열이면 이름을 자동 생성합니다.<br />
+        명시한 경우 <code>aui-pivot-wrap-이름</code> 형태가 되므로 같은 화면에서 중복되지 않는 값을 사용하십시오. 생성
+        후 이름을 바꾸지 않습니다.<br />
+        실제 피벗 ID는 ref의 <code>getPID()</code>로 확인할 수 있습니다.
+    </p>
+    <h3 id="pivotProps">9.4.4 pivotProps</h3>
+    <p>
+        자동 생성 시 사용할 <a href="../Pivot/Properties.html">피벗 엔진 속성</a>입니다. 기본값은 빈 객체입니다.
+        TypeScript에서는 <code>aui-pivot</code>의 <code>Props</code>로 선언합니다.<br />
+        수동 생성에서는 이 객체를 <code>create(pivotProps)</code>에 직접 전달합니다.
+    </p>
+    <pre><code class="language-javascript">// 너비를 생략하면 부모 영역에 맞춥니다. 높이 단위는 픽셀입니다.
+const pivotProps = {
+    height: 400,
+    layoutType: 'table',
+    showPivotPanel: true
+};</code></pre>
+    <p>
+        생성 후 객체 변경을 자동으로 반영하지 않습니다. <code>setProp()</code> 등 해당 속성의 적용 API를 사용하십시오.
+    </p>
+    <h3 id="resizeDelayTime">9.4.5 resizeDelayTime</h3>
+    <p>
+        크기 변경을 감지한 뒤 자동 조정을 실행하기까지 기다리는 시간입니다. 기본값은 <code>300</code>밀리초입니다.<br />
+        <code>0</code> 이상의 숫자를 지정하며, 연속 알림은 마지막 알림 기준으로 합칩니다. 수동
+        <code>resize()</code> 호출에는 이 대기 시간을 적용하지 않습니다.
+    </p>
+    <h3 id="resizeMode">9.4.6 resizeMode</h3>
+    <p><code>autoResize=true</code>일 때 감지 대상을 지정합니다. 기본값은 <code>"window"</code>입니다.</p>
+    <ul>
+        <li><code>window</code>: 브라우저 창의 resize 이벤트를 감지합니다.</li>
+        <li>
+            <code>container</code>: ResizeObserver로 피벗 호스트 영역의 크기를 감지합니다.<br />
+            사이드바, 분할 화면, CSS 레이아웃처럼 창 크기가 그대로인 상태의 영역 변경에 사용합니다.
+        </li>
+    </ul>
+    <p>
+        컨테이너 모드에서는 <code>resizeDelayTime</code> 이후 다음 화면 프레임에서 크기를 맞춥니다.<br />
+        숨겨져 있거나 화면에서 해제된 영역, 크기가 같은 반복 알림은 처리하지 않습니다.<br />
+        ResizeObserver를 지원하지 않는 환경에서는 창 resize 이벤트로 대체합니다.
+    </p>
+    <pre><code class="language-jsx">// React: 자동 생성과 부모 영역 크기 감지를 함께 사용합니다.
+&lt;AUIPivot ref={myPivot} pivotProps={pivotProps}
+    resizeMode="container" resizeDelayTime={100} /&gt;</code></pre>
+    <pre><code class="language-html">&lt;!-- Vue: 숫자와 객체 속성은 바인딩으로 전달합니다. --&gt;
+&lt;AUIPivot ref="myPivot" :pivotProps="pivotProps"
+    resizeMode="container" :resizeDelayTime="100" /&gt;</code></pre>
+    <h3 id="waitPortalRendering">9.4.7 waitPortalRendering</h3>
+    <p>
+        React에서 자동 생성을 한 프레임 늦춥니다. 기본값은 <code>false</code>이며 React JavaScript와 TypeScript만
+        지원합니다.<br />
+        <code>createOnMounted=true</code>일 때 적용됩니다. 수동 <code>create()</code>에는 적용되지 않습니다.
+    </p>
+    <p>
+        이 설정은 Portal의 생성 시점을 조절하는 옵션입니다. 애니메이션이나 숨겨진 탭의 표시 완료까지 기다리는 설정은
+        아닙니다.
+    </p>
+    <h3 id="size">9.4.8 크기 설정과 표시 시점</h3>
+    <p>
+        <code>width</code>, <code>height</code>는 피벗 엔진의 숫자 속성입니다. 부모 너비에 맞추려면 <code>width</code>를
+        생략하십시오. <code>width: "100%"</code>와 같은 문자열을 넣지 않습니다.<br />
+        부모 영역에는 실제 너비가 있어야 하며 Flex나 Grid 항목이 줄어들어야 할 때는 <code>min-width: 0</code>을
+        지정합니다.
+    </p>
+    <p>
+        일정한 높이가 필요하면 <code>height</code>에 픽셀 값을 지정합니다.<br />
+        컨테이너 감지는 피벗의 데이터에 따른 자동 높이 정책을 바꾸거나 부모 높이를 항상 채우도록 강제하지 않습니다.
+    </p>
+    <p>
+        숨겨진 탭, 접힌 패널이나 이동 중인 모달은 표시된 후 크기를 맞추십시오.<br />
+        컨테이너 모드는 영역이 다시 나타나면 재측정하며, 수동으로 제어할 때는 표시 전환이 끝난 뒤
+        <code>resize()</code>를 호출합니다.
+    </p>
+    <p>
+        래퍼 속성은 생성 전 설정을 기준으로 사용합니다. 생성 후 감지 방식을 바꾸어야 하면 새 설정으로 컴포넌트를 다시
+        마운트하십시오.<br />
+        Vue의 <code>KeepAlive</code> 동작은 <a href="#vue-lifecycle">생성과 해제 시점</a>을 참고하십시오.
+    </p>
+
     <p><a href="../index.html">문서 홈으로 돌아가기</a></p>
 </main>
 <footer class="docs-footer">

@@ -1,6 +1,6 @@
 /**
- * AUIPivotReact.tsx v1.2.20261014
- * Based on AUIPivot v2.8.2
+ * AUIPivotReact.tsx v1.2.20261028
+ * Based on AUIPivot v2.8.3
  * Copyright © AUISoft Co., Ltd.
  * www.auisoft.net
  */
@@ -189,6 +189,16 @@ class AUIPivot<Row extends object = IPivot.DataItem> extends React.Component<AUI
 		return this.pid;
 	}
 	// 공개 API의 인수, 반환값과 이벤트 타입을 그대로 연결합니다.
+	// 알림 이름에 맞는 페이로드 타입과 함수 참조를 그대로 전달합니다.
+	on<K extends IPivot.NotificationEventName>(name: K | readonly K[], handler: IPivot.NotificationEventHandler<K>): void {
+		return this.__api.on(this.pid, name, handler);
+	}
+
+	// 알림 이름에 맞는 페이로드 타입과 함수 참조를 그대로 전달합니다.
+	off<K extends IPivot.NotificationEventName>(name: K | readonly K[], handler?: IPivot.NotificationEventHandler<K>): void {
+		return this.__api.off(this.pid, name, handler);
+	}
+
 	bind<K extends IPivot.EventName>(name: K | readonly K[], handler: IPivot.EventHandler<K>): void {
 		return this.__api.bind(this.pid, name, handler);
 	}

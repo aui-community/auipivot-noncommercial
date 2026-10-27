@@ -114,6 +114,37 @@
         AUIPivot.setRowFields(myPivotID, ["REGION", "NAME", "MODEL"]);
         // 날짜 원본을 지정해 연, 반기, 분기와 월 구간을 사용할 수 있게 합니다.
         AUIPivot.setDateTypeField(myPivotID, "DATE");
+        // 필드 목록을 업무별 그룹으로 표시합니다. 그룹 제목을 누르면 접거나 펼칠 수 있습니다.
+        // 목록의 표시 구성만 지정하므로 현재 보고서의 행, 열, 값 배치는 바뀌지 않습니다.
+        AUIPivot.setFieldLayout(myPivotID, [
+            {
+                groupId: "sales",
+                labelText: "판매 정보",
+                children: [
+                    { dataField: "REGION" },
+                    { dataField: "PRICE" },
+                    { dataField: "COUNT" },
+                    { dataField: "TOTAL" },
+                    { dataField: "COST" }
+                ]
+            },
+            {
+                groupId: "vehicle",
+                labelText: "차량 정보",
+                children: [{ dataField: "NAME" }, { dataField: "MODEL" }, { dataField: "COLOR" }]
+            },
+            {
+                groupId: "date",
+                labelText: "판매일",
+                children: [
+                    { dataField: "DATE" },
+                    { dataField: "DATE_YEAR" },
+                    { dataField: "DATE_HALF" },
+                    { dataField: "DATE_QTR" },
+                    { dataField: "DATE_MONTH" }
+                ]
+            }
+        ]);
         // 열 필드를 바깥 분류부터 안쪽 분류 순서로 배치합니다.
         AUIPivot.setColumnFields(myPivotID, ["DATE_MONTH"]);
         // 값 필드별로 집계 연산과 표시 형식을 정합니다.
